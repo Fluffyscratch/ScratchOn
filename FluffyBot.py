@@ -919,7 +919,13 @@ async def topic(interact : discord.Interaction, topic : str):
 @bot.tree.command(name="s_download", description="Downloads the specified project")
 async def s_download(interact : discord.Interaction, project : str):
     id = ''.join(filter(str.isdigit, project))
+    await interact.response.defer()
     proj = sa.get_project(id)
+    proj.download(filename="FluffyBot/project.sb3")
+
+    await interact.followup.send(file=discord.File(fp="FluffyBot/project.sb3", filename=project.title()))
+
+    os.remove(path="FluffyBot/project.sb3")
 
 @bot.command()
 async def ping(ctx):
