@@ -923,7 +923,7 @@ async def s_download(interact : discord.Interaction, project : str):
     proj = sa.get_project(id)
     proj.download(filename="project.sb3", dir="FluffyBot")
 
-    await interact.followup.send(file=discord.File(fp="FluffyBot/project.sb3", filename=project.title()))
+    await interact.followup.send(file=discord.File(fp="FluffyBot/project.sb3", filename=project.title().sb3))
 
     os.remove(path="FluffyBot/project.sb3")
 
