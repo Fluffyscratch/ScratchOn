@@ -921,7 +921,7 @@ async def s_download(interact : discord.Interaction, project : str):
     id = ''.join(filter(str.isdigit, project))
     await interact.response.defer()
     proj = sa.get_project(id)
-    proj.download(filename="FluffyBot/project.sb3")
+    proj.download(filename="project.sb3", dir="FluffyBot")
 
     await interact.followup.send(file=discord.File(fp="FluffyBot/project.sb3", filename=project.title()))
 
