@@ -36,10 +36,10 @@ def answer(query : str, username : str):
     print("Answered !")
     return result
 
-print(answer(query="Hi !", username="Fluffygamer_"))
-
 # Setup scratch connection
-session = sa.login(username="-FluffyBot-", password="C00lscra@tchDCb0t")
+with open("FluffyBot_private/password.txt") as f:
+    session = sa.login(username="-FluffyBot-", password=f.readlines()[0])
+
 profile = session.connect_linked_user()
 events = session.connect_message_events()
 print("Logged in")

@@ -153,6 +153,17 @@ def update_pings():
 
         events.start()
 
+def limiter(text : str, limit : int):
+    i = 1
+    result = ""
+    for letter in text:
+        if i == limit + 1:
+            break
+        else:
+            result = f"{result}{letter}"
+        i = i + 1
+    return(f"{result}...")
+
 @bot.event
 async def on_ready():
     print("FluffyBot is ready !")
@@ -263,6 +274,7 @@ async def studio(interact : discord.Interaction, studio : str):
     msg = discord.Embed(title=studio.title)
     msg.set_image(url=studio.image_url)
     msg.set_thumbnail(url=studio.host().icon_url)
+    desc = limiter(text=studio.description, limit=500)
     msg.description=(
         f"Owned by **{studio.host()}**, with id {studio.host_id}\n"
         f"**{access}** can add projects.\n\n"
@@ -270,8 +282,7 @@ async def studio(interact : discord.Interaction, studio : str):
         f"- {studio.project_count} projects\n"
         f"- {studio.follower_count} followers\n"
         f"- {studio.manager_count} managers\n\n"
-        "**Description :**\n"
-        f"{studio.description}"
+        f"**Description :**\n{desc}"
     )
     msg.set_footer(text=f"Studio id : {studio.id}, link : https://scratch.mit.edu/studios/{studio.id}")
     msg.color = colour1
@@ -467,10 +478,11 @@ async def project(interact : discord.Interaction, project : str):
     msg.add_field(name="Faves per view (%) :", value=f"{round((project.favorites / project.views) * 100)} :star: / 100 :eye:")
     
     msg.color = colour1
+    desc = limiter(text=project.instructions, limit=500)
     msg.description = (
         f"Made by {project.author_name}, at {project.share_date} (Last modified at {project.last_modified})\n"
         f"<:Turbowarp:1330552274774396979>Turbowarp link : https://turbowarp.org/{id}\n\n"
-        f"**Description :**\n{project.instructions}\n\n"
+        f"**Description :**\n{desc}\n\n"
         f"**Notes and Credits :**\n{project.notes}\n\n"
         "<:scratchstats:1330550531864662018> Statistics :\n"
     )
