@@ -39,7 +39,7 @@ client = OpenAI(base_url="https://api.penguinai.tech/v1", api_key="sk-1234")
 
 betaembed = discord.Embed(title="Sorry, this command is still in beta !", color=discord.Color.red())
 
-contributors = ["EletrixTime", "TimMcCool", "Chatgaroux"]
+contributors = ["EletrixTime", "TimMcCool"]
 devs = []
 
 @tasks.loop(seconds=10)
@@ -830,7 +830,6 @@ async def about(interact : discord.Interaction):
     msg.description = (
         "<:together:1330551758166036500> **Contributors :**\n\n"
         "- <:fluffy:1340009005581598820>**Fluffy** <:separator:1333808735101124668> Basically the bot founder and owner, that coded ScratchOn.\n"
-        "- <:chagarou:1340009091929608232>**Chagarou** <:separator:1333808735101124668> The amazing artist that made ScratchOn's profile picture for completely free.\n"
         "- <:timmccool:1340009073990701238>**TimMcCool** <:separator:1333808735101124668> Maker of scratchattach, the python library this bot is mainly based on.\n"
         "- <:eletrixtime:1340009103019348020>**ElectrixTime** <:separator:1333808735101124668> Maker of ESDB, a really cool projects database that powers 2 really cool ScratchOn services.\n"
         f"- 🫵**You** <:separator:1333808735101124668> {bot.user.name} user, motivating me to continue updating this bot !\n"
