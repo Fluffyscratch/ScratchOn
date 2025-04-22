@@ -934,11 +934,11 @@ async def s_download(interact : discord.Interaction, project : str):
     id = ''.join(filter(str.isdigit, project))
     await interact.response.defer()
     proj = sa.get_project(id)
-    proj.download(filename="project.sb3", dir="ScratchOn")
+    proj.download(filename="project.sb3", dir="ScratchOn_private")
 
-    await interact.followup.send(file=discord.File(fp="ScratchOn/project.sb3", filename=project.title().sb3))
+    await interact.followup.send(file=discord.File(fp="ScratchOn_private/project.sb3", filename=project.title().sb3))
 
-    os.remove(path="ScratchOn/project.sb3")
+    os.remove(path="ScratchOn_private/project.sb3")
 
 @bot.command()
 async def ping(ctx):
