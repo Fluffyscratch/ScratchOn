@@ -22,8 +22,8 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 bot = commands.Bot(command_prefix="s ", intents=discord.Intents.all())
 bot_statuses = cycle(["Scratch", "Scratchattach", "ESDB", "Need help ? Do /help :)", "PP by Chagarou", "Follow Fluffygamer_ on scratch !", "Subscribe to Fluffyscratch on youtube !"])
 
-db = duckdb.connect('FluffyBot_private/fluffybot.duckdb')
-db.execute("""CREATE TABLE IF NOT EXISTS fluffybot (
+db = duckdb.connect('ScratchOn_private/ScratchOn.duckdb')
+db.execute("""CREATE TABLE IF NOT EXISTS ScratchOn (
            serverid INTEGER PRIMARY KEY,
            language TEXT DEFAULT 'en',
            ai BOOLEAN DEFAULT FALSE,
@@ -48,7 +48,7 @@ async def status():
 
 async def dc2scratch(username):
     # Use 'with' to ensure files are properly closed after use
-    with open("FluffyBot_private/dcusers.txt") as f1, open("FluffyBot_private/scusers.txt") as f2:
+    with open("ScratchOn_private/dcusers.txt") as f1, open("ScratchOn_private/scusers.txt") as f2:
         # Read lines once and store them in variables, stripping newlines or extra whitespace
         dc_users = [line.strip() for line in f1.readlines()]
         sc_users = [line.strip() for line in f2.readlines()]
@@ -83,7 +83,7 @@ async def replace_last_screenshot(url, screenshot_path='screenshot.png'):
 
 def get_server_data(server_id, column_name):
     """
-    Retrieves specific data from the 'fluffybot' table in the 'fluffybot.duckdb' database.
+    Retrieves specific data from the 'ScratchOn' table in the 'ScratchOn.duckdb' database.
 
     :param server_id: The server ID to look for.
     :param column_name: The column name whose value is requested.
@@ -91,7 +91,7 @@ def get_server_data(server_id, column_name):
     """
     try:
         # Parameterized query to fetch the desired column value
-        query = f"SELECT {column_name} FROM fluffybot WHERE serverid = ?"
+        query = f"SELECT {column_name} FROM ScratchOn WHERE serverid = ?"
         result = db.execute(query, [server_id]).fetchone()
 
         # Return the result if found, otherwise None
@@ -114,7 +114,7 @@ def remove_line_by_index(file_path, index_to_remove):
         file.writelines(lines)
 
 def update_pings():
-    with open("FluffyBot_private/users2ping.txt") as file:
+    with open("ScratchOn_private/users2ping.txt") as file:
         whatever = False
         temp = ...
         for item in file.readlines():
@@ -166,7 +166,7 @@ def limiter(text : str, limit : int):
 
 @bot.event
 async def on_ready():
-    print("FluffyBot is ready !")
+    print("ScratchOn is ready !")
     status.start()
     try:
         synced_commands = await bot.tree.sync()
@@ -177,7 +177,7 @@ async def on_ready():
 @bot.event
 async def on_guild_join(guild):
     db.execute("""
-    INSERT INTO fluffybot (serverid) VALUES (?)
+    INSERT INTO ScratchOn (serverid) VALUES (?)
     """, [guild.id])
 
 @bot.tree.command(name="modstatus", description="Tells if a project is either FE or NFE.")
@@ -229,7 +229,7 @@ async def help(interact : discord.Interaction):
             "🌐 **/webstats** ║ Gets statistics about Scratch, such as total projects count.\n"
             "<:youtube:1340017536409927711> **/yttoscratch** ║ Converts any youtube video link into a forum video link. Better for sharing youtube videos on Scratch.\n"
             "\n\nNeed assistance, have a suggestion or found a bug? Join our [🔧 support server](https://discord.gg/dgymF2Ye4k)!"
-            "\nBot profile picture by [<:chagarou:1340009091929608232>Chagarou](https://youtube.com/@Chagarou-MC), all rights reserved to them and the FluffyBot developement team."
+            "\nBot profile picture by [<:chagarou:1340009091929608232>Chagarou](https://youtube.com/@Chagarou-MC), all rights reserved to them and the ScratchOn developement team."
         ),
         color=colour1,
     )
@@ -305,9 +305,9 @@ async def s_profile(interact : discord.Interaction, user : str):
         elif usr.name in contributors:
             rank = "<:coolcat:1330548833209417821> Contributor"
         elif usr.name in devs:
-            rank = "<:code:1333794362315767870> FluffyBot dev"
+            rank = "<:code:1333794362315767870> ScratchOn dev"
         elif usr.name == "Fluffygamer_":
-            rank = "<:Verified:1333795453250175058> FluffyBot owner"
+            rank = "<:Verified:1333795453250175058> ScratchOn owner"
         else:
             rank = "<:ScratchCat:1330547949721223238> Scratcher"
             
@@ -387,7 +387,7 @@ async def bind(interact : discord.Interaction, username : str):
     user = sa.get_user(username)
     
     # Verifies if the user already has a binded account.
-    with open("FluffyBot_private/dcusers.txt") as file:
+    with open("ScratchOn_private/dcusers.txt") as file:
         for item in file.readlines():
             if item.strip() == target:
                 found = True
@@ -397,14 +397,14 @@ async def bind(interact : discord.Interaction, username : str):
     # If user already has a binded account, tell it to them. Else, bind user.
     if found == True:
         binded = await dc2scratch(interact.user.name)
-        await interact.followup.send(embed=discord.Embed(title="<:Nope:1333795409403052032>A scratch account is already linked to your discord account !<:Nope:1333795409403052032>", description=f"Your account is linked to **{binded}**.\n FluffyBot can't handle replacements yet.", color=discord.Color.red()))
+        await interact.followup.send(embed=discord.Embed(title="<:Nope:1333795409403052032>A scratch account is already linked to your discord account !<:Nope:1333795409403052032>", description=f"Your account is linked to **{binded}**.\n ScratchOn can't handle replacements yet.", color=discord.Color.red()))
     else:
         verificator = user.verify_identity()
         if verificator.check() == True:
-            with open("FluffyBot_private/dcusers.txt", "a+") as file:
+            with open("ScratchOn_private/dcusers.txt", "a+") as file:
                 file.write(f"{str(interact.user)}\n")
                 file.close()
-            with open("FluffyBot_private/scusers.txt", "a+") as file:
+            with open("ScratchOn_private/scusers.txt", "a+") as file:
                 file.write(f"{str(username)}\n")
                 file.close()
             await interact.followup.send(embed=discord.Embed(title="<:Verified:1333795453250175058>Success !<:Verified:1333795453250175058>", description=f"Your discord account is now linked to your scratch account, {username} !", color=discord.Color.green()))
@@ -417,7 +417,7 @@ async def toggle_ping(interact : discord.Interaction):
         target = str(interact.user)
         found = False
         i = -1
-        with open("FluffyBot_private/dcusers.txt") as file:
+        with open("ScratchOn_private/dcusers.txt") as file:
             for item in file.readlines():
                 i = i + 1
                 if item.strip() == target:
@@ -426,14 +426,14 @@ async def toggle_ping(interact : discord.Interaction):
             file.close()
         print(i)
         if found == True:
-            with open("FluffyBot_private/scusers.txt") as file:
+            with open("ScratchOn_private/scusers.txt") as file:
                 s_user = file.readlines()[i]
                 file.close()
             print(s_user)
             target = s_user
             found = False
             i = 0
-            with open("FluffyBot_private/users2ping.txt") as file:
+            with open("ScratchOn_private/users2ping.txt") as file:
                 for item in file.readlines():
                     i = i + 1
                     if item.strip() == target:
@@ -444,7 +444,7 @@ async def toggle_ping(interact : discord.Interaction):
                 update_pings()
                 await interact.response.send_message(embed=discord.Embed(title="Success !", description="Pinging when recieving a scratch message is now disabled for your account !", color=discord.Color.green()))
             else:
-                with open("FluffyBot_private/users2ping.txt", "a+") as file:
+                with open("ScratchOn_private/users2ping.txt", "a+") as file:
                     file.write(f"{s_user}\n")
                     update_pings()
                     await interact.response.send_message(embed=discord.Embed(title="Success !", description="Pinging when recieving a scratch message is now enabled for your account !", color=discord.Color.green()))
@@ -682,7 +682,7 @@ async def scratchgpt(interact : discord.Interaction, prompt : str):
         data = {
             "model": "gpt-4-turbo",
             "messages": [
-                {"role": "scratcher", "content": f"Answer this knowing you're a scratch assistant and number one scratch discord bot called FluffyBot and like scratching, coding and helping people : {prompt}"}
+                {"role": "scratcher", "content": f"Answer this knowing you're a scratch assistant and number one scratch discord bot called ScratchOn and like scratching, coding and helping people : {prompt}"}
             ]
         }
         response = requests.post(url=url, headers=headers, json=data)
@@ -710,7 +710,7 @@ embed_state = tuple
 button_states = {}
 
 # Slash command for settings
-@bot.tree.command(name="settings", description="Configure FluffyBot settings for this server")
+@bot.tree.command(name="settings", description="Configure ScratchOn settings for this server")
 async def settings(interaction: discord.Interaction):
     if interaction.user.name == "fluffygamer.":
         # Button current color state
@@ -795,7 +795,7 @@ async def on_interaction(interaction: discord.Interaction):
         # Acknowledge the button press
         await interaction.followup.send(f"The {button_id} color changed to {'green' if new_style == discord.ButtonStyle.green else 'red'}!", ephemeral=True)
 
-@bot.tree.command(name="about", description="Everything you need to know about FluffyBot !")
+@bot.tree.command(name="about", description="Everything you need to know about ScratchOn !")
 async def about(interact : discord.Interaction):
     from collections import Counter
 
@@ -826,13 +826,13 @@ async def about(interact : discord.Interaction):
     # The size of the set is the count of unique members
     total_unique_members = len(unique_members)
 
-    msg = discord.Embed(title="🤔 About FluffyBot <:BestBotEver:1333794479932575746> :")
+    msg = discord.Embed(title="🤔 About ScratchOn <:BestBotEver:1333794479932575746> :")
     msg.description = (
         "<:together:1330551758166036500> **Contributors :**\n\n"
-        "- <:fluffy:1340009005581598820>**Fluffy** <:separator:1333808735101124668> Basically the bot founder and owner, that coded FluffyBot.\n"
-        "- <:chagarou:1340009091929608232>**Chagarou** <:separator:1333808735101124668> The amazing artist that made FluffyBot's profile picture for completely free.\n"
+        "- <:fluffy:1340009005581598820>**Fluffy** <:separator:1333808735101124668> Basically the bot founder and owner, that coded ScratchOn.\n"
+        "- <:chagarou:1340009091929608232>**Chagarou** <:separator:1333808735101124668> The amazing artist that made ScratchOn's profile picture for completely free.\n"
         "- <:timmccool:1340009073990701238>**TimMcCool** <:separator:1333808735101124668> Maker of scratchattach, the python library this bot is mainly based on.\n"
-        "- <:eletrixtime:1340009103019348020>**ElectrixTime** <:separator:1333808735101124668> Maker of ESDB, a really cool projects database that powers 2 really cool FluffyBot services.\n"
+        "- <:eletrixtime:1340009103019348020>**ElectrixTime** <:separator:1333808735101124668> Maker of ESDB, a really cool projects database that powers 2 really cool ScratchOn services.\n"
         f"- 🫵**You** <:separator:1333808735101124668> {bot.user.name} user, motivating me to continue updating this bot !\n"
         f"\n📍 **Where is {bot.user.name} ?** 🌎\n\n"
         f"📈 {bot.user.name} is in {len(bot.guilds)} servers, and used by {total_unique_members} unique scratchers worldwide. <:together:1330551758166036500>\n"
@@ -842,7 +842,7 @@ async def about(interact : discord.Interaction):
         "- [🔧 Support server](https://discord.gg/dgymF2Ye4k)\n"
         f"⬆️ Help {bot.user.name} by upvoting it there ⬆️ :\n"
         "- [Top.gg](https://top.gg/bot/1300009645078876170)"
-        "- [Discordbotlist.com](https://discordbotlist.com/bots/fluffybot)\n"
+        "- [Discordbotlist.com](https://discordbotlist.com/bots/ScratchOn)\n"
         "- [Discordlist.gg](https://discordlist.gg/bot/1300009645078876170)\n"
         f"Or you can directly contribute to the code there : https://github.com/Fluffyscratch/ScratchOn"
     )
@@ -935,11 +935,11 @@ async def s_download(interact : discord.Interaction, project : str):
     id = ''.join(filter(str.isdigit, project))
     await interact.response.defer()
     proj = sa.get_project(id)
-    proj.download(filename="project.sb3", dir="FluffyBot")
+    proj.download(filename="project.sb3", dir="ScratchOn")
 
-    await interact.followup.send(file=discord.File(fp="FluffyBot/project.sb3", filename=project.title().sb3))
+    await interact.followup.send(file=discord.File(fp="ScratchOn/project.sb3", filename=project.title().sb3))
 
-    os.remove(path="FluffyBot/project.sb3")
+    os.remove(path="ScratchOn/project.sb3")
 
 @bot.command()
 async def ping(ctx):
@@ -949,6 +949,6 @@ async def ping(ctx):
     msg.color = discord.Color.dark_orange()
     await ctx.send(embed=msg)
 
-with open("FluffyBot_private/token.txt") as f:
+with open("ScratchOn_private/token.txt") as f:
     bot.run(f.readlines()[0])
     f.close()
