@@ -2,6 +2,8 @@ import scratchattach as sa
 from openai import OpenAI
 import time
 
+index = 0
+
 # AI Setup
 client = OpenAI(base_url="https://ai.aerioncloud.com/v1", api_key="sk=1234")
 
@@ -23,10 +25,14 @@ def answer(query : str, username : str):
         - query: a sample prompt
         - username: By what name the AI will call the user
     """
+    global index
+    global completion
     print("Answering...")
-    client.chat.completions.create(
+
+    completion = client.chat.completions.create(
     model="gpt-4-turbo",
     messages=[
+        {"role": "system", "content": "You are a helpful scratch.mit.edu assistant called FluffyBot."},
         {"role": f"scrather called {username}", "content": query}
     ]
 )
@@ -49,7 +55,7 @@ print("Logged in")
 def on_message(message):
     print("Message detected")
 
-    # time.sleep(120)
+    time.sleep(10)
 
     comment = profile.comments(page=1, limit=1)[0]
     

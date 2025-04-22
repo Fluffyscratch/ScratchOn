@@ -39,7 +39,7 @@ client = OpenAI(base_url="https://api.penguinai.tech/v1", api_key="sk-1234")
 
 betaembed = discord.Embed(title="Sorry, this command is still in beta !", color=discord.Color.red())
 
-contributors = ["EletrixTime", "TimMcCool"]
+contributors = ["EletrixTime", "TimMcCool", "Chatgaroux"]
 devs = []
 
 @tasks.loop(seconds=10)
@@ -833,16 +833,18 @@ async def about(interact : discord.Interaction):
         "- <:chagarou:1340009091929608232>**Chagarou** <:separator:1333808735101124668> The amazing artist that made FluffyBot's profile picture for completely free.\n"
         "- <:timmccool:1340009073990701238>**TimMcCool** <:separator:1333808735101124668> Maker of scratchattach, the python library this bot is mainly based on.\n"
         "- <:eletrixtime:1340009103019348020>**ElectrixTime** <:separator:1333808735101124668> Maker of ESDB, a really cool projects database that powers 2 really cool FluffyBot services.\n"
-        "- 🫵**You** <:separator:1333808735101124668> FluffyBot user, motivating me to continue updating this bot !\n"
-        "\n📍 **Where is FluffyBot ?** 🌎\n\n"
-        f"📈 FluffyBot is in {len(bot.guilds)} servers, and used by {total_unique_members} unique scratchers worldwide. <:together:1330551758166036500>\n"
+        f"- 🫵**You** <:separator:1333808735101124668> {bot.user.name} user, motivating me to continue updating this bot !\n"
+        f"\n📍 **Where is {bot.user.name} ?** 🌎\n\n"
+        f"📈 {bot.user.name} is in {len(bot.guilds)} servers, and used by {total_unique_members} unique scratchers worldwide. <:together:1330551758166036500>\n"
         f"{langs}"
         "\n\n🔗 **Links :**\n\n"
-        "- [➕ Add FluffyBot](https://discord.com/oauth2/authorize?client_id=1300009645078876170&permissions=274877990912&integration_type=0&scope=bot)\n"
+        f"- [➕ Add {bot.user.name}](https://discord.com/oauth2/authorize?client_id=1300009645078876170&permissions=274877990912&integration_type=0&scope=bot)\n"
         "- [🔧 Support server](https://discord.gg/dgymF2Ye4k)\n"
-        "⬆️ Help FluffyBot by upvoting it there ⬆️ :\n"
+        f"⬆️ Help {bot.user.name} by upvoting it there ⬆️ :\n"
+        "- [Top.gg](https://top.gg/bot/1300009645078876170)"
         "- [Discordbotlist.com](https://discordbotlist.com/bots/fluffybot)\n"
-        "- [Discordlist.gg](https://discordlist.gg/bot/1300009645078876170)"
+        "- [Discordlist.gg](https://discordlist.gg/bot/1300009645078876170)\n"
+        f"Or you can directly contribute to the code there : https://github.com/Fluffyscratch/ScratchOn"
     )
     msg.color = colour1
 
