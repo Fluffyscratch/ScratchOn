@@ -310,10 +310,19 @@ async def s_profile(interact : discord.Interaction, user : str):
             rank = "<:Verified:1333795453250175058> ScratchOn owner"
         else:
             rank = "<:ScratchCat:1330547949721223238> Scratcher"
-            
+        
+        with open("ScratchOn_private/scusers.txt") as f:
+            lines = [line.rstrip("\n") for line in f]
+            if usr.name in lines:
+                idx = lines.index(usr.name)
+                binded = open("ScratchOn_private/dcusers.txt").readlines()[idx].rstrip("\n")
+            else:
+                binded = "*No binded account found*"
+
         embeded_message.description = (
     f"**{rank}**\n\n"
-    f"*Joined scratch on {usr.join_date} - Lives in {usr.country}* \n"
+    f"**Account binded to :** {binded}\n"
+    f"*Joined scratch on {datetime.fromisoformat(usr.join_date.replace('Z', '+00:00')).strftime('%B %d, %Y at %H:%M:%S UTC')} - Lives in {usr.country}* \n"
     f"**{user}** has **{usr.message_count()}** message(s). \n\n"
     f"**<:ocular:1333041343668158515>Ocular :** \n"
     f"Color : {usr.ocular_status().get('color')} Status : {usr.ocular_status().get('status')}* \n\n"
@@ -333,8 +342,8 @@ async def s_profile(interact : discord.Interaction, user : str):
         embeded_message.color = colour1
         embeded_message.set_image(url=usr.featured_data()['project']['thumbnail_url'])
         await interact.followup.send(embed=embeded_message)
-    except:
-        await interact.followup.send(embed=discord.Embed(title="Error :", description="An error occured. Does this user exist ?<:giga404:1330551323610976339>", color=discord.Color.red()))
+    except sa.utils.exceptions.UserNotFound:
+        await interact.followup.send(embed=discord.Embed(title="Error :", description="This user doesn't exist !<:giga404:1330551323610976339>", color=discord.Color.red()))
 
 @bot.tree.command(name="check_username", description="Checks if a scratch username is already claimed or not !")
 async def check_username(interact : discord.Interaction, username : str):
@@ -379,37 +388,69 @@ async def followedby(interact : discord.Interaction, username : str, followed_by
     else:
         await interact.response.send_message(embed=discord.Embed(title=username, description=f"Is not followed by {followed_by} !", color=discord.Color.red()))
 
+# Memory storage for pending verifications (user_id: Verificator)
+pending_verifiers: dict[int, sa.site.user.Verificator] = {}
+
 @bot.tree.command(name="bind", description="Binds your scratch account to your discord account.")
-async def bind(interact : discord.Interaction, username : str):
+async def bind(interact: discord.Interaction, username: str):
     await interact.response.defer()
+    user_id = interact.user.id
     target = str(interact.user)
     found = False
-    user = sa.get_user(username)
-    
-    # Verifies if the user already has a binded account.
+
+    # Check if user is already linked
     with open("ScratchOn_private/dcusers.txt") as file:
         for item in file.readlines():
             if item.strip() == target:
                 found = True
                 break
-        file.close()
-    
-    # If user already has a binded account, tell it to them. Else, bind user.
-    if found == True:
+
+    if found:
         binded = await dc2scratch(interact.user.name)
-        await interact.followup.send(embed=discord.Embed(title="<:Nope:1333795409403052032>A scratch account is already linked to your discord account !<:Nope:1333795409403052032>", description=f"Your account is linked to **{binded}**.\n ScratchOn can't handle replacements yet.", color=discord.Color.red()))
+        await interact.followup.send(embed=discord.Embed(
+            title="❌ A scratch account is already linked to your discord account!",
+            description=f"Your account is linked to **{binded}**.\nScratchOn can't handle replacements yet.",
+            color=discord.Color.red()
+        ))
+        return
+
+    # Get scratch user
+    user = sa.get_user(username)
+
+    # If user hasn't started verification
+    if user_id not in pending_verifiers:
+        v = user.verify_identity()
+        pending_verifiers[user_id] = v
+        await interact.followup.send(embed=discord.Embed(
+            title="⏳ Wait!",
+            description=f"To verify ownership, please comment **'{v.code}'** on this project: {v.projecturl}\nThen, run this command again.",
+            color=colour1
+        ))
+        return
+
+    # User already started verification; check now
+    v = pending_verifiers[user_id]
+    if v.check():
+        # Store binding
+        with open("ScratchOn_private/dcusers.txt", "a") as file:
+            file.write(f"{str(interact.user)}\n")
+        with open("ScratchOn_private/scusers.txt", "a") as file:
+            file.write(f"{str(username)}\n")
+
+        # Remove verifier from memory
+        del pending_verifiers[user_id]
+
+        await interact.followup.send(embed=discord.Embed(
+            title="✅ Success!",
+            description=f"Your Discord account is now linked to your Scratch account, **{username}**!",
+            color=discord.Color.green()
+        ))
     else:
-        verificator = user.verify_identity()
-        if verificator.check() == True:
-            with open("ScratchOn_private/dcusers.txt", "a+") as file:
-                file.write(f"{str(interact.user)}\n")
-                file.close()
-            with open("ScratchOn_private/scusers.txt", "a+") as file:
-                file.write(f"{str(username)}\n")
-                file.close()
-            await interact.followup.send(embed=discord.Embed(title="<:Verified:1333795453250175058>Success !<:Verified:1333795453250175058>", description=f"Your discord account is now linked to your scratch account, {username} !", color=discord.Color.green()))
-        else:
-            await interact.followup.send(embed=discord.Embed(title="<:wait:1333795784357056552>Wait !<:wait:1333795784357056552>", description=f"To be sure this scratch account is really yours, please comment **'{verificator.code}'** on this project : {verificator.projecturl}. Then, run this command again.", color=colour1))
+        await interact.followup.send(embed=discord.Embed(
+            title="⏳ Still waiting...",
+            description=f"Please comment **'{v.code}'** on this project: {v.projecturl}\nThen, run this command again.",
+            color=discord.Color.orange()
+        ))
 
 @bot.tree.command(name="toggle_ping", description="Enable or disable discord ping when recieving a new message. Requires binding.")
 async def toggle_ping(interact : discord.Interaction):

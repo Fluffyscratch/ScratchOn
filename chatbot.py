@@ -43,7 +43,7 @@ def answer(query : str, username : str):
     return result
 
 # Setup scratch connection
-with open("FluffyBot_private/password.txt") as f:
+with open("ScratchOn_private/password.txt") as f:
     session = sa.login(username="-FluffyBot-", password=f.readlines()[0])
 
 profile = session.connect_linked_user()
