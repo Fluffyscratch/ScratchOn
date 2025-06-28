@@ -68,7 +68,7 @@ async def replace_last_screenshot(url, screenshot_path='screenshot.png'):
         print(f"Deleted the previous screenshot: {screenshot_path}")
     
     # Launch headless browser using Pyppeteer
-    browser = await launch(headless=True)
+    browser = await launch(headless=True, executablePath="/usr/bin/chromium-browser")
     page = await browser.newPage()
     
     # Navigate to the URL
@@ -80,6 +80,51 @@ async def replace_last_screenshot(url, screenshot_path='screenshot.png'):
     
     # Close the browser
     await browser.close()
+
+TEMPLATE_PATH = "ScratchOn/scratchblocks_template.html"
+
+async def render_blocks_image(code: str, output_path="output.png"):
+    # Load the HTML template
+    with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    # Inject user code
+    html = html.replace(
+        "when green flag clicked\nsay [Hello world!]",
+        code.replace("<", "&lt;").replace(">", "&gt;").replace("\\n", "\n") #  Includes functional newlines
+    )
+
+    # Save modified HTML to a temporary file
+    temp_path = "ScratchOn/temp_scratchblocks.html"
+    with open(temp_path, "w", encoding="utf-8") as f:
+        f.write(html)
+
+    # Launch chromium browser
+    browser = await launch(
+        executablePath="/usr/bin/chromium-browser", # The pypeteer default path points to the wrong chromium version
+        headless=True,
+        args=["--no-sandbox"] # Required so chromium doesn't crash
+        )
+    page = await browser.newPage()
+
+    await page.setViewport({
+        "width": 800,
+        "height": 600,
+        "deviceScaleFactor": 2 # Improves output resolution
+    })
+
+    # Go to the temporary file
+    await page.goto(f"file://{os.path.abspath(temp_path)}")
+    # Wait for scratchblocks to load
+    await page.waitForFunction("typeof scratchblocks !== 'undefined'")
+    await page.waitForSelector(".scratchblocks")
+
+    # Screenshot the result
+    element = await page.querySelector(".preview")
+    await element.screenshot({"path": output_path, "omitBackground": True})
+    await browser.close()
+
+    return output_path
 
 def get_server_data(server_id, column_name):
     """
@@ -220,6 +265,7 @@ async def help(interact : discord.Interaction):
             "💻 **/project** ║ Gives a lot of useful information about a specific project.\n"
             "🎲 **/randomprojects** ║ Returns a pre-defined number of clickable random project titles. Powered by ESDB.\n"
             "📋 **/scratchactivity** ║ Find a user's past activity on scratch. Because of API limitations, sometimes you will see '.' as where an action took place. WARNING : TOO HIGH LIMIT = ERROR\n"
+            "<:catblock:1330552768171216897> **/scratchblocks** ║ Generates scratch-like blocks the same way the Scratch forums and wiki does. Uses [this syntax](https://en.scratch-wiki.info/wiki/Block_Plugin/Syntax).\n"
             "<:ScratchTeam:1330549427580178472> **/scratchteam** ║ Gets all scratch team members !\n"
             "<:tts:1344271467876974602> **/scratchtts** ║ Allows you to use text to speech... Using scratch's text to speech extension !\n"
             "<:ScratchCat:1330547949721223238> **/s_profile** ║ Allows you to look at someone's profile easily, with high precision.\n"
@@ -981,6 +1027,12 @@ async def s_download(interact : discord.Interaction, project : str):
     await interact.followup.send(file=discord.File(fp="ScratchOn_private/project.sb3", filename=project.title().sb3))
 
     os.remove(path="ScratchOn_private/project.sb3")
+
+@bot.tree.command(name="scratchblocks", description="allow you to render scratchblocks easily !")
+async def scratchblocks(interact: discord.Interaction, code: str):
+    await interact.response.defer()
+    filename = await render_blocks_image(code)
+    await interact.followup.send(file=discord.File(filename))
 
 @bot.command()
 async def ping(ctx):

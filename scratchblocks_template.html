@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="scratchblocks/build/scratchblocks.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        background: transparent;
+      }
+      .preview {
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <pre class="scratchblocks preview" id="block-code" style="background: none; max-width: fit-content;">
+when green flag clicked
+say [Hello world!]
+    </pre>
+
+    <script>
+      scratchblocks.renderMatching(".scratchblocks", {
+        style: "scratch3",
+        languages: ["en"],
+        inline: false
+      });
+    </script>
+  </body>
+</html>
