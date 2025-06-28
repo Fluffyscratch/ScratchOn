@@ -1,26 +1,66 @@
 import discord
-from discord.ext import commands, tasks
-from discord import app_commands
-from discord.ui import Button, Select, View
 import scratchattach as sa
-from scratchattach import MultiEventHandler
 import pprint
 import os
 import asyncio
-from pyppeteer import launch
-from datetime import datetime
-from itertools import cycle
 import requests
 import duckdb
 import sys
 import io
-from openai import OpenAI
 import re
+
+from discord.ext import commands, tasks
+from discord import app_commands
+from discord.ui import Button, Select, View
+from scratchattach import MultiEventHandler
+from pyppeteer import launch
+from datetime import datetime
+from itertools import cycle
+from openai import OpenAI
+
+#----------------------Variables----------------------
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 bot = commands.Bot(command_prefix="s ", intents=discord.Intents.all())
-bot_statuses = cycle(["Scratch", "Scratchattach", "ESDB", "Need help ? Do /help :)", "PP by Chagarou", "Follow Fluffygamer_ on scratch !", "Subscribe to Fluffyscratch on youtube !"])
+# The satuses the bot will cycle trough
+bot_statuses = cycle([
+    "Scratch",
+    "Scratchattach",
+    "ESDB",
+    "Need help ? Do /help :)",
+    "PP by Chagarou",
+    "Follow Fluffygamer_ on scratch !",
+    "Subscribe to Fluffyscratch on youtube !"
+])
+
+# The bot's theme colours
+colour1 = discord.Color(0xF6AB3C) # Scratch orange
+colour2 = discord.Color(0xffbe00) # Scratch gold ?
+colour3 = discord.Color(0x4e97fe) # Old scratch blue
+
+# Embed for experimental commands
+betaembed = discord.Embed(title="Sorry, this command is still in beta !", color=discord.Color.red())
+
+contributors = ["EletrixTime", "TimMcCool", "AJustEpic"]
+devs = []
+
+# AI client setup
+client = OpenAI(base_url="https://api.penguinai.tech/v1", api_key="sk-1234")
+
+# Memory storage for pending verifications (user_id: Verificator)
+pending_verifiers: dict[int, sa.site.user.Verificator] = {}
+
+# Path to the HTML template when generating scratchblocks
+TEMPLATE_PATH = "ScratchOn/scratchblocks_template.html"
+
+ai_state = tuple
+embed_state = tuple
+
+# Global dictionary to store button states
+button_states = {}
+
+#----------------------Database----------------------
 
 db = duckdb.connect('ScratchOn_private/ScratchOn.duckdb')
 db.execute("""CREATE TABLE IF NOT EXISTS ScratchOn (
@@ -31,25 +71,16 @@ db.execute("""CREATE TABLE IF NOT EXISTS ScratchOn (
 )
 """)
 
-colour1 = discord.Color(0xF6AB3C) # Scratch orange
-colour2 = discord.Color(0xffbe00) # Scratch gold ?
-colour3 = discord.Color(0x4e97fe) # Old scratch blue
+#----------------------Asynchronous Functions----------------------
 
-client = OpenAI(base_url="https://api.penguinai.tech/v1", api_key="sk-1234")
-
-betaembed = discord.Embed(title="Sorry, this command is still in beta !", color=discord.Color.red())
-
-contributors = ["EletrixTime", "TimMcCool"]
-devs = []
-
+# Statuses cycler
 @tasks.loop(seconds=10)
 async def status():
     await bot.change_presence(activity=discord.Game(next(bot_statuses)))
 
 async def dc2scratch(username):
-    # Use 'with' to ensure files are properly closed after use
     with open("ScratchOn_private/dcusers.txt") as f1, open("ScratchOn_private/scusers.txt") as f2:
-        # Read lines once and store them in variables, stripping newlines or extra whitespace
+        # Read lines once and store them in variables, stripping newlines and extra whitespace
         dc_users = [line.strip() for line in f1.readlines()]
         sc_users = [line.strip() for line in f2.readlines()]
 
@@ -67,8 +98,11 @@ async def replace_last_screenshot(url, screenshot_path='screenshot.png'):
         os.remove(screenshot_path)
         print(f"Deleted the previous screenshot: {screenshot_path}")
     
-    # Launch headless browser using Pyppeteer
-    browser = await launch(headless=True, executablePath="/usr/bin/chromium-browser")
+    # Launch chromium browser using Pyppeteer
+    browser = await launch(
+        headless=True,
+        executablePath="/usr/bin/chromium-browser"
+        )
     page = await browser.newPage()
     
     # Navigate to the URL
@@ -80,8 +114,6 @@ async def replace_last_screenshot(url, screenshot_path='screenshot.png'):
     
     # Close the browser
     await browser.close()
-
-TEMPLATE_PATH = "ScratchOn/scratchblocks_template.html"
 
 async def render_blocks_image(code: str, output_path="output.png"):
     # Load the HTML template
@@ -99,7 +131,7 @@ async def render_blocks_image(code: str, output_path="output.png"):
     with open(temp_path, "w", encoding="utf-8") as f:
         f.write(html)
 
-    # Launch chromium browser
+    # Launch chromium browser using Pypeteer
     browser = await launch(
         executablePath="/usr/bin/chromium-browser", # The pypeteer default path points to the wrong chromium version
         headless=True,
@@ -113,8 +145,9 @@ async def render_blocks_image(code: str, output_path="output.png"):
         "deviceScaleFactor": 2 # Improves output resolution
     })
 
-    # Go to the temporary file
+    # Navigate to the temporary file
     await page.goto(f"file://{os.path.abspath(temp_path)}")
+
     # Wait for scratchblocks to load
     await page.waitForFunction("typeof scratchblocks !== 'undefined'")
     await page.waitForSelector(".scratchblocks")
@@ -125,6 +158,8 @@ async def render_blocks_image(code: str, output_path="output.png"):
     await browser.close()
 
     return output_path
+
+#----------------------Regular Functions----------------------
 
 def get_server_data(server_id, column_name):
     """
@@ -146,15 +181,15 @@ def get_server_data(server_id, column_name):
         return None
 
 def remove_line_by_index(file_path, index_to_remove):
-    # Ouvrir le fichier en mode lecture
+    # Open file in read mode
     with open(file_path, 'r') as file:
         lines = file.readlines()
 
-    # Supprimer la ligne à l'indice spécifique
+    # Remove line at the specific index
     if 0 <= index_to_remove < len(lines):
         del lines[index_to_remove]
 
-    # Réécrire le fichier sans la ligne supprimée
+    # Rewrite the file without the removed line
     with open(file_path, 'w') as file:
         file.writelines(lines)
 
@@ -198,6 +233,7 @@ def update_pings():
 
         events.start()
 
+# Limit text to a certain length
 def limiter(text : str, limit : int):
     i = 1
     result = ""
@@ -207,7 +243,9 @@ def limiter(text : str, limit : int):
         else:
             result = f"{result}{letter}"
         i = i + 1
-    return(f"{result}...")
+    return(f"{result}...") # Indicates the limitation with "..."
+
+#----------------------Events----------------------
 
 @bot.event
 async def on_ready():
@@ -219,25 +257,80 @@ async def on_ready():
     except:
         print("Nah, I don't want to sync my commands today.")
 
+# When joining a server, add a settings line corresponding to them
 @bot.event
 async def on_guild_join(guild):
     db.execute("""
     INSERT INTO ScratchOn (serverid) VALUES (?)
     """, [guild.id])
 
+# Button interaction handlers
+@bot.event
+async def on_interaction(interaction: discord.Interaction):
+    if interaction.type == discord.InteractionType.component:
+        button_id = interaction.data['custom_id']
+
+        # Make sure the button_id exists in button_states
+        if button_id not in button_states:
+            # If it's not in button_states, initialize with a default value
+            button_states[button_id] = discord.ButtonStyle.red  # Default color
+
+        current_style = button_states[button_id]
+
+        # Toggle the button's color (green <-> red)
+        new_style = discord.ButtonStyle.green if current_style == discord.ButtonStyle.red else discord.ButtonStyle.red
+
+        # Update the state in button_states
+        button_states[button_id] = new_style
+
+        # Rebuild the button with the new style
+        if button_id == "ai_button":
+            new_button = Button(label="AI", style=new_style, custom_id="ai_button")
+        elif button_id == "embeds_button":
+            new_button = Button(label="Embeds", style=new_style, custom_id="embeds_button")
+
+        # Rebuild the view with the updated button
+        ai_button = Button(label="AI", style=button_states["ai_button"], custom_id="ai_button")
+        embeds_button = Button(label="Embeds", style=button_states["embeds_button"], custom_id="embeds_button")
+        language_select = Select(
+            placeholder="Select your language here",
+            options=[
+                discord.SelectOption(label="English", value="en"),
+                discord.SelectOption(label="Français", value="fr"),
+            ]
+        )
+
+        view = View()
+        view.add_item(ai_button)
+        view.add_item(embeds_button)
+        view.add_item(language_select)
+
+        # Edit the original message to reflect the updated button colors
+        await interaction.response.edit_message(view=view)
+
+        # Acknowledge the button press
+        await interaction.followup.send(f"The {button_id} color changed to {'green' if new_style == discord.ButtonStyle.green else 'red'}!", ephemeral=True)
+
+#----------------------Slash Commands----------------------
+
 @bot.tree.command(name="modstatus", description="Tells if a project is either FE or NFE.")
 async def modstatus(interact : discord.Interaction, project : str):
     id = ''.join(filter(str.isdigit, project))
     project = sa.get_project(id)
     
+    modstatus = project.moderation_status()
+
     embeded_msg = discord.Embed(title="This project is...")
     
-    if project.moderation_status() == "notsafe":
+    if modstatus == "notsafe":
         embeded_msg.description = "<:Nope:1333795409403052032>Not Safe (NFE) !<:Nope:1333795409403052032>"
         embeded_msg.color = discord.Color.red()
-    else:
+    elif modstatus == "safe":
         embeded_msg.description = "<:Verified:1333795453250175058>Safe (FE) !<:Verified:1333795453250175058>"
         embeded_msg.color = discord.Color.green()
+    else:
+        embeded_msg.description = "<:forumneutral:1341109236679053312>Not Reviewed (counts as FE) !<:forumneutral:1341109236679053312>"
+        embeded_msg.color = discord.Color.light_grey()
     
     embeded_msg.set_footer(text=f"Project ID : {id}")
     await interact.response.send_message(embed=embeded_msg)
@@ -251,7 +344,7 @@ async def help(interact : discord.Interaction):
             "🎉 EVENT COMMANDS 🗓️ :\n"
             "<:2025:1333042237876998224> **/2025** ║ Returns the current new year projects on trending !\n"
             "\n═══════════════════════════\n\n"
-            "<:New1:1333793269636661288><:New2:1333793304822808677> <:search:1333037655902130247> **/about** ║ Gives interesting facts and stats about this bot !\n"
+            "<:search:1333037655902130247> **/about** ║ Gives interesting facts and stats about this bot !\n"
             "🔗 **/bind** ║ Allows you to bind your scratch account to your discord account, through a simple authentication process.\n"
             "<:newscratcher:1330550984971259954> **/check_username** ║ Tells you if a username is available or not, so you can claim it if you want to!\n"
             "📧 **/embed** ║ Gives the embed version of a project, useful for websites.\n"
@@ -265,7 +358,7 @@ async def help(interact : discord.Interaction):
             "💻 **/project** ║ Gives a lot of useful information about a specific project.\n"
             "🎲 **/randomprojects** ║ Returns a pre-defined number of clickable random project titles. Powered by ESDB.\n"
             "📋 **/scratchactivity** ║ Find a user's past activity on scratch. Because of API limitations, sometimes you will see '.' as where an action took place. WARNING : TOO HIGH LIMIT = ERROR\n"
-            "<:catblock:1330552768171216897> **/scratchblocks** ║ Generates scratch-like blocks the same way the Scratch forums and wiki does. Uses [this syntax](https://en.scratch-wiki.info/wiki/Block_Plugin/Syntax).\n"
+            "<:New1:1333793269636661288><:New2:1333793304822808677> <:catblock:1330552768171216897> **/scratchblocks** ║ Generates scratch-like blocks the same way the Scratch forums and wiki does. Uses [this syntax](https://en.scratch-wiki.info/wiki/Block_Plugin/Syntax).\n"
             "<:ScratchTeam:1330549427580178472> **/scratchteam** ║ Gets all scratch team members !\n"
             "<:tts:1344271467876974602> **/scratchtts** ║ Allows you to use text to speech... Using scratch's text to speech extension !\n"
             "<:ScratchCat:1330547949721223238> **/s_profile** ║ Allows you to look at someone's profile easily, with high precision.\n"
@@ -288,23 +381,27 @@ async def embed(interact : discord.Interaction, project : str):
     
     link = project.embed_url
     embeded_msg = discord.Embed(title="This project is now embedded ! <:embed:1343565862077988904>", description=f"🔗 Link : {link}", color=colour1)
+
     await interact.response.send_message(embed=embeded_msg)
 
 @bot.tree.command(name="webstats", description="Returns statistics about scratch's website.")
 async def webstats(interact : discord.Interaction):
+    stats = sa.total_site_stats()
+
     embeded_message = discord.Embed(title=":bar_chart: Statistics about Scratch :bar_chart:")
     embeded_message.description = (
     f"**On scratch, there are :**\n\n"
-    f"- {sa.total_site_stats().get('PROJECT_COUNT')} projects 💻\n"
-    f"- {sa.total_site_stats().get('USER_COUNT')} users <:together:1330551758166036500>\n"
-    f"- {sa.total_site_stats().get('STUDIO_COUNT')} studios 🗂️\n\n"
-    f"**There are {sa.total_site_stats().get('COMMENT_COUNT')} comments 💬 :**\n\n"
-    f"- {sa.total_site_stats().get('PROFILE_COMMENT_COUNT')} are profile comments <:together:1330551758166036500>\n"
-    f"- {sa.total_site_stats().get('PROJECT_COMMENT_COUNT')} are project comments 💻\n"
-    f"- {sa.total_site_stats().get('STUDIO_COMMENT_COUNT')} are studio comments 🗂️"
+    f"- {stats.get('PROJECT_COUNT')} projects 💻\n"
+    f"- {stats.get('USER_COUNT')} users <:together:1330551758166036500>\n"
+    f"- {stats.get('STUDIO_COUNT')} studios 🗂️\n\n"
+    f"**There are {stats.get('COMMENT_COUNT')} comments 💬 :**\n\n"
+    f"- {stats.get('PROFILE_COMMENT_COUNT')} are profile comments <:together:1330551758166036500>\n"
+    f"- {stats.get('PROJECT_COMMENT_COUNT')} are project comments 💻\n"
+    f"- {stats.get('STUDIO_COMMENT_COUNT')} are studio comments 🗂️"
 )
     
     embeded_message.color = colour1
+
     await interact.response.send_message(embed=embeded_message)
 
 @bot.tree.command(name="studio", description="Reads informations about a studio.")
@@ -321,6 +418,7 @@ async def studio(interact : discord.Interaction, studio : str):
     msg.set_image(url=studio.image_url)
     msg.set_thumbnail(url=studio.host().icon_url)
     desc = limiter(text=studio.description, limit=500)
+
     msg.description=(
         f"Owned by **{studio.host()}**, with id {studio.host_id}\n"
         f"**{access}** can add projects.\n\n"
@@ -330,8 +428,10 @@ async def studio(interact : discord.Interaction, studio : str):
         f"- {studio.manager_count} managers\n\n"
         f"**Description :**\n{desc}"
     )
+
     msg.set_footer(text=f"Studio id : {studio.id}, link : https://scratch.mit.edu/studios/{studio.id}")
     msg.color = colour1
+
     await interact.response.send_message(embed=msg)
 
 @bot.tree.command(name="s_profile", description="Take a look at a scratcher's profile !")
@@ -412,10 +512,9 @@ async def yttoscratch(interact : discord.Interaction, link : str):
 
 @bot.tree.command(name="health", description="Gets health data about scratch.")
 async def scratchstatus(interact : discord.Interaction):
-    # The original description string
+    # The raw formated health data
     original_description = pprint.pformat(sa.get_health())
 
-    # Remove '{', '}', and make text between single quotes bold
     modified_description = re.sub(r"[{},]", "", original_description)  # Remove '{' and '}'
     modified_description = re.sub(r"'([^']+)'", r'**\1**', modified_description)  # Make text between single quotes bold
 
@@ -430,12 +529,17 @@ async def scratchstatus(interact : discord.Interaction):
 @bot.tree.command(name="followedby", description="Checks if a user is followed by another user !")
 async def followedby(interact : discord.Interaction, username : str, followed_by : str):
     if sa.get_user(username).is_followed_by(followed_by) == True:
-        await interact.response.send_message(embed=discord.Embed(title=username, description=f"Is followed by {followed_by} !", color=discord.Color.green()))
+        await interact.response.send_message(embed=discord.Embed(
+            title=username,
+            description=f"Is followed by {followed_by} !",
+            color=discord.Color.green()
+            ))
     else:
-        await interact.response.send_message(embed=discord.Embed(title=username, description=f"Is not followed by {followed_by} !", color=discord.Color.red()))
-
-# Memory storage for pending verifications (user_id: Verificator)
-pending_verifiers: dict[int, sa.site.user.Verificator] = {}
+        await interact.response.send_message(embed=discord.Embed(
+            title=username,
+            description=f"Is not followed by {followed_by} !",
+            color=discord.Color.red()
+            ))
 
 @bot.tree.command(name="bind", description="Binds your scratch account to your discord account.")
 async def bind(interact: discord.Interaction, username: str):
@@ -444,7 +548,7 @@ async def bind(interact: discord.Interaction, username: str):
     target = str(interact.user)
     found = False
 
-    # Check if user is already linked
+    # Check if user is already binded
     with open("ScratchOn_private/dcusers.txt") as file:
         for item in file.readlines():
             if item.strip() == target:
@@ -460,7 +564,6 @@ async def bind(interact: discord.Interaction, username: str):
         ))
         return
 
-    # Get scratch user
     user = sa.get_user(username)
 
     # If user hasn't started verification
@@ -498,48 +601,6 @@ async def bind(interact: discord.Interaction, username: str):
             color=discord.Color.orange()
         ))
 
-@bot.tree.command(name="toggle_ping", description="Enable or disable discord ping when recieving a new message. Requires binding.")
-async def toggle_ping(interact : discord.Interaction):
-    if interact.user.name == "fluffygamer.":
-        target = str(interact.user)
-        found = False
-        i = -1
-        with open("ScratchOn_private/dcusers.txt") as file:
-            for item in file.readlines():
-                i = i + 1
-                if item.strip() == target:
-                    found = True
-                    break
-            file.close()
-        print(i)
-        if found == True:
-            with open("ScratchOn_private/scusers.txt") as file:
-                s_user = file.readlines()[i]
-                file.close()
-            print(s_user)
-            target = s_user
-            found = False
-            i = 0
-            with open("ScratchOn_private/users2ping.txt") as file:
-                for item in file.readlines():
-                    i = i + 1
-                    if item.strip() == target:
-                        found = True
-                        break
-            if found == True:
-                remove_line_by_index("users2ping.txt", i - 1)
-                update_pings()
-                await interact.response.send_message(embed=discord.Embed(title="Success !", description="Pinging when recieving a scratch message is now disabled for your account !", color=discord.Color.green()))
-            else:
-                with open("ScratchOn_private/users2ping.txt", "a+") as file:
-                    file.write(f"{s_user}\n")
-                    update_pings()
-                    await interact.response.send_message(embed=discord.Embed(title="Success !", description="Pinging when recieving a scratch message is now enabled for your account !", color=discord.Color.green()))
-        else:
-            await interact.response.send_message(embed=discord.Embed(title="Error :", description="You need to bind your scratch account to use this command. To bind your scratch account, use /bind !", color=discord.Color.red()))
-    else:
-        await interact.response.send_message(embed=betaembed)
-
 @bot.tree.command(name="2025", description="Take a look at the best new year projects easily !")
 async def event(interact : discord.Interaction):
     message = ""
@@ -576,15 +637,6 @@ async def project(interact : discord.Interaction, project : str):
     msg.set_image(url=project.thumbnail_url)
     
     await interact.response.send_message(embed=msg)
-
-@bot.tree.command(name="remixtree", description="Gets a project's remix tree.")
-async def remixtree(interact : discord.Interaction, project : str):
-    if interact.user.name == "fluffygamer.":
-        id = ''.join(filter(str.isdigit, project))
-        asyncio.get_event_loop().run_until_complete(replace_last_screenshot(f"scratch.mit.edu/projects/{id}/remixtree"))
-        await interact.response.send_message(file=discord.File('screenshot.png'))
-    else:
-        await interact.response.send_message(embed=betaembed)
 
 @bot.tree.command(name="trendscore", description="Gets a project's trending potential, represented as a score number.")
 async def trendscore(interact : discord.Interaction, project : str):
@@ -713,7 +765,7 @@ async def activity(interact : discord.Interaction, user : str, limit : str):
         if type(item.target()) == sa.Studio:
             where = f"[{item.target().id}](https://scratch.mit.edu/studios/{item.target().id})"
         if type(item.target()) == sa.Comment:
-            where = "Comment (I ain't writing 100 lines to support comments links because of scratchattach limitations, sorry)"
+            where = "Comment (I ain't writing 100 lines to support comments links because of API limitations, sorry)"
         result = f"{result}{where}."
 
     msg.description = result
@@ -740,22 +792,6 @@ async def mutualfollowers(interact: discord.Interaction, user_1: str, user_2: st
         msg.description = desc
         msg.color = colour1
         await interact.followup.send(embed=msg)
-
-@bot.tree.command(name="recommend", description="Gives you recommended scratchers, projects or studios customised for you.")
-@app_commands.choices(type=[
-    app_commands.Choice(name="User", value="user"),
-    app_commands.Choice(name="Project", value="project"),
-    app_commands.Choice(name="Studio", value="studio")
-])
-async def recommend(interact : discord.Interaction, type : str):
-    if interact.user.name == "fluffygamer.":
-        scratch = dc2scratch(interact.user.name)
-        if not scratch == None:
-            sa.get_user(scratch)
-        else:
-            interact.response.send_message(embed=discord.Embed(title="Sorry, you need to /bind your account so we can recommend you things !", color=discord.Color.red()))
-    else:
-        await interact.response.send_message(embed=betaembed)
 
 @bot.tree.command(name="scratchgpt", description="EXPERIMENTAL - Chat with a powerful AI to get scratch related help !")
 async def scratchgpt(interact : discord.Interaction, prompt : str):
@@ -789,98 +825,6 @@ async def scratchgpt(interact : discord.Interaction, prompt : str):
             await interact.followup.send(embed=discord.Embed(color=discord.Color.red(), title=":x: Sorry, AI is not allowed on this server. Since you're a server admin, you can change this using /settings."))
         else:
             await interact.followup.send(embed=discord.Embed(color=discord.Color.red(), title=":x: Sorry, AI is not allowed on this server."))
-
-ai_state = tuple
-embed_state = tuple
-
-# Global dictionary to store button states
-button_states = {}
-
-# Slash command for settings
-@bot.tree.command(name="settings", description="Configure ScratchOn settings for this server")
-async def settings(interaction: discord.Interaction):
-    if interaction.user.name == "fluffygamer.":
-        # Button current color state
-        ai_state = discord.ButtonStyle.green if get_server_data(interaction.guild_id, "ai") else discord.ButtonStyle.red
-        embed_state = discord.ButtonStyle.green if get_server_data(interaction.guild_id, "embeds") else discord.ButtonStyle.red
-
-        # Create the embed (without content for now)
-        embed = discord.Embed(title="Settings", description="Please select your preferences.", color=discord.Color.blue())
-
-        # Create the buttons with initial states (green for AI and red for Embeds)
-        ai_button = Button(label="AI", style=ai_state, custom_id="ai_button")
-        embeds_button = Button(label="Embeds", style=embed_state, custom_id="embeds_button")
-
-        # Define the dropdown (Select menu)
-        language_select = Select(
-            placeholder="Select your language here",
-            options=[
-                discord.SelectOption(label="English", value="en"),
-                discord.SelectOption(label="Français", value="fr"),
-            ]
-        )
-
-        # Define the view (a container for buttons and dropdown)
-        view = View()
-        view.add_item(ai_button)
-        view.add_item(embeds_button)
-        view.add_item(language_select)
-
-        # Save initial button states to the global dictionary
-        button_states["ai_button"] = ai_state
-        button_states["embeds_button"] = embed_state
-
-        # Send the embed with the UI elements
-        await interaction.response.send_message(embed=embed, view=view)
-    else:
-        await interaction.response.send_message(embed=betaembed)
-
-# Button interaction handlers
-@bot.event
-async def on_interaction(interaction: discord.Interaction):
-    if interaction.type == discord.InteractionType.component:
-        button_id = interaction.data['custom_id']
-
-        # Make sure the button_id exists in button_states
-        if button_id not in button_states:
-            # If it's not in button_states, initialize with a default value
-            button_states[button_id] = discord.ButtonStyle.red  # Default color
-
-        current_style = button_states[button_id]
-
-        # Toggle the button's color (green <-> red)
-        new_style = discord.ButtonStyle.green if current_style == discord.ButtonStyle.red else discord.ButtonStyle.red
-
-        # Update the state in button_states
-        button_states[button_id] = new_style
-
-        # Rebuild the button with the new style
-        if button_id == "ai_button":
-            new_button = Button(label="AI", style=new_style, custom_id="ai_button")
-        elif button_id == "embeds_button":
-            new_button = Button(label="Embeds", style=new_style, custom_id="embeds_button")
-
-        # Rebuild the view with the updated button
-        ai_button = Button(label="AI", style=button_states["ai_button"], custom_id="ai_button")
-        embeds_button = Button(label="Embeds", style=button_states["embeds_button"], custom_id="embeds_button")
-        language_select = Select(
-            placeholder="Select your language here",
-            options=[
-                discord.SelectOption(label="English", value="en"),
-                discord.SelectOption(label="Français", value="fr"),
-            ]
-        )
-
-        view = View()
-        view.add_item(ai_button)
-        view.add_item(embeds_button)
-        view.add_item(language_select)
-
-        # Edit the original message to reflect the updated button colors
-        await interaction.response.edit_message(view=view)
-
-        # Acknowledge the button press
-        await interaction.followup.send(f"The {button_id} color changed to {'green' if new_style == discord.ButtonStyle.green else 'red'}!", ephemeral=True)
 
 @bot.tree.command(name="about", description="Everything you need to know about ScratchOn !")
 async def about(interact : discord.Interaction):
@@ -970,7 +914,7 @@ async def scratchtts(interact : discord.Interaction, text : str, voice : str, la
         file=audio_file
     )
 
-@bot.tree.command(name="forums", description="Check for topics in any forums category !")
+@bot.tree.command(name="forums", description="Check for topics in any forum category !")
 @app_commands.choices(category=[
     app_commands.Choice(name="Announcements", value=5),
     app_commands.Choice(name="New Scratchers", value=6),
@@ -1034,6 +978,115 @@ async def scratchblocks(interact: discord.Interaction, code: str):
     filename = await render_blocks_image(code)
     await interact.followup.send(file=discord.File(filename))
 
+#----------------------Experimental Commands----------------------
+
+@bot.tree.command(name="remixtree", description="Gets a project's remix tree.")
+async def remixtree(interact : discord.Interaction, project : str):
+    if interact.user.name == "fluffygamer.":
+        id = ''.join(filter(str.isdigit, project))
+        asyncio.get_event_loop().run_until_complete(replace_last_screenshot(f"scratch.mit.edu/projects/{id}/remixtree"))
+        await interact.response.send_message(file=discord.File('screenshot.png'))
+    else:
+        await interact.response.send_message(embed=betaembed)
+
+@bot.tree.command(name="toggle_ping", description="EXPERIMENTAL - Enable or disable discord ping when recieving a new message. Requires binding.")
+async def toggle_ping(interact : discord.Interaction):
+    if interact.user.name == "fluffygamer.":
+        target = str(interact.user)
+        found = False
+        i = -1
+        with open("ScratchOn_private/dcusers.txt") as file:
+            for item in file.readlines():
+                i = i + 1
+                if item.strip() == target:
+                    found = True
+                    break
+            file.close()
+        print(i)
+        if found == True:
+            with open("ScratchOn_private/scusers.txt") as file:
+                s_user = file.readlines()[i]
+                file.close()
+            print(s_user)
+            target = s_user
+            found = False
+            i = 0
+            with open("ScratchOn_private/users2ping.txt") as file:
+                for item in file.readlines():
+                    i = i + 1
+                    if item.strip() == target:
+                        found = True
+                        break
+            if found == True:
+                remove_line_by_index("users2ping.txt", i - 1)
+                update_pings()
+                await interact.response.send_message(embed=discord.Embed(title="Success !", description="Pinging when recieving a scratch message is now disabled for your account !", color=discord.Color.green()))
+            else:
+                with open("ScratchOn_private/users2ping.txt", "a+") as file:
+                    file.write(f"{s_user}\n")
+                    update_pings()
+                    await interact.response.send_message(embed=discord.Embed(title="Success !", description="Pinging when recieving a scratch message is now enabled for your account !", color=discord.Color.green()))
+        else:
+            await interact.response.send_message(embed=discord.Embed(title="Error :", description="You need to bind your scratch account to use this command. To bind your scratch account, use /bind !", color=discord.Color.red()))
+    else:
+        await interact.response.send_message(embed=betaembed)
+
+@bot.tree.command(name="settings", description="Configure ScratchOn settings for this server")
+async def settings(interaction: discord.Interaction):
+    if interaction.user.name == "fluffygamer.":
+        # Button current color state
+        ai_state = discord.ButtonStyle.green if get_server_data(interaction.guild_id, "ai") else discord.ButtonStyle.red
+        embed_state = discord.ButtonStyle.green if get_server_data(interaction.guild_id, "embeds") else discord.ButtonStyle.red
+
+        # Create the embed (without content for now)
+        embed = discord.Embed(title="Settings", description="Please select your preferences.", color=discord.Color.blue())
+
+        # Create the buttons with initial states (green for AI and red for Embeds)
+        ai_button = Button(label="AI", style=ai_state, custom_id="ai_button")
+        embeds_button = Button(label="Embeds", style=embed_state, custom_id="embeds_button")
+
+        # Define the dropdown (Select menu)
+        language_select = Select(
+            placeholder="Select your language here",
+            options=[
+                discord.SelectOption(label="English", value="en"),
+                discord.SelectOption(label="Français", value="fr"),
+            ]
+        )
+
+        # Define the view (a container for buttons and dropdown)
+        view = View()
+        view.add_item(ai_button)
+        view.add_item(embeds_button)
+        view.add_item(language_select)
+
+        # Save initial button states to the global dictionary
+        button_states["ai_button"] = ai_state
+        button_states["embeds_button"] = embed_state
+
+        # Send the embed with the UI elements
+        await interaction.response.send_message(embed=embed, view=view)
+    else:
+        await interaction.response.send_message(embed=betaembed)
+
+@bot.tree.command(name="recommend", description="Gives you recommended scratchers, projects or studios customised for you.")
+@app_commands.choices(type=[
+    app_commands.Choice(name="User", value="user"),
+    app_commands.Choice(name="Project", value="project"),
+    app_commands.Choice(name="Studio", value="studio")
+])
+async def recommend(interact : discord.Interaction, type : str):
+    if interact.user.name == "fluffygamer.":
+        scratch = dc2scratch(interact.user.name)
+        if not scratch == None:
+            sa.get_user(scratch)
+        else:
+            interact.response.send_message(embed=discord.Embed(title="Sorry, you need to /bind your account so we can recommend you things !", color=discord.Color.red()))
+    else:
+        await interact.response.send_message(embed=betaembed)
+
+#----------------------Other Commands----------------------
+
 @bot.command()
 async def ping(ctx):
     msg = discord.Embed(title="🏓 Pong !", description="Latency in ms :")
@@ -1041,6 +1094,8 @@ async def ping(ctx):
     msg.set_footer(text=f"Requested by {ctx.author.name}", icon_url=ctx.author.avatar)
     msg.color = discord.Color.dark_orange()
     await ctx.send(embed=msg)
+
+#----------------------Startup----------------------
 
 with open("ScratchOn_private/token.txt") as f:
     bot.run(f.readlines()[0])
