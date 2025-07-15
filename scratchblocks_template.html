@@ -21,9 +21,16 @@ say [Hello world!]
     </pre>
 
     <script>
+      const LANGS = [
+    "am","ar","az","eu","bg","ca","hr","cs","da","nl","en",
+    "et","fi","fr","gl","de","el","he","hu","is","id","ga","it","ja","ko",
+    "lv","lt","mi","nb","fa","pl","pt","ro","ru","gd","sr","sk","sl","es",
+    "sv","th","tr","uk","vi","cy","zu"
+];
+
       scratchblocks.renderMatching(".scratchblocks", {
         style: "scratch3",
-        languages: ["en", "fr"],
+        languages: LANGS,
         inline: false
       });
     </script>
