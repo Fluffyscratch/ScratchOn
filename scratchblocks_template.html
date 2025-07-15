@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <script src="scratchblocks/build/scratchblocks.min.js"></script>
+    <script src="scratchblocks/build/translations-all.js"></script>
     <style>
       body {
         margin: 0;
@@ -20,9 +21,10 @@ say [Hello world!]
     </pre>
 
     <script>
+      scratchblocks.loadLanguages({ fr: window.scratchblocksLocales.fr });
       scratchblocks.renderMatching(".scratchblocks", {
         style: "scratch3",
-        languages: ["en"],
+        languages: ['en', 'fr'],
         inline: false
       });
     </script>
