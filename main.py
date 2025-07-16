@@ -115,7 +115,7 @@ async def replace_last_screenshot(url, screenshot_path='screenshot.png'):
     # Close the browser
     await browser.close()
 
-async def render_blocks_image(code: str, style: str, output_path="output.png"):
+async def render_blocks_image(code: str, style: str, output_path="ScratchOn_private/blocks.png"):
     # Load the HTML template
     with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
         html = f.read()
@@ -127,10 +127,23 @@ async def render_blocks_image(code: str, style: str, output_path="output.png"):
     )
 
     # Add chosen style
-    html = html.replace('style: "scratch3"', f'style: "{style}"')
+    html = html.replace(
+        'style: "scratch3"', 
+        f'style: "{style}"'
+    )
+
+    # Update scratchblocks path
+    html = html.replace(
+        'scratchblocks/build/scratchblocks.min.js',
+        '../ScratchOn/scratchblocks/build/scratchblocks.min.js'
+    )
+    html = html.replace(
+        'scratchblocks/build/translations-all.js',
+        '../ScratchOn/scratchblocks/build/translations-all.js'
+    )
 
     # Save modified HTML to a temporary file
-    temp_path = "ScratchOn/temp_scratchblocks.html"
+    temp_path = "ScratchOn_private/temp_scratchblocks.html"
     with open(temp_path, "w", encoding="utf-8") as f:
         f.write(html)
 
