@@ -115,7 +115,7 @@ async def replace_last_screenshot(url, screenshot_path='screenshot.png'):
     # Close the browser
     await browser.close()
 
-async def render_blocks_image(code: str, output_path="output.png"):
+async def render_blocks_image(code: str, style: str, output_path="output.png"):
     # Load the HTML template
     with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
         html = f.read()
@@ -125,6 +125,9 @@ async def render_blocks_image(code: str, output_path="output.png"):
         "when green flag clicked\nsay [Hello world!]",
         code.replace("<", "&lt;").replace(">", "&gt;").replace("\\n", "\n") #  Includes functional newlines
     )
+
+    # Add chosen style
+    html = html.replace('style: "scratch3"', f'style: "{style}"')
 
     # Save modified HTML to a temporary file
     temp_path = "ScratchOn/temp_scratchblocks.html"
@@ -973,9 +976,14 @@ async def s_download(interact : discord.Interaction, project : str):
     os.remove(path="ScratchOn_private/project.sb3")
 
 @bot.tree.command(name="scratchblocks", description="allow you to render scratchblocks easily !")
-async def scratchblocks(interact: discord.Interaction, code: str):
+@app_commands.choices(style=[
+    app_commands.Choice(name="Scratch 3.0", value="scratch3"),
+    app_commands.Choice(name="Scratch 3.0 (high-contrast)", value="scratch3-high-contrast"),
+    app_commands.Choice(name="Scratch 2.0", value="scratch2"),
+])
+async def scratchblocks(interact: discord.Interaction, code: str, style: str = "scratch3"):
     await interact.response.defer()
-    filename = await render_blocks_image(code)
+    filename = await render_blocks_image(code=code, style=style)
     await interact.followup.send(file=discord.File(filename))
 
 #----------------------Experimental Commands----------------------
