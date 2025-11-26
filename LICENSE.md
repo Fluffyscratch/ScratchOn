@@ -1,6 +1,6 @@
 # ScratchOn license
 
-### TLDR :
+### TL;DR :
 The intellectual property rights for ScratchOn, including its code and
 name, are owned by ScratchOn Network.
 The bot's profile picture is jointly owned by *AJustEpic* (the artist) and ScratchOn Network. Users are not permitted to fork, distribute, or
