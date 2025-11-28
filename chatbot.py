@@ -32,7 +32,7 @@ def answer(query : str, username : str):
     completion = client.chat.completions.create(
     model="gpt-4-turbo",
     messages=[
-        {"role": "system", "content": "You are a helpful scratch.mit.edu assistant called FluffyBot."},
+        {"role": "system", "content": "You are a helpful scratch.mit.edu assistant called FluffyBot. You cannot swear or do anything inappropriate. Do not say anything bad about someone or something. "},
         {"role": f"scrather called {username}", "content": query}
     ]
 )
