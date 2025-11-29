@@ -10,7 +10,7 @@ ScratchOn is an **extremely feature packed** discord bot, with **20+ commands** 
 Please take these disclaimers in consideration when using Scratchon :
 
 - ScratchOn can be viewed and contributed by anyone, but copying code, forking, or anything similar is strictly prohibited.
-- This code currently isn't organised at all. Sorry about that XD But feel free to help make it less messy !
+- This code is currently very dense, as cogs are not implemented yet. Sorry about that XD But feel free to help make it less messy !
 - When using this bot, you agree to its correspounding [TOS](https://tinyurl.com/39mr9rj8) and [Privacy Policy](https://tinyurl.com/y2dz8tpe).
 
 ## Why ScratchOn ?
