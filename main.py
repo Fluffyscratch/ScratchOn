@@ -1,64 +1,52 @@
+#----------------------Imports----------------------
+# Imports discord.py and submodules
 import discord
-import scratchattach as sa
-import pprint
-import os
-import asyncio
-import requests
-import duckdb
-import sys
-import io
-import re
-
 from discord.ext import commands, tasks
 from discord import app_commands
 from discord.ui import Button, Select, View
+
+# Imports scratchattach with event handler
+import scratchattach as scratch
 from scratchattach import MultiEventHandler
-from pyppeteer import launch
-from datetime import datetime
-from itertools import cycle
-from openai import OpenAI
+
+import asyncio # For some asynchronous tasks
+from datetime import datetime # For date and time handling
+import io # For input/output operations
+from itertools import cycle # For cycling through bot statuses
+import os # For operating system interactions
+import pprint # For pretty-printing data structures
+import re # For regular expressions
+import sys # For system-specific parameters and functions
+
+import duckdb # For database management
+import requests # For making HTTP requests
+from pyppeteer import launch # For headless browser operations
 
 #----------------------Variables----------------------
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8') # Ensures proper utf-8 encoding for prints
 
-bot = commands.Bot(command_prefix="s ", intents=discord.Intents.all())
-# The satuses the bot will cycle trough
+bot = commands.Bot(command_prefix="s ", intents=discord.Intents.all()) # Bot setup with all intents
+# The statuses the bot will cycle through
 bot_statuses = cycle([
-    "Scratch",
+    "Scratch API",
     "Scratchattach",
-    "ESDB",
     "Need help ? Do /help :)",
-    "PP by Chagarou",
-    "Follow Fluffygamer_ on scratch !",
-    "Subscribe to Fluffyscratch on youtube !"
+    "PFP by AJustEpic",
+    "Check out Fluffygamer_ on Scratch !",
+    "Watch Fluffyscratch on Youtube !"
 ])
 
 # The bot's theme colours
-colour1 = discord.Color(0xF6AB3C) # Scratch orange
-colour2 = discord.Color(0xffbe00) # Scratch gold ?
-colour3 = discord.Color(0x4e97fe) # Old scratch blue
+scratch_orange = discord.Color(0xF6AB3C) # Scratch orange
+scratch_gold = discord.Color(0xffbe00) # Scratch gold/yellow
+scratch_blue = discord.Color(0x4e97fe) # Old scratch blue
 
-# Embed for experimental commands
-betaembed = discord.Embed(title="Sorry, this command is still in beta !", color=discord.Color.red())
+# Embed for experimental commands (will be moved to experimental bot)
+betaembed = discord.Embed(title="Sorry, this command is still in beta ! You cannot use it yet.", color=discord.Color.red())
 
 contributors = ["EletrixTime", "TimMcCool", "AJustEpic"]
 devs = []
-
-# AI client setup
-client = OpenAI(base_url="https://api.penguinai.tech/v1", api_key="sk-1234")
-
-# Memory storage for pending verifications (user_id: Verificator)
-pending_verifiers: dict[int, sa.site.user.Verificator] = {}
-
-# Path to the HTML template when generating scratchblocks
-TEMPLATE_PATH = "ScratchOn/scratchblocks_template.html"
-
-ai_state = tuple
-embed_state = tuple
-
-# Global dictionary to store button states
-button_states = {}
 
 #----------------------Database----------------------
 
@@ -115,6 +103,8 @@ async def replace_last_screenshot(url, screenshot_path='screenshot.png'):
     # Close the browser
     await browser.close()
 
+# Path to the HTML template when generating scratchblocks
+TEMPLATE_PATH = "ScratchOn/scratchblocks_template.html"
 async def render_blocks_image(code: str, style: str, output_path="ScratchOn_private/blocks.png"):
     # Load the HTML template
     with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
@@ -217,10 +207,10 @@ def update_pings():
             if item == "\n" or item == "":
                     break
             if whatever == True:
-                temp = temp, sa.get_user(item.strip()).message_events()
+                temp = temp, scratch.get_user(item.strip()).message_events()
             else:
                 whatever = True
-                temp = sa.get_user(item.strip()).message_events()
+                temp = scratch.get_user(item.strip()).message_events()
         if len(file.readlines()) - 1  == 1:
             multievents = False
         else:
@@ -280,6 +270,8 @@ async def on_guild_join(guild):
     INSERT INTO ScratchOn (serverid) VALUES (?)
     """, [guild.id])
 
+# Global dictionary to store button states
+button_states = {}
 # Button interaction handlers
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
@@ -332,7 +324,7 @@ async def on_interaction(interaction: discord.Interaction):
 @bot.tree.command(name="modstatus", description="Tells if a project is either FE or NFE.")
 async def modstatus(interact : discord.Interaction, project : str):
     id = ''.join(filter(str.isdigit, project))
-    project = sa.get_project(id)
+    project = scratch.get_project(id)
     
     modstatus = project.moderation_status()
 
@@ -358,7 +350,7 @@ async def help(interact : discord.Interaction):
         title="<:giga404:1330551323610976339>Help",
         description=(
             "🎉 EVENT COMMANDS 🗓️ :\n"
-            "<:2025:1333042237876998224> **/2025** ║ Returns the current new year projects on trending !\n"
+            "<:SantaCat:1444277069826494557> **/christmas** ║ Returns the current christmas projects on trending !\n"
             "\n═══════════════════════════\n\n"
             "<:search:1333037655902130247> **/about** ║ Gives interesting facts and stats about this bot !\n"
             "🔗 **/bind** ║ Allows you to bind your scratch account to your discord account, through a simple authentication process.\n"
@@ -384,25 +376,25 @@ async def help(interact : discord.Interaction):
             "🌐 **/webstats** ║ Gets statistics about Scratch, such as total projects count.\n"
             "<:youtube:1340017536409927711> **/yttoscratch** ║ Converts any youtube video link into a forum video link. Better for sharing youtube videos on Scratch.\n"
             "\n\nNeed assistance, have a suggestion or found a bug? Join our [🔧 support server](https://discord.gg/dgymF2Ye4k)!"
-            "\nBot profile picture by [<:chagarou:1340009091929608232>Chagarou](https://youtube.com/@Chagarou-MC), all rights reserved to them and the ScratchOn developement team."
+            "\nBot profile picture by <:AJustEpic:1368235230749528276>AJustEpic, all rights reserved to them and ScratchOn Network."
         ),
-        color=colour1,
+        color=scratch_orange,
     )
 )
 
 @bot.tree.command(name="embed", description="Gives an embeded version of the specified project, mainly for websites.")
 async def embed(interact : discord.Interaction, project : str):
     id = ''.join(filter(str.isdigit, project))
-    project = sa.get_project(id)
+    project = scratch.get_project(id)
     
     link = project.embed_url
-    embeded_msg = discord.Embed(title="This project is now embedded ! <:embed:1343565862077988904>", description=f"🔗 Link : {link}", color=colour1)
+    embeded_msg = discord.Embed(title="This project is now embedded ! <:embed:1343565862077988904>", description=f"🔗 Link : {link}", color=scratch_orange)
 
     await interact.response.send_message(embed=embeded_msg)
 
 @bot.tree.command(name="webstats", description="Returns statistics about scratch's website.")
 async def webstats(interact : discord.Interaction):
-    stats = sa.total_site_stats()
+    stats = scratch.total_site_stats()
 
     embeded_message = discord.Embed(title=":bar_chart: Statistics about Scratch :bar_chart:")
     embeded_message.description = (
@@ -416,14 +408,14 @@ async def webstats(interact : discord.Interaction):
     f"- {stats.get('STUDIO_COMMENT_COUNT')} are studio comments 🗂️"
 )
     
-    embeded_message.color = colour1
+    embeded_message.color = scratch_orange
 
     await interact.response.send_message(embed=embeded_message)
 
 @bot.tree.command(name="studio", description="Reads informations about a studio.")
 async def studio(interact : discord.Interaction, studio : str):
     id = ''.join(filter(str.isdigit, studio))
-    studio = sa.get_studio(id)
+    studio = scratch.get_studio(id)
     
     if studio.open_to_all:
         access = "Everyone"
@@ -446,7 +438,7 @@ async def studio(interact : discord.Interaction, studio : str):
     )
 
     msg.set_footer(text=f"Studio id : {studio.id}, link : https://scratch.mit.edu/studios/{studio.id}")
-    msg.color = colour1
+    msg.color = scratch_orange
 
     await interact.response.send_message(embed=msg)
 
@@ -456,7 +448,7 @@ async def s_profile(interact : discord.Interaction, user : str):
     embeded_message = discord.Embed(title=user)
 
     try:
-        usr = sa.get_user(user)
+        usr = scratch.get_user(user)
         # Rank finder
         if usr.is_new_scratcher():
             rank = "<:newscratcher:1330550984971259954> New scratcher"
@@ -501,16 +493,16 @@ async def s_profile(interact : discord.Interaction, user : str):
         
         embeded_message.set_thumbnail(url=usr.icon_url)
         embeded_message.set_footer(text=f"{user}'s ID : {usr.id}")
-        embeded_message.color = colour1
+        embeded_message.color = scratch_orange
         embeded_message.set_image(url=usr.featured_data()['project']['thumbnail_url'])
         await interact.followup.send(embed=embeded_message)
-    except sa.utils.exceptions.UserNotFound:
+    except scratch.utils.exceptions.UserNotFound:
         await interact.followup.send(embed=discord.Embed(title="Error :", description="This user doesn't exist !<:giga404:1330551323610976339>", color=discord.Color.red()))
 
 @bot.tree.command(name="check_username", description="Checks if a scratch username is already claimed or not !")
 async def check_username(interact : discord.Interaction, username : str):
     msg = discord.Embed(title="This username is...")
-    if sa.check_username(username) == "valid username":
+    if scratch.check_username(username) == "valid username":
         msg.description = "Avaliable ! :partying_face: \n [Claim it](<https://scratch.mit.edu/join>) <:happycat:1330550203756970127>"
         msg.color = discord.Color.green()
     else:
@@ -520,17 +512,15 @@ async def check_username(interact : discord.Interaction, username : str):
 
 @bot.tree.command(name="newestprojects", description="Get all the newest published projects.")
 async def newestprojects(interact : discord.Interaction):
-    await interact.response.send_message(embed=discord.Embed(title="<:newscratcher:1330550984971259954>Newest scratch projects :", description=pprint.pformat(sa.newest_projects()), color=colour1))
+    await interact.response.send_message(embed=discord.Embed(title="<:newscratcher:1330550984971259954>Newest scratch projects :", description=pprint.pformat(scratch.newest_projects()), color=scratch_orange))
 
 @bot.tree.command(name="yttoscratch", description="Converts a youtube video link into a scratch forums link.")
 async def yttoscratch(interact : discord.Interaction, link : str):
-    await interact.response.send_message(embed=discord.Embed(title="Conversion finished ! Link :", description=sa.youtube_link_to_scratch(link), color=colour1))
-
+    await interact.response.send_message(embed=discord.Embed(title="Conversion finished ! Link :", description=scratch.youtube_link_to_scratch(link), color=scratch_orange))
 @bot.tree.command(name="health", description="Gets health data about scratch.")
 async def scratchstatus(interact : discord.Interaction):
     # The raw formated health data
-    original_description = pprint.pformat(sa.get_health())
-
+    original_description = pprint.pformat(scratch.get_health())
     modified_description = re.sub(r"[{},]", "", original_description)  # Remove '{' and '}'
     modified_description = re.sub(r"'([^']+)'", r'**\1**', modified_description)  # Make text between single quotes bold
 
@@ -538,13 +528,13 @@ async def scratchstatus(interact : discord.Interaction):
     embed=discord.Embed(
         title="❤️‍🩹 Scratch's health status :",
         description=f"{modified_description}\n\n## Tip : press control + F (or command + F on mac) and search the health data you're looking for.",
-        color=colour1
+        color=scratch_orange
     )
 )
 
 @bot.tree.command(name="followedby", description="Checks if a user is followed by another user !")
 async def followedby(interact : discord.Interaction, username : str, followed_by : str):
-    if sa.get_user(username).is_followed_by(followed_by) == True:
+    if scratch.get_user(username).is_followed_by(followed_by) == True:
         await interact.response.send_message(embed=discord.Embed(
             title=username,
             description=f"Is followed by {followed_by} !",
@@ -557,6 +547,8 @@ async def followedby(interact : discord.Interaction, username : str, followed_by
             color=discord.Color.red()
             ))
 
+# Memory storage for pending verifications (user_id: Verificator)
+pending_verifiers: dict[int, scratch.site.user.Verificator] = {}
 @bot.tree.command(name="bind", description="Binds your scratch account to your discord account.")
 async def bind(interact: discord.Interaction, username: str):
     await interact.response.defer()
@@ -580,7 +572,7 @@ async def bind(interact: discord.Interaction, username: str):
         ))
         return
 
-    user = sa.get_user(username)
+    user = scratch.get_user(username)
 
     # If user hasn't started verification
     if user_id not in pending_verifiers:
@@ -589,7 +581,7 @@ async def bind(interact: discord.Interaction, username: str):
         await interact.followup.send(embed=discord.Embed(
             title="⏳ Wait!",
             description=f"To verify ownership, please comment **'{v.code}'** on this project: {v.projecturl}\nThen, run this command again.",
-            color=colour1
+            color=scratch_orange
         ))
         return
 
@@ -617,18 +609,18 @@ async def bind(interact: discord.Interaction, username: str):
             color=discord.Color.orange()
         ))
 
-@bot.tree.command(name="2025", description="Take a look at the best new year projects easily !")
+@bot.tree.command(name="christmas", description="Take a look at the best christmas projects easily !")
 async def event(interact : discord.Interaction):
     message = ""
-    projects = sa.search_projects(query="new year", mode="trending", language="en", limit=10, offset=0)
+    projects = scratch.search_projects(query="christmas", mode="trending", language="en", limit=10, offset=0)
     for item in projects:
         message = f"{message}\n\n **[{item.title}](<https://scratch.mit.edu/projects/{item.id}>)** by [{item.author().username}](scratch.mit.edu/users/{item.author().username})"
-    await interact.response.send_message(embed=discord.Embed(title="<:2025:1333042237876998224>Top 10 trending new year projects<:2025:1333042237876998224> :", description=message, color=colour1))
+    await interact.response.send_message(embed=discord.Embed(title="<:SantaCat:1444277069826494557>Top 10 trending christmas projects<:SantaCat:1444277069826494557> :", description=message, color=scratch_orange))
 
 @bot.tree.command(name="project", description="Gets a lot of informations about a project.")
 async def project(interact : discord.Interaction, project : str):
     id = ''.join(filter(str.isdigit, project))
-    project = sa.get_project(id)
+    project = scratch.get_project(id)
     
     msg = discord.Embed(title=f"{project.title} :")
     
@@ -641,7 +633,7 @@ async def project(interact : discord.Interaction, project : str):
     msg.add_field(name="Loves per view (%) :", value=f"{round((project.loves / project.views) * 100)} :heart: / 100 :eye:")
     msg.add_field(name="Faves per view (%) :", value=f"{round((project.favorites / project.views) * 100)} :star: / 100 :eye:")
     
-    msg.color = colour1
+    msg.color = scratch_orange
     desc = limiter(text=project.instructions, limit=500)
     msg.description = (
         f"Made by {project.author_name}, at {project.share_date} (Last modified at {project.last_modified})\n"
@@ -657,7 +649,7 @@ async def project(interact : discord.Interaction, project : str):
 @bot.tree.command(name="trendscore", description="Gets a project's trending potential, represented as a score number.")
 async def trendscore(interact : discord.Interaction, project : str):
     id = ''.join(filter(str.isdigit, project))
-    proj = sa.get_project(id)
+    proj = scratch.get_project(id)
     diff = datetime.now() - datetime.strptime(proj.share_date, "%Y-%m-%dT%H:%M:%S.%fZ") # converts weird API date to python understandable date.
     await interact.response.send_message(embed=discord.Embed(title=f"<:popular:1330550904813916272>'{proj.title}' has a trending score of {round(proj.views / (diff.days * 24 + diff.seconds / 3600), 3)} !<:popular:1330550904813916272>", color=discord.Colour.gold()))
 
@@ -666,7 +658,7 @@ async def ontrend(interact : discord.Interaction, project : str, language : str,
     i = 0
     found = False
     id = ''.join(filter(str.isdigit, project))
-    for item in sa.explore_projects(language=language, limit=limit, mode="trending"):
+    for item in scratch.explore_projects(language=language, limit=limit, mode="trending"):
         i = i + 1
         if item.id == int(id):
             found = True
@@ -680,7 +672,7 @@ async def ontrend(interact : discord.Interaction, project : str, language : str,
 async def tips(interact : discord.Interaction):
     msg = discord.Embed()
     msg.title = "Here are some helpful tips and tricks for scratch !"
-    msg.color = colour1
+    msg.color = scratch_orange
     msg.description = (
     "**Cool emojis compatible with scratch:**\n\n"
     "☠️ ◼️ ◻️ ⚪ ⚫ 🔲 🔳 🔴 🔵 🔶 🔷 🔸 🔹 🟠 🟡 🟢 🔘 🟣 🟤 🔵 🟦 🟩 🟧 🟨 🟩\n"
@@ -740,7 +732,7 @@ async def randomprojects(interact : discord.Interaction, number :  int):
         else:
             msg.title = f"Here are {number} random projects !"
         msg.description = message
-        msg.color = colour1
+        msg.color = scratch_orange
         await interact.response.send_message(embed=msg)
     else:
         await interact.response.send_message(embed=discord.Embed(title=f"Whoops, looks like we've got an error {response.status_code} !<:giga404:1330551323610976339>", color=discord.Color.red()))
@@ -755,7 +747,7 @@ async def bettersearch(interact : discord.Interaction, query : str):
         msg = discord.Embed()
         msg.title = f"<:search:1333037655902130247>Results for '{query}' :"
         msg.description = message
-        msg.color = colour1
+        msg.color = scratch_orange
         await interact.response.send_message(embed=msg)
     else:
         await interact.response.send_message(embed=discord.Embed(title=f"Whoops, looks like we've got an error {response.status_code} !<:giga404:1330551323610976339>", color=discord.Color.red()))
@@ -765,22 +757,22 @@ async def activity(interact : discord.Interaction, user : str, limit : str):
 
     await interact.response.defer()
 
-    msg = discord.Embed(title="This user 's past scratch activity :", color=colour1)
+    msg = discord.Embed(title="This user 's past scratch activity :", color=scratch_orange)
     result = ""
     where = ""
 
-    for item in sa.get_user(user).activity(limit=limit):
+    for item in scratch.get_user(user).activity(limit=limit):
         result = (
             f"{result}\n"
             f"`{user}` made action {item.type} at "
         )
-        if type(item.target()) == sa.User:
+        if type(item.target()) == scratch.User:
             where = f"[{item.target().username}](https://scratch.mit.edu/users/{item.target().username})"
-        if type(item.target()) == sa.Project:
+        if type(item.target()) == scratch.Project:
             where = f"[{item.target().id}](https://scratch.mit.edu/projects/{item.target().id})"
-        if type(item.target()) == sa.Studio:
+        if type(item.target()) == scratch.Studio:
             where = f"[{item.target().id}](https://scratch.mit.edu/studios/{item.target().id})"
-        if type(item.target()) == sa.Comment:
+        if type(item.target()) == scratch.Comment:
             where = "Comment (I ain't writing 100 lines to support comments links because of API limitations, sorry)"
         result = f"{result}{where}."
 
@@ -793,8 +785,8 @@ async def mutualfollowers(interact: discord.Interaction, user_1: str, user_2: st
     msg = discord.Embed()
     count = 0
     desc = ""
-    followers1 = sa.get_user(user_1).follower_names(limit=int(sa.get_user(user_1).follower_count()))
-    followers2 = sa.get_user(user_2).follower_names(limit=int(sa.get_user(user_2).follower_count()))
+    followers1 = scratch.get_user(user_1).follower_names(limit=int(scratch.get_user(user_1).follower_count()))
+    followers2 = scratch.get_user(user_2).follower_names(limit=int(scratch.get_user(user_2).follower_count()))
 
     for item in followers1:
         if item in followers2:
@@ -802,11 +794,11 @@ async def mutualfollowers(interact: discord.Interaction, user_1: str, user_2: st
             desc = f"{desc}\n{item}"
 
     if count == 0:
-        await interact.followup.send(embed=discord.Embed(title=f"{user_1} and {user_2} have no mutual followers!", color=colour1))
+        await interact.followup.send(embed=discord.Embed(title=f"{user_1} and {user_2} have no mutual followers!", color=scratch_orange))
     else:
         msg.title = f"<:together:1330551758166036500>{user_1} and {user_2} have {count} mutual followers<:together:1330551758166036500> :"
         msg.description = desc
-        msg.color = colour1
+        msg.color = scratch_orange
         await interact.followup.send(embed=msg)
 
 @bot.tree.command(name="scratchgpt", description="EXPERIMENTAL - Chat with a powerful AI to get scratch related help !")
@@ -833,7 +825,7 @@ async def scratchgpt(interact : discord.Interaction, prompt : str):
             content = data['choices'][0]['message']['content']
 
             # Respond with the answer
-            await interact.followup.send(embed=discord.Embed(description=content, color=colour1))
+            await interact.followup.send(embed=discord.Embed(description=content, color=scratch_orange))
         else:
             await interact.response.send_message(embed=discord.Embed(color=discord.Color.red(), title="Sorry, the API we use appears to be down :/"))
     else:
@@ -876,10 +868,10 @@ async def about(interact : discord.Interaction):
     msg = discord.Embed(title="🤔 About ScratchOn <:BestBotEver:1333794479932575746> :")
     msg.description = (
         "<:together:1330551758166036500> **Contributors :**\n\n"
-        "- <:fluffy:1340009005581598820>**Fluffy** <:separator:1333808735101124668> Basically the bot founder and owner, that coded ScratchOn.\n"
+        "- <:fluffy:1340009005581598820>**Fluffy** <:separator:1333808735101124668> Basically the bot founder and owner, who coded ScratchOn.\n"
         "- <:timmccool:1340009073990701238>**TimMcCool** <:separator:1333808735101124668> Maker of scratchattach, the python library this bot is mainly based on.\n"
         "- <:eletrixtime:1340009103019348020>**ElectrixTime** <:separator:1333808735101124668> Maker of ESDB, a really cool projects database that powers 2 really cool ScratchOn services.\n"
-        "- <:AJustEpic:1368235230749528276>**A Just Epic** <:separator:1333808735101124668> The amazing artist that made the PFP for completely free.\n"
+        "- <:AJustEpic:1368235230749528276>**A Just Epic** <:separator:1333808735101124668> The amazing artist behind the PFP, who did it for completely free.\n"
         f"- 🫵**You** <:separator:1333808735101124668> {bot.user.name} user, motivating me to continue updating this bot !\n"
         f"\n📍 **Where is {bot.user.name} ?** 🌎\n\n"
         f"📈 {bot.user.name} is in {len(bot.guilds)} servers, and used by {total_unique_members} unique scratchers worldwide. <:together:1330551758166036500>\n"
@@ -893,15 +885,15 @@ async def about(interact : discord.Interaction):
         "- [Discordlist.gg](https://discordlist.gg/bot/1300009645078876170)\n"
         f"Or you can directly contribute to the code there : https://github.com/Fluffyscratch/ScratchOn"
     )
-    msg.color = colour1
+    msg.color = scratch_orange
 
     await interact.response.send_message(embed=msg)
 
 @bot.tree.command(name="scratchteam", description="Gets all scratch team members !")
 async def scratchteam(interact : discord.Interaction):
-    msg = discord.Embed(title="<:ScratchTeam:1330549427580178472> These are all the members of the scratch team :", color=colour1)
-    for item in sa.scratch_team_members():
-        msg.description = f"{msg.description}\n**[{item['userName']}](https://scratch.mit.edu/users/{item['userName']})** <:separator:1333808735101124668> {item['name']}"
+    msg = discord.Embed(title="<:ScratchTeam:1330549427580178472> The Scratch Team is composed of :", color=scratch_orange)
+    for item in scratch.scratch_team_members():
+        msg.description = f"{msg.description}\n- **[{item['userName']}](https://scratch.mit.edu/users/{item['userName']})** <:separator:1333808735101124668> {item['name']}"
     await interact.response.send_message(embed=msg)
 
 @bot.tree.command(name="scratchtts", description="Use scratch's Text to Speech in discord !")
@@ -919,14 +911,14 @@ async def scratchteam(interact : discord.Interaction):
 async def scratchtts(interact : discord.Interaction, text : str, voice : str, language : str):
     await interact.response.defer()
 
-    audio_data, playback_rate = sa.text2speech(text=text, voice_name=voice, language=language)
+    audio_data, playback_rate = scratch.text2speech(text=text, voice_name=voice, language=language)
 
     # Create a file-like object from the audio data (the response.content from text2speech)
     audio_file = discord.File(io.BytesIO(audio_data), filename="output.mp3")
 
     # Send the message with the file
     await interact.followup.send(
-        embed=discord.Embed(title="Done! Here is the output ⬆️", color=colour1),
+        embed=discord.Embed(title="Done! Here is the output ⬆️", color=scratch_orange),
         file=audio_file
     )
 
@@ -951,9 +943,9 @@ async def scratchtts(interact : discord.Interaction, text : str, voice : str, la
     app_commands.Choice(name="Things I'm Reading and Playing", value=30),
 ])
 async def forums(interact : discord.Interaction, category : int):
-    msg = discord.Embed(title="Topics in this category :", color=colour1)
+    msg = discord.Embed(title="Topics in this category :", color=scratch_orange)
     desc = ""
-    for item in sa.get_topic_list(category_id=category, page=1):
+    for item in scratch.get_topic_list(category_id=category, page=1):
         desc = (
             f"{desc}"
             f"\n\n**[{item.title}](https://scratch.mit.edu/discuss/topic/{item.id})** - {item.reply_count} replies - {item.view_count} views (last update : {item.last_updated})"
@@ -964,8 +956,8 @@ async def forums(interact : discord.Interaction, category : int):
 @bot.tree.command(name="topic", description="Gives useful infos about a forum topic.")
 async def topic(interact : discord.Interaction, topic : str):
     id = ''.join(filter(str.isdigit, topic))
-    stopic = sa.get_topic(id)
-    msg = discord.Embed(title=stopic.title, color=colour1)
+    stopic = scratch.get_topic(id)
+    msg = discord.Embed(title=stopic.title, color=scratch_orange)
     msg.description = (
         f"Link : https://scratch.mit.edu/discuss/topic/{stopic.id}\n"
         f"Category : {stopic.category_name}\n"
@@ -981,7 +973,7 @@ async def topic(interact : discord.Interaction, topic : str):
 async def s_download(interact : discord.Interaction, project : str):
     id = ''.join(filter(str.isdigit, project))
     await interact.response.defer()
-    proj = sa.get_project(id)
+    proj = scratch.get_project(id)
     proj.download(filename="project.sb3", dir="ScratchOn_private")
 
     await interact.followup.send(file=discord.File(fp="ScratchOn_private/project.sb3", filename=project.title().sb3))
@@ -999,7 +991,7 @@ async def scratchblocks(interact: discord.Interaction, code: str, style: str = "
     filename = await render_blocks_image(code=code, style=style)
     await interact.followup.send(file=discord.File(filename))
 
-#----------------------Experimental Commands----------------------
+#----------------------Experimental Commands (will be moved to experimental branch)----------------------
 
 @bot.tree.command(name="remixtree", description="Gets a project's remix tree.")
 async def remixtree(interact : discord.Interaction, project : str):
@@ -1052,6 +1044,8 @@ async def toggle_ping(interact : discord.Interaction):
     else:
         await interact.response.send_message(embed=betaembed)
 
+ai_state = tuple
+embed_state = tuple
 @bot.tree.command(name="settings", description="Configure ScratchOn settings for this server")
 async def settings(interaction: discord.Interaction):
     if interaction.user.name == "fluffygamer.":
@@ -1098,9 +1092,9 @@ async def settings(interaction: discord.Interaction):
 ])
 async def recommend(interact : discord.Interaction, type : str):
     if interact.user.name == "fluffygamer.":
-        scratch = dc2scratch(interact.user.name)
-        if not scratch == None:
-            sa.get_user(scratch)
+        scratch_username = dc2scratch(interact.user.name)
+        if not scratch_username == None:
+            scratch.get_user(scratch_username)
         else:
             interact.response.send_message(embed=discord.Embed(title="Sorry, you need to /bind your account so we can recommend you things !", color=discord.Color.red()))
     else:

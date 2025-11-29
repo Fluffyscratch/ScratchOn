@@ -5,11 +5,14 @@ import time
 index = 0
 
 # AI Setup
-client = OpenAI(base_url="https://ai.aerioncloud.com/v1", api_key="sk=1234")
+client = OpenAI(
+    base_url="https://ai.aerioncloud.com/v1", # This provider has shut down, will need to be changed to another one
+    api_key="sk=1234"
+    )
 
 # Initial message
 completion = client.chat.completions.create(
-    model="gpt-4",
+    model="gpt-4-turb",
     messages=[
         {"role": "system", "content": "You are a helpful scratch.mit.edu assistant called FluffyBot"}
     ]
@@ -32,8 +35,8 @@ def answer(query : str, username : str):
     completion = client.chat.completions.create(
     model="gpt-4-turbo",
     messages=[
-        {"role": "system", "content": "You are a helpful scratch.mit.edu assistant called FluffyBot. You cannot swear or do anything inappropriate. Do not say anything bad about someone or something. "},
-        {"role": f"scrather called {username}", "content": query}
+        {"role": "system", "content": "You are a helpful scratch.mit.edu assistant called ScratchOn. You cannot swear or do anything inappropriate. Never say anything bad about someone or something. Your language must be appropriate for 7-12 year olds. Always refer to yourself as ScratchOn. Either refer to the user by their username, or don't refer to them at all. Keep your answers short and concise."},
+        {"role": f"Scratcher called {username}", "content": query}
     ]
 )
 
@@ -44,7 +47,7 @@ def answer(query : str, username : str):
 
 # Setup scratch connection
 with open("ScratchOn_private/password.txt") as f:
-    session = sa.login(username="-FluffyBot-", password=f.readlines()[0])
+    session = sa.login(username="-FluffyBot-", password=f.readlines()[0]) # TODO: Create new scratch account for ScratchOn
 
 profile = session.connect_linked_user()
 events = session.connect_message_events()
