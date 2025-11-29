@@ -19,4 +19,4 @@ I know there are many more scratch discord bots. However, ScratchOn has many adv
 
 - It's by far the most feature packed scratch discord bot. But like, really.
 - It has incredible uptime : ScratchOn has an average 99.5% uptime and is available almost 24/7.
-- It's maintained and updated consistently : Fluffy, the ScratchOn developper, actively works on this bot by fixing bugs and adding features.
+- It's maintained and updated consistently : Fluffy, the main ScratchOn developper, actively works on this bot by fixing bugs and adding features.
