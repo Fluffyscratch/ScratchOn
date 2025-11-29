@@ -349,7 +349,7 @@ async def help(interact : discord.Interaction):
     embed=discord.Embed(
         title="<:giga404:1330551323610976339>Help",
         description=(
-            "🎉 EVENT COMMANDS 🗓️ :\n"
+            "🎉 EVENT COMMANDS 🗓️ :\n\n"
             "<:SantaCat:1444277069826494557> **/christmas** ║ Returns the current christmas projects on trending !\n"
             "\n═══════════════════════════\n\n"
             "<:search:1333037655902130247> **/about** ║ Gives interesting facts and stats about this bot !\n"
@@ -852,7 +852,7 @@ async def about(interact : discord.Interaction):
     # Display the top languages
     langs = f"\n**Top Languages :**\n"
     for i, (lang, count) in enumerate(top_languages, 1):
-        langs = (f"{langs}\n**{i}.** {lang} with {count} servers")
+        langs = (f"{langs}\n{i}. {lang} with {count} servers")
     
 
     unique_members = set()  # Set to hold unique user IDs
@@ -868,19 +868,19 @@ async def about(interact : discord.Interaction):
     msg = discord.Embed(title="🤔 About ScratchOn <:BestBotEver:1333794479932575746> :")
     msg.description = (
         "<:together:1330551758166036500> **Contributors :**\n\n"
-        "- <:fluffy:1340009005581598820>**Fluffy** <:separator:1333808735101124668> Basically the bot founder and owner, who coded ScratchOn.\n"
-        "- <:timmccool:1340009073990701238>**TimMcCool** <:separator:1333808735101124668> Maker of scratchattach, the python library this bot is mainly based on.\n"
-        "- <:eletrixtime:1340009103019348020>**ElectrixTime** <:separator:1333808735101124668> Maker of ESDB, a really cool projects database that powers 2 really cool ScratchOn services.\n"
-        "- <:AJustEpic:1368235230749528276>**A Just Epic** <:separator:1333808735101124668> The amazing artist behind the PFP, who did it for completely free.\n"
-        f"- 🫵**You** <:separator:1333808735101124668> {bot.user.name} user, motivating me to continue updating this bot !\n"
+        "- <:fluffy:1340009005581598820>** Fluffy**<:separator:1333808735101124668>Basically the bot founder and owner, who coded ScratchOn.\n"
+        "- <:timmccool:1340009073990701238>** TimMcCool**<:separator:1333808735101124668>Maker of scratchattach, the python library this bot is mainly based on.\n"
+        "- <:eletrixtime:1340009103019348020>** ElectrixTime**<:separator:1333808735101124668>Maker of ESDB, a really cool projects database that powers 2 really cool ScratchOn services.\n"
+        "- <:AJustEpic:1368235230749528276>** A Just Epic**<:separator:1333808735101124668>The amazing artist behind the PFP, who did it for completely free.\n"
+        f"- 🫵** You**<:separator:1333808735101124668> {bot.user.name} user, motivating me to continue updating this bot !\n"
         f"\n📍 **Where is {bot.user.name} ?** 🌎\n\n"
-        f"📈 {bot.user.name} is in {len(bot.guilds)} servers, and used by {total_unique_members} unique scratchers worldwide. <:together:1330551758166036500>\n"
+        f"📈 {bot.user.name} is in **{len(bot.guilds)}** servers, and used by **{total_unique_members}** unique scratchers worldwide. <:together:1330551758166036500>\n"
         f"{langs}"
         "\n\n🔗 **Links :**\n\n"
         f"- [➕ Add {bot.user.name}](https://discord.com/oauth2/authorize?client_id=1300009645078876170&permissions=274877990912&integration_type=0&scope=bot)\n"
-        "- [🔧 Support server](https://discord.gg/dgymF2Ye4k)\n"
-        f"⬆️ Help {bot.user.name} by upvoting it there ⬆️ :\n"
-        "- [Top.gg](https://top.gg/bot/1300009645078876170)"
+        "- [🔧 Support server](https://discord.gg/dgymF2Ye4k)\n\n"
+        f"**⬆️ Help {bot.user.name} by upvoting it there ⬆️ :**\n"
+        "- [Top.gg](https://top.gg/bot/1300009645078876170)\n"
         "- [Discordbotlist.com](https://discordbotlist.com/bots/ScratchOn)\n"
         "- [Discordlist.gg](https://discordlist.gg/bot/1300009645078876170)\n"
         f"Or you can directly contribute to the code there : https://github.com/Fluffyscratch/ScratchOn"
