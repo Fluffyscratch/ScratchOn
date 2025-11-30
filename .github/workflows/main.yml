@@ -15,7 +15,7 @@ jobs:
       - name: ruff-action
         uses: astral-sh/ruff-action@v3.5.1
         with:
-          args: check
+          args: format
           # Uncomment and customize if needed:
           # src: .
           # version: latest
