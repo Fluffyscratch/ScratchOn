@@ -1,16 +1,3 @@
-__pycache__/config.cpython-311.pyc
-__pycache__/database.cpython-311.pyc
-commands/__pycache__/__init__.cpython-311.pyc
-commands/__pycache__/experimental_commands.cpython-311.pyc
-commands/__pycache__/prefix_commands.cpython-311.pyc
-commands/__pycache__/project_commands.cpython-311.pyc
-commands/__pycache__/search_commands.cpython-311.pyc
-commands/__pycache__/studio_forum_commands.cpython-311.pyc
-commands/__pycache__/user_commands.cpython-311.pyc
-commands/__pycache__/utility_commands.cpython-311.pyc
-events/__pycache__/__init__.cpython-311.pyc
-events/__pycache__/bot_events.cpython-311.pyc
-services/__pycache__/__init__.cpython-311.pyc
-services/__pycache__/scratchblocks.cpython-311.pyc
-utils/__pycache__/__init__.cpython-311.pyc
-utils/__pycache__/helpers.cpython-311.pyc
+# Hide Python cache files
+*/__pycache__/
+__pycache__/
