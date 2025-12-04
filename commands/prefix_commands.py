@@ -1,6 +1,7 @@
 """
 Traditional prefix commands (non-slash).
 """
+
 import discord
 
 from config import bot
@@ -13,7 +14,7 @@ async def ping(ctx):
     msg.add_field(
         name=f"{bot.user.name}'s Latency (ms): ",
         value=f"{round(bot.latency * 1000)}ms.",
-        inline=False
+        inline=False,
     )
     msg.set_footer(text=f"Requested by {ctx.author.name}", icon_url=ctx.author.avatar)
     msg.color = discord.Color.dark_orange()

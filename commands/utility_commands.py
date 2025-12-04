@@ -1,6 +1,7 @@
 """
 Utility slash commands (help, about, stats, tips, etc.).
 """
+
 import re
 import io
 import pprint
@@ -14,7 +15,10 @@ import scratchattach as scratch
 from config import bot, scratch_orange
 
 
-@bot.tree.command(name="help", description="Need help ? No problem ! All commands and their usage are here.")
+@bot.tree.command(
+    name="help",
+    description="Need help ? No problem ! All commands and their usage are here.",
+)
 async def help(interact: discord.Interaction):
     await interact.response.send_message(
         embed=discord.Embed(
@@ -54,7 +58,9 @@ async def help(interact: discord.Interaction):
     )
 
 
-@bot.tree.command(name="about", description="Everything you need to know about ScratchOn !")
+@bot.tree.command(
+    name="about", description="Everything you need to know about ScratchOn !"
+)
 async def about(interact: discord.Interaction):
     # Dictionary to hold language counts
     language_counts = Counter()
@@ -76,7 +82,7 @@ async def about(interact: discord.Interaction):
     # Loop through all the guilds (servers) the bot is in
     for guild in bot.guilds:
         unique_members.update(member.id for member in guild.members)
-    
+
     total_unique_members = len(unique_members)
 
     msg = discord.Embed(title="🤔 About ScratchOn <:BestBotEver:1333794479932575746> :")
@@ -104,11 +110,15 @@ async def about(interact: discord.Interaction):
     await interact.response.send_message(embed=msg)
 
 
-@bot.tree.command(name="webstats", description="Returns statistics about scratch's website.")
+@bot.tree.command(
+    name="webstats", description="Returns statistics about scratch's website."
+)
 async def webstats(interact: discord.Interaction):
     stats = scratch.total_site_stats()
 
-    embeded_message = discord.Embed(title=":bar_chart: Statistics about Scratch :bar_chart:")
+    embeded_message = discord.Embed(
+        title=":bar_chart: Statistics about Scratch :bar_chart:"
+    )
     embeded_message.description = (
         f"**On scratch, there are :**\n\n"
         f"- {stats.get('PROJECT_COUNT')} projects 💻\n"
@@ -128,24 +138,29 @@ async def webstats(interact: discord.Interaction):
 async def scratchstatus(interact: discord.Interaction):
     original_description = pprint.pformat(scratch.get_health())
     modified_description = re.sub(r"[{},]", "", original_description)
-    modified_description = re.sub(r"'([^']+)'", r'**\1**', modified_description)
+    modified_description = re.sub(r"'([^']+)'", r"**\1**", modified_description)
 
     await interact.response.send_message(
         embed=discord.Embed(
             title="❤️‍🩹 Scratch's health status :",
             description=f"{modified_description}\n\n## Tip : press control + F (or command + F on mac) and search the health data you're looking for.",
-            color=scratch_orange
+            color=scratch_orange,
         )
     )
 
 
-@bot.tree.command(name="yttoscratch", description="Converts a youtube video link into a scratch forums link.")
+@bot.tree.command(
+    name="yttoscratch",
+    description="Converts a youtube video link into a scratch forums link.",
+)
 async def yttoscratch(interact: discord.Interaction, link: str):
-    await interact.response.send_message(embed=discord.Embed(
-        title="Conversion finished ! Link :",
-        description=scratch.youtube_link_to_scratch(link),
-        color=scratch_orange
-    ))
+    await interact.response.send_message(
+        embed=discord.Embed(
+            title="Conversion finished ! Link :",
+            description=scratch.youtube_link_to_scratch(link),
+            color=scratch_orange,
+        )
+    )
 
 
 @bot.tree.command(name="tips", description="Gives you tips and tricks for scratch !")
@@ -200,44 +215,58 @@ async def tips(interact: discord.Interaction):
     await interact.response.send_message(embed=msg)
 
 
-@bot.tree.command(name="scratchtts", description="Use scratch's Text to Speech in discord !")
-@app_commands.choices(voice=[
-    app_commands.Choice(name="Alto", value="alto"),
-    app_commands.Choice(name="Tenor", value="tenor"),
-    app_commands.Choice(name="Squeak", value="squeak"),
-    app_commands.Choice(name="Giant", value="giant"),
-    app_commands.Choice(name="Kitten", value="kitten")
-])
-@app_commands.choices(language=[
-    app_commands.Choice(name="English (US)", value="en-US"),
-    app_commands.Choice(name="French", value="fr")
-])
-async def scratchtts(interact: discord.Interaction, text: str, voice: str, language: str):
+@bot.tree.command(
+    name="scratchtts", description="Use scratch's Text to Speech in discord !"
+)
+@app_commands.choices(
+    voice=[
+        app_commands.Choice(name="Alto", value="alto"),
+        app_commands.Choice(name="Tenor", value="tenor"),
+        app_commands.Choice(name="Squeak", value="squeak"),
+        app_commands.Choice(name="Giant", value="giant"),
+        app_commands.Choice(name="Kitten", value="kitten"),
+    ]
+)
+@app_commands.choices(
+    language=[
+        app_commands.Choice(name="English (US)", value="en-US"),
+        app_commands.Choice(name="French", value="fr"),
+    ]
+)
+async def scratchtts(
+    interact: discord.Interaction, text: str, voice: str, language: str
+):
     await interact.response.defer()
 
     audio_data, playback_rate = scratch.text2speech(
-        text=text,
-        voice_name=voice,
-        language=language
+        text=text, voice_name=voice, language=language
     )
 
     audio_file = discord.File(io.BytesIO(audio_data), filename="output.mp3")
 
     await interact.followup.send(
         embed=discord.Embed(title="Done! Here is the output ⬆️", color=scratch_orange),
-        file=audio_file
+        file=audio_file,
     )
 
 
-@bot.tree.command(name="scratchblocks", description="allow you to render scratchblocks easily !")
-@app_commands.choices(style=[
-    app_commands.Choice(name="Scratch 3.0", value="scratch3"),
-    app_commands.Choice(name="Scratch 3.0 (high-contrast)", value="scratch3-high-contrast"),
-    app_commands.Choice(name="Scratch 2.0", value="scratch2"),
-])
-async def scratchblocks(interact: discord.Interaction, code: str, style: str = "scratch3"):
+@bot.tree.command(
+    name="scratchblocks", description="allow you to render scratchblocks easily !"
+)
+@app_commands.choices(
+    style=[
+        app_commands.Choice(name="Scratch 3.0", value="scratch3"),
+        app_commands.Choice(
+            name="Scratch 3.0 (high-contrast)", value="scratch3-high-contrast"
+        ),
+        app_commands.Choice(name="Scratch 2.0", value="scratch2"),
+    ]
+)
+async def scratchblocks(
+    interact: discord.Interaction, code: str, style: str = "scratch3"
+):
     from services import render_blocks_image
-    
+
     await interact.response.defer()
     filename = await render_blocks_image(code=code, style=style)
     await interact.followup.send(file=discord.File(filename))

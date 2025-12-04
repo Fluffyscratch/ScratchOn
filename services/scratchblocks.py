@@ -1,16 +1,19 @@
 """
 Scratchblocks rendering service.
 """
+
 import os
 from pyppeteer import launch
 
 TEMPLATE_PATH = "ScratchOn/scratchblocks_template.html"
 
 
-async def render_blocks_image(code: str, style: str, output_path: str = "ScratchOn_private/blocks.png") -> str:
+async def render_blocks_image(
+    code: str, style: str, output_path: str = "ScratchOn_private/blocks.png"
+) -> str:
     """
     Renders scratchblocks code to an image.
-    
+
     :param code: Scratchblocks code to render.
     :param style: Style to use (scratch3, scratch3-high-contrast, scratch2).
     :param output_path: Path to save the rendered image.
@@ -23,23 +26,20 @@ async def render_blocks_image(code: str, style: str, output_path: str = "Scratch
     # Inject user code
     html = html.replace(
         "when green flag clicked\nsay [Hello world!]",
-        code.replace("<", "&lt;").replace(">", "&gt;").replace("\\n", "\n")
+        code.replace("<", "&lt;").replace(">", "&gt;").replace("\\n", "\n"),
     )
 
     # Add chosen style
-    html = html.replace(
-        'style: "scratch3"',
-        f'style: "{style}"'
-    )
+    html = html.replace('style: "scratch3"', f'style: "{style}"')
 
     # Update scratchblocks path
     html = html.replace(
-        'scratchblocks/build/scratchblocks.min.js',
-        '../ScratchOn/scratchblocks/build/scratchblocks.min.js'
+        "scratchblocks/build/scratchblocks.min.js",
+        "../ScratchOn/scratchblocks/build/scratchblocks.min.js",
     )
     html = html.replace(
-        'scratchblocks/build/translations-all.js',
-        '../ScratchOn/scratchblocks/build/translations-all.js'
+        "scratchblocks/build/translations-all.js",
+        "../ScratchOn/scratchblocks/build/translations-all.js",
     )
 
     # Save modified HTML to a temporary file
@@ -49,17 +49,17 @@ async def render_blocks_image(code: str, style: str, output_path: str = "Scratch
 
     # Launch chromium browser using Pyppeteer
     browser = await launch(
-        executablePath="/usr/bin/chromium-browser",
-        headless=True,
-        args=["--no-sandbox"]
+        executablePath="/usr/bin/chromium-browser", headless=True, args=["--no-sandbox"]
     )
     page = await browser.newPage()
 
-    await page.setViewport({
-        "width": 800,
-        "height": 600,
-        "deviceScaleFactor": 2  # Improves output resolution
-    })
+    await page.setViewport(
+        {
+            "width": 800,
+            "height": 600,
+            "deviceScaleFactor": 2,  # Improves output resolution
+        }
+    )
 
     # Navigate to the temporary file
     await page.goto(f"file://{os.path.abspath(temp_path)}")

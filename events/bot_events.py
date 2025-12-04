@@ -1,6 +1,7 @@
 """
 Discord bot events.
 """
+
 import discord
 from discord.ext import tasks
 from discord.ui import Button, Select, View
@@ -37,7 +38,7 @@ def setup_events():
     async def on_interaction(interaction: discord.Interaction):
         """Button interaction handlers for settings."""
         if interaction.type == discord.InteractionType.component:
-            button_id = interaction.data['custom_id']
+            button_id = interaction.data["custom_id"]
 
             # Make sure the button_id exists in button_states
             if button_id not in button_states:
@@ -47,8 +48,8 @@ def setup_events():
 
             # Toggle the button's color (green <-> red)
             new_style = (
-                discord.ButtonStyle.green 
-                if current_style == discord.ButtonStyle.red 
+                discord.ButtonStyle.green
+                if current_style == discord.ButtonStyle.red
                 else discord.ButtonStyle.red
             )
 
@@ -59,19 +60,19 @@ def setup_events():
             ai_button = Button(
                 label="AI",
                 style=button_states.get("ai_button", discord.ButtonStyle.red),
-                custom_id="ai_button"
+                custom_id="ai_button",
             )
             embeds_button = Button(
                 label="Embeds",
                 style=button_states.get("embeds_button", discord.ButtonStyle.red),
-                custom_id="embeds_button"
+                custom_id="embeds_button",
             )
             language_select = Select(
                 placeholder="Select your language here",
                 options=[
                     discord.SelectOption(label="English", value="en"),
                     discord.SelectOption(label="Français", value="fr"),
-                ]
+                ],
             )
 
             view = View()
@@ -83,8 +84,7 @@ def setup_events():
             await interaction.response.edit_message(view=view)
 
             # Acknowledge the button press
-            color_name = 'green' if new_style == discord.ButtonStyle.green else 'red'
+            color_name = "green" if new_style == discord.ButtonStyle.green else "red"
             await interaction.followup.send(
-                f"The {button_id} color changed to {color_name}!",
-                ephemeral=True
+                f"The {button_id} color changed to {color_name}!", ephemeral=True
             )

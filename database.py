@@ -1,10 +1,11 @@
 """
 Database configuration and helper functions.
 """
+
 import duckdb
 
 # Database connection
-db = duckdb.connect('ScratchOn_private/ScratchOn.duckdb')
+db = duckdb.connect("ScratchOn_private/ScratchOn.duckdb")
 
 # Initialize table
 db.execute("""CREATE TABLE IF NOT EXISTS ScratchOn (
@@ -35,9 +36,12 @@ def get_server_data(server_id: int, column_name: str):
 def add_server(server_id: int):
     """
     Adds a new server entry to the database.
-    
+
     :param server_id: The server ID to add.
     """
-    db.execute("""
+    db.execute(
+        """
         INSERT INTO ScratchOn (serverid) VALUES (?)
-    """, [server_id])
+    """,
+        [server_id],
+    )
