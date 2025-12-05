@@ -17,6 +17,10 @@ import commands
 # Setup event handlers
 setup_events()
 
+# Attach Top.gg integration (uses the existing `bot` instance)
+import topGG
+topGG.attach_to_bot(bot)
+
 
 def main():
     """Run the bot."""
