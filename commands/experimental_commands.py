@@ -20,7 +20,7 @@ from utils import (
 )
 
 
-@bot.tree.command(name="remixtree", description="Gets a project's remix tree.")
+@bot.tree.command(name="remixtree", description="BETA - Gets a project's remix tree.")
 async def remixtree(interact: discord.Interaction, project: str):
     if interact.user.name == "fluffyscratch":
         id = "".join(filter(str.isdigit, project))
@@ -34,7 +34,7 @@ async def remixtree(interact: discord.Interaction, project: str):
 
 @bot.tree.command(
     name="toggle_ping",
-    description="EXPERIMENTAL - Enable or disable discord ping when recieving a new message. Requires binding.",
+    description="BETA - Enable or disable discord ping when recieving a new message. Requires binding.",
 )
 async def toggle_ping(interact: discord.Interaction):
     if interact.user.name == "fluffyscratch":
@@ -100,7 +100,7 @@ async def toggle_ping(interact: discord.Interaction):
 
 
 @bot.tree.command(
-    name="settings", description="Configure ScratchOn settings for this server"
+    name="settings", description="BETA - Configure ScratchOn settings for this server"
 )
 async def settings(interaction: discord.Interaction):
     if interaction.user.name == "fluffyscratch":
@@ -156,7 +156,7 @@ async def settings(interaction: discord.Interaction):
 
 @bot.tree.command(
     name="recommend",
-    description="Gives you recommended scratchers, projects or studios customised for you.",
+    description="BETA - Gives you recommended scratchers, projects or studios customised for you.",
 )
 @app_commands.choices(
     type=[
@@ -183,7 +183,7 @@ async def recommend(interact: discord.Interaction, type: str):
 
 @bot.tree.command(
     name="scratchgpt",
-    description="EXPERIMENTAL - Chat with a powerful AI to get scratch related help !",
+    description="BETA - Chat with a powerful AI to get scratch related help !",
 )
 async def scratchgpt(interact: discord.Interaction, prompt: str):
     await interact.response.defer()
@@ -234,7 +234,7 @@ async def scratchgpt(interact: discord.Interaction, prompt: str):
 
 @bot.tree.command(
     name="compare",
-    description="Compares two Scratch users' stats.",
+    description="BETA - Compares two Scratch users' stats.",
 )
 async def compare(interact: discord.Interaction, user1: str, user2: str):
     if interact.user.name == "fluffyscratch":
