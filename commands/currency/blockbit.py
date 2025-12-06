@@ -12,6 +12,6 @@ def get_response():
   """ Get response for the last request. """
   i = 1
   vars = []
-  while i not == 10:
+  while i < 10:
     vars.append(cloud.get_var(f"FROM_HOST{i}"))
     i = i + 1
