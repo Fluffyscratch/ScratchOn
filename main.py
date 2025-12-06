@@ -19,6 +19,7 @@ setup_events()
 
 # Attach Top.gg integration (uses the existing `bot` instance)
 import topGG
+
 topGG.attach_to_bot(bot)
 
 
