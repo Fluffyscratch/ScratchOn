@@ -13,4 +13,5 @@ def get_response():
   i = 1
   vars = []
   while i not == 10:
-    vars.append(cloud.get_var(f"FROM_HOST{i}")
+    vars.append(cloud.get_var(f"FROM_HOST{i}"))
+    i = i + 1
