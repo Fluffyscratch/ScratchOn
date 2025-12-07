@@ -59,8 +59,8 @@ def get_latest_response() -> int | str | None:
     name="blockbit_search",
     description="Search a Scratch user via Scratch cloud variables."
 )
-@app_commands.describe(username="Scratch username to search")
-async def search(interact: discord.Interaction, username: str):
+@app_commands.describe(username="Scratch username to get BlockBit balance")
+async def blockbit_search(interact: discord.Interaction, username: str):
     """
     Discord slash command that communicates with the Scratch cloud project.
     """
