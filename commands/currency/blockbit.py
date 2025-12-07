@@ -51,6 +51,7 @@ def get_latest_response() -> int | str | None:
 
     If the response is a number, return it as an int. Otherwise, return it as a string.
     """
+    await get_response()
     return float(latest_value) if latest_value is not None else None
 
 
