@@ -10,6 +10,7 @@ from . import search_commands
 from . import utility_commands
 from . import experimental_commands
 from . import prefix_commands
+from blockbit import blockbit_search 
 
 __all__ = [
     "user_commands",
@@ -19,4 +20,5 @@ __all__ = [
     "utility_commands",
     "experimental_commands",
     "prefix_commands",
+    "blockbit_search",
 ]
