@@ -21,13 +21,11 @@ async def randomprojects(interact: discord.Interaction, number: int):
     await interact.response.defer()
 
     message = ""
-    max_project_id = scratch.total_site_stats().get('PROJECT_COUNT')
+    max_project_id = scratch.total_site_stats().get("PROJECT_COUNT")
     for i in range(number):
         while True:
             try:
-                project = scratch.get_project(
-                    random.randint(1, max_project_id)
-                )
+                project = scratch.get_project(random.randint(1, max_project_id))
             except scratch.utils.exceptions.ProjectNotFound:
                 continue
             break

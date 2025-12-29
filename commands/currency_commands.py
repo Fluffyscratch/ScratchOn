@@ -14,6 +14,7 @@ from discord import app_commands
 from config import bot, scratch_orange
 from services import request_search, get_latest_response
 
+
 @bot.tree.command(
     name="blockbit_search",
     description="Search a Scratch user and get their BlockBit balance.",
@@ -52,9 +53,12 @@ async def blockbit_search(interact: discord.Interaction, username: str):
         )
     )
 
+
 """
 Error Handling During Search 
 """
+
+
 @blockbit_search.error
 async def search_error(
     interact: discord.Interaction, error: app_commands.AppCommandError

@@ -10,11 +10,14 @@ import json
 
 
 # Login to Scratch
-session = sa.login("USERNAME", "PASSWORD")
+with open("ScratchOn_private/password.txt") as f:
+    session = sa.login(username="_Scratch-On_", password=f.readlines()[0])
 
 # Connect to the Blockbit project's cloud variables
 cloud = session.connect_cloud(669020072)
 latest_value = 1
+
+
 def request_search(username: str):
     """
     Send a request to Scratch asking for a user's balance or data.
@@ -23,9 +26,10 @@ def request_search(username: str):
     """
     cloud.set_var("TO_HOST", Encoding.encode(f"search&{username}"))
 
+
 async def get_response():
     global latest_value
-    async with websockets.connect('wss://clouddata.scratch.mit.edu') as ws:
+    async with websockets.connect("wss://clouddata.scratch.mit.edu") as ws:
         await ws.send(json.dumps({"method": "handshake", "project_id": 669020072}))
         while True:
             message = json.loads(await ws.recv())
@@ -35,6 +39,7 @@ async def get_response():
                     # Get the last variable value received
                     last_var = list(variables.values())[-1]
                     latest_value = last_var
+
 
 def get_latest_response() -> int | str | None:
     """
