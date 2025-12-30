@@ -41,32 +41,31 @@ def answer(query: str, username: str):
     return result
 
 
-# Setup scratch connection
-with open("ScratchOn_private/password.txt") as f:
-    session = sa.login(username="_Scratch-On_", password=f.readlines()[0])
+# Setup scratch connection (temporarily ignored to avoid bugs with Scratch API)
+# with open("ScratchOn_private/password.txt") as f:
+#    session = sa.login(username="_Scratch-On_", password=f.readlines()[0])
 
-profile = session.connect_linked_user()
-events = session.connect_message_events()
-print("Logged in")
-
+# profile = session.connect_linked_user()
+# events = session.connect_message_events()
+# print("Logged in")
 
 # Main part : message replyer
-@events.event
-def on_message(message):
-    print("Message detected")
+# @events.event
+# def on_message(message):
+#    print("Message detected")
 
-    time.sleep(60)  # Wait 1 minute before replying to prevent comment glitches
+#    time.sleep(60)  # Wait 1 minute before replying to prevent comment glitches
 
-    comment = profile.comments(page=1, limit=1)[0]
+#    comment = profile.comments(page=1, limit=1)[0]
 
-    comment.reply(
-        content=answer(query=message.comment_fragment, username=message.actor_username)
-    )
-    """
-    session.connect_user() gets the ScratchOn profile,
-    comment_by_id finds the message based on infos provided by the event handler,
-    reply() sends a reply by sending the message to the AI setted up earlier.
-    """
+#    comment.reply(
+#        content=answer(query=message.comment_fragment, username=message.actor_username)
+#    )
+#    """
+#    session.connect_user() gets the ScratchOn profile,
+#    comment_by_id finds the message based on infos provided by the event handler,
+#    reply() sends a reply by sending the message to the AI setted up earlier.
+#    """
 
 
-events.start(thread=True, ignore_exceptions=True)
+# events.start(thread=True, ignore_exceptions=True)

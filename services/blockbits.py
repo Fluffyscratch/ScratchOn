@@ -9,12 +9,12 @@ import websockets
 import json
 
 
-# Login to Scratch
-with open("ScratchOn_private/password.txt") as f:
-    session = sa.login(username="_Scratch-On_", password=f.readlines()[0])
+# Login to Scratch (temporarily ignored to avoid bugs with Scratch API)
+# with open("ScratchOn_private/password.txt") as f:
+#    session = sa.login(username="_Scratch-On_", password=f.readlines()[0])
 
 # Connect to the Blockbit project's cloud variables
-cloud = session.connect_cloud(669020072)
+# cloud = session.connect_cloud(669020072)
 latest_value = 1
 
 
@@ -24,7 +24,7 @@ def request_search(username: str):
 
     The Scratch project listens for messages in the TO_HOST variable.
     """
-    cloud.set_var("TO_HOST", Encoding.encode(f"search&{username}"))
+    # cloud.set_var("TO_HOST", Encoding.encode(f"search&{username}"))
 
 
 async def get_response():
