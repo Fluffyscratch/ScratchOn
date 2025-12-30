@@ -39,7 +39,7 @@ betaembed = discord.Embed(
 
 # Contributors and developers
 contributors = ["EletrixTime", "TimMcCool", "AJustEpic"]
-devs = []
+devs = ["Fluffygamer_", "kRxZy_kRxZy"]
 
 # Global dictionary to store button states (for settings UI)
 button_states = {}

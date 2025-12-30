@@ -90,7 +90,7 @@ async def about(interact: discord.Interaction):
         "<:together:1330551758166036500> **Contributors :**\n\n"
         "- <:fluffy:1340009005581598820>** Fluffy**<:separator:1333808735101124668>Basically the bot founder and owner, who coded ScratchOn.\n"
         "- <:timmccool:1340009073990701238>** TimMcCool**<:separator:1333808735101124668>Maker of scratchattach, the python library this bot is mainly based on.\n"
-        "- <:eletrixtime:1340009103019348020>** ElectrixTime**<:separator:1333808735101124668>Maker of ESDB, a really cool projects database that powers 2 really cool ScratchOn services.\n"
+        "- <:kRxZy_kRxZy:1455522693758849156>** kRxZy_kRxZy**<:separator:1333808735101124668>Very skilled ScratchOn Developer, working on this project for free.\n"
         "- <:AJustEpic:1368235230749528276>** A Just Epic**<:separator:1333808735101124668>The amazing artist behind the PFP, who did it for completely free.\n"
         f"- 🫵** You**<:separator:1333808735101124668> {bot.user.name} user, motivating me to continue updating this bot !\n"
         f"\n📍 **Where is {bot.user.name} ?** 🌎\n\n"
