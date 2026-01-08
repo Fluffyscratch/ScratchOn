@@ -1,16 +1,21 @@
 import scratchattach as sa
-from openai import OpenAI
+import requests
 import time
 
 index = 0
 
-# AI Setup
-client = OpenAI(
-    base_url="https://ai.aerioncloud.com/v1",  # This provider has shut down, will need to be changed to another one
-    api_key="sk=1234",
-)
+def encode(text: str):
+    """
+    TODO: FIX: Function to encode special character into wen url format. 
 
+    @parameter:
 
+        - text: the text to be encoded. 
+    """
+    encoded = encoded.replace("?", "%3D") # more here...
+    
+    return encoded
+    
 # Function to simplify AI calling
 def answer(query: str, username: str):
     """
@@ -23,20 +28,10 @@ def answer(query: str, username: str):
     """
     global index
     print("Answering...")
+    prompt = { "content": "You are a helpful scratch.mit.edu user and bot called ScratchOn. You cannot swear or do anything inappropriate. Never say anything bad about someone or something. Your language must be appropriate for 7-12 year olds. Always refer to yourself as ScratchOn, or _Scratch-On_ as your scratch username. Either refer to the user by their username, or don't refer to them at all. Keep your answers short and concise, up to 500 characters. Do not use regular emojis, only use Scratch-style emojis like :), _:D_, or XD. Speak like a scratch.mit.edu user would, using simple words and phrases a 12 years old would use in a chat, for example 'Hey!', 'That's cool!', 'Thanks!', 'No problem!', 'I guess you're right lol'. Answer the following user with their question/message." }
 
-    resp = client.chat.completions.create(
-        model="gpt-4-turbo",
-        messages=[
-            {
-                "role": "system",
-        "content": "You are a helpful scratch.mit.edu user and bot called ScratchOn. You cannot swear or do anything inappropriate. Never say anything bad about someone or something. Your language must be appropriate for 7-12 year olds. Always refer to yourself as ScratchOn, or _Scratch-On_ as your scratch username. Either refer to the user by their username, or don't refer to them at all. Keep your answers short and concise, up to 500 characters. Do not use regular emojis, only use Scratch-style emojis like :), _:D_, or XD. Speak like a scratch.mit.edu user would, using simple words and phrases a 12 years old would use in a chat, for example 'Hey!', 'That's cool!', 'Thanks!', 'No problem!', 'I guess you're right lol'.",
-            },
-            {"role": "user", "content": f"{username}: {query}"},
-        ],
-    )
-
-    result = resp.choices[0].message.content
-
+    res = requests.get(f"https://text.pollinations.ai/{encode(prompt + " : " + username + " : " + query)}")
+    result = res.json()
     print("Answered !")
     return result
 
