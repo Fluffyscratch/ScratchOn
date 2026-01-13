@@ -3,6 +3,7 @@ Search and discovery slash commands (ESDB-powered and others).
 """
 
 import random
+from itertools import islice
 
 import discord
 from discord import app_commands
@@ -97,7 +98,7 @@ async def recommend(
 
     if recommendation_type == "projects":
         # Get user's loved and favorited projects to find similar ones
-        loved_projects = list(user.loved_projects(limit=10))
+        loved_projects = list(islice(user.loved_projects(limit=10), 10))
         
         if not loved_projects:
             msg.title = f"No recommendations found for {username}"
@@ -120,7 +121,7 @@ async def recommend(
                         seen_ids.add(proj.id)
                         if len(recommendations) >= 5:
                             break
-            except:
+            except Exception:
                 continue
             
             if len(recommendations) >= 5:
@@ -142,7 +143,7 @@ async def recommend(
 
     elif recommendation_type == "users":
         # Get users that the target user follows
-        following = list(user.following_names(limit=20))
+        following = list(islice(user.following_names(limit=20), 20))
         
         if not following:
             msg.title = f"No recommendations found for {username}"
@@ -167,9 +168,9 @@ async def recommend(
                             seen_users.add(potential_rec)
                             if len(recommendations) >= 5:
                                 break
-                        except:
+                        except Exception:
                             continue
-            except:
+            except Exception:
                 continue
                 
             if len(recommendations) >= 5:
@@ -190,7 +191,7 @@ async def recommend(
 
     elif recommendation_type == "studios":
         # Get studios the user is curating
-        curating = list(user.studios_curating(limit=20))
+        curating = list(islice(user.studios_curating(limit=20), 20))
         
         if not curating:
             msg.title = f"No recommendations found for {username}"
@@ -219,12 +220,12 @@ async def recommend(
                                 seen_ids.add(potential_studio.id)
                                 if len(recommendations) >= 5:
                                     break
-                    except:
+                    except Exception:
                         continue
                     
                     if len(recommendations) >= 5:
                         break
-            except:
+            except Exception:
                 continue
             
             if len(recommendations) >= 5:
