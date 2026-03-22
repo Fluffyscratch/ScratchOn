@@ -22,4 +22,4 @@ There are many more scratch discord bots. However, ScratchOn has a bunch of adva
 
 ## Can we trust ScratchOn ?
 
-**Yes !** ScratchOn cumulates 82 servers and more than **100 000 unique members** !
+**Yes !** ScratchOn cumulates **100 servers** and more than **100 000 unique members** !
