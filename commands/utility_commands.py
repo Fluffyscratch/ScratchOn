@@ -85,7 +85,7 @@ async def about(interact: discord.Interaction):
 
     total_unique_members = len(unique_members)
 
-    msg = discord.Embed(title="🤔 About ScratchOn <:BestBotEver:1333794479932575746> :")
+    msg = discord.Embed(title="🤔 About ScratchOn <:BestBot:1388503205373280337> :")
     msg.description = (
         "<:together:1330551758166036500> **Contributors :**\n\n"
         "- <:fluffy:1340009005581598820>** Fluffy**<:separator:1333808735101124668>Basically the bot founder and owner, who coded ScratchOn.\n"
