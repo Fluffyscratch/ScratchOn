@@ -3,3 +3,4 @@
 __pycache__/
 # Hide environment variables
 *.env
+scratchblocks
