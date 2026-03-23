@@ -361,7 +361,7 @@ def attach_to_bot(bot: commands.Bot, env_path: str = "ScratchOn/TopGG.env"):
         # Sync commands
         try:
             synced_count = await syncer.sync_commands()
-            logging.info(f"✅ Command sync completed: {synced_count} commands")
+            # logging.info(f"✅ Command sync completed: {synced_count} commands")
         except Exception as e:
             logging.error(f"❌ Command sync failed: {e}")
 
