@@ -35,11 +35,11 @@ async def render_blocks_image(
     # Update scratchblocks path
     html = html.replace(
         "scratchblocks/build/scratchblocks.min.js",
-        "../ScratchOn/scratchblocks/build/scratchblocks.min.js",
+        "../ScratchOn_private/scratchblocks/build/scratchblocks.min.js",
     )
     html = html.replace(
         "scratchblocks/build/translations-all.js",
-        "../ScratchOn/scratchblocks/build/translations-all.js",
+        "../ScratchOn_private/scratchblocks/build/translations-all.js",
     )
 
     # Save modified HTML to a temporary file
