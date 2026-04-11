@@ -154,31 +154,31 @@ async def settings(interaction: discord.Interaction):
         await interaction.response.send_message(embed=betaembed)
 
 
-@bot.tree.command(
-    name="recommend",
-    description="BETA - Gives you recommended scratchers, projects or studios customised for you.",
-)
-@app_commands.choices(
-    type=[
-        app_commands.Choice(name="User", value="user"),
-        app_commands.Choice(name="Project", value="project"),
-        app_commands.Choice(name="Studio", value="studio"),
-    ]
-)
-async def recommend(interact: discord.Interaction, type: str):
-    if interact.user.name == "fluffyscratch":
-        scratch_username = await dc2scratch(interact.user.name)
-        if scratch_username is not None:
-            scratch.get_user(scratch_username)
-        else:
-            await interact.response.send_message(
-                embed=discord.Embed(
-                    title="Sorry, you need to /bind your account so we can recommend you things !",
-                    color=discord.Color.red(),
-                )
-            )
-    else:
-        await interact.response.send_message(embed=betaembed)
+# @bot.tree.command(
+#     name="recommend",
+#     description="BETA - Gives you recommended scratchers, projects or studios customised for you.",
+# )
+# @app_commands.choices(
+#     type=[
+#         app_commands.Choice(name="User", value="user"),
+#         app_commands.Choice(name="Project", value="project"),
+#         app_commands.Choice(name="Studio", value="studio"),
+#     ]
+# )
+# async def recommend(interact: discord.Interaction, type: str):
+#     if interact.user.name == "fluffyscratch":
+#         scratch_username = await dc2scratch(interact.user.name)
+#         if scratch_username is not None:
+#             scratch.get_user(scratch_username)
+#         else:
+#             await interact.response.send_message(
+#                 embed=discord.Embed(
+#                     title="Sorry, you need to /bind your account so we can recommend you things !",
+#                     color=discord.Color.red(),
+#                 )
+#             )
+#     else:
+#         await interact.response.send_message(embed=betaembed)
 
 
 @bot.tree.command(

@@ -8,7 +8,7 @@ from . import project_commands
 from . import studio_forum_commands
 from . import search_commands
 from . import utility_commands
-from . import experimental_commands
+# from . import experimental_commands
 from . import prefix_commands
 from . import currency_commands
 
