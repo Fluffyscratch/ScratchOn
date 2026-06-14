@@ -5,7 +5,7 @@ Database configuration and helper functions.
 import duckdb
 
 # Database connection
-db = duckdb.connect("ScratchOn_private/ScratchOn.duckdb")
+db = duckdb.connect("private/ScratchOn.duckdb")
 
 # Initialize table
 db.execute("""CREATE TABLE IF NOT EXISTS ScratchOn (

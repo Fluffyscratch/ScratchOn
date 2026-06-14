@@ -40,12 +40,12 @@ async def s_profile(interact: discord.Interaction, user: str):
         else:
             rank = "<:ScratchCat:1330547949721223238> Scratcher"
 
-        with open("ScratchOn_private/scusers.txt") as f:
+        with open("private/scusers.txt") as f:
             lines = [line.rstrip("\n") for line in f]
             if usr.name in lines:
                 idx = lines.index(usr.name)
                 binded = (
-                    open("ScratchOn_private/dcusers.txt").readlines()[idx].rstrip("\n")
+                    open("private/dcusers.txt").readlines()[idx].rstrip("\n")
                 )
             else:
                 binded = "*No binded account found*"
@@ -114,7 +114,7 @@ async def bind(interact: discord.Interaction, username: str):
     found = False
 
     # Check if user is already binded
-    with open("ScratchOn_private/dcusers.txt") as file:
+    with open("private/dcusers.txt") as file:
         for item in file.readlines():
             if item.strip() == target:
                 found = True
@@ -150,9 +150,9 @@ async def bind(interact: discord.Interaction, username: str):
     v = pending_verifiers[user_id]
     if v.check():
         # Store binding
-        with open("ScratchOn_private/dcusers.txt", "a") as file:
+        with open("private/dcusers.txt", "a") as file:
             file.write(f"{str(interact.user)}\n")
-        with open("ScratchOn_private/scusers.txt", "a") as file:
+        with open("private/scusers.txt", "a") as file:
             file.write(f"{str(username)}\n")
 
         # Remove verifier from memory

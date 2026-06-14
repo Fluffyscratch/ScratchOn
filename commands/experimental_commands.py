@@ -42,7 +42,7 @@ async def toggle_ping(interact: discord.Interaction):
         found = False
         i = -1
 
-        with open("ScratchOn_private/dcusers.txt") as file:
+        with open("private/dcusers.txt") as file:
             for item in file.readlines():
                 i += 1
                 if item.strip() == target:
@@ -52,14 +52,14 @@ async def toggle_ping(interact: discord.Interaction):
         print(i)
 
         if found:
-            with open("ScratchOn_private/scusers.txt") as file:
+            with open("private/scusers.txt") as file:
                 s_user = file.readlines()[i]
             print(s_user)
             target = s_user
             found = False
             i = 0
 
-            with open("ScratchOn_private/users2ping.txt") as file:
+            with open("private/users2ping.txt") as file:
                 for item in file.readlines():
                     i += 1
                     if item.strip() == target:
@@ -77,7 +77,7 @@ async def toggle_ping(interact: discord.Interaction):
                     )
                 )
             else:
-                with open("ScratchOn_private/users2ping.txt", "a+") as file:
+                with open("private/users2ping.txt", "a+") as file:
                     file.write(f"{s_user}\n")
                     update_pings()
                     await interact.response.send_message(

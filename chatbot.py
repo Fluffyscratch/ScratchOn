@@ -40,7 +40,7 @@ def answer(query: str, username: str):
 
 
 # Setup scratch connection (temporarily ignored to avoid bugs with Scratch API)
-# with open("ScratchOn_private/password.txt") as f:
+# with open("private/password.txt") as f:
 #    session = sa.login(username="_Scratch-On_", password=f.readlines()[0])
 
 # profile = session.connect_linked_user()

@@ -325,7 +325,7 @@ class CommandSyncer:
             return 0
 
 
-def attach_to_bot(bot: commands.Bot, env_path: str = "ScratchOn/TopGG.env"):
+def attach_to_bot(bot: commands.Bot, env_path: str = "TopGG.env"):
     """Attach Top.gg integration to an existing `commands.Bot` instance.
 
     This will:

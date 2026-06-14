@@ -179,12 +179,12 @@ async def s_download(interact: discord.Interaction, project: str):
     id = "".join(filter(str.isdigit, project))
     await interact.response.defer()
     proj = scratch.get_project(id)
-    proj.download(filename="project.sb3", dir="ScratchOn_private")
+    proj.download(filename="project.sb3", dir="private")
 
     await interact.followup.send(
         file=discord.File(
-            fp="ScratchOn_private/project.sb3", filename=f"{proj.title}.sb3"
+            fp="private/project.sb3", filename=f"{proj.title}.sb3"
         )
     )
 
-    os.remove(path="ScratchOn_private/project.sb3")
+    os.remove(path="private/project.sb3")

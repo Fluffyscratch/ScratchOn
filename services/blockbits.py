@@ -10,7 +10,7 @@ import json
 
 
 # Login to Scratch (temporarily ignored to avoid bugs with Scratch API)
-# with open("ScratchOn_private/password.txt") as f:
+# with open("private/password.txt") as f:
 #    session = sa.login(username="_Scratch-On_", password=f.readlines()[0])
 
 # Connect to the Blockbit project's cloud variables

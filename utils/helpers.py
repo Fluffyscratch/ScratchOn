@@ -16,8 +16,8 @@ async def dc2scratch(username: str) -> str | None:
     :return: Corresponding Scratch username, or None if not found.
     """
     with (
-        open("ScratchOn_private/dcusers.txt") as f1,
-        open("ScratchOn_private/scusers.txt") as f2,
+        open("private/dcusers.txt") as f1,
+        open("private/scusers.txt") as f2,
     ):
         dc_users = [line.strip() for line in f1.readlines()]
         sc_users = [line.strip() for line in f2.readlines()]
@@ -68,7 +68,7 @@ def update_pings():
     """
     Updates the message event handlers for users who have ping notifications enabled.
     """
-    with open("ScratchOn_private/users2ping.txt") as file:
+    with open("private/users2ping.txt") as file:
         whatever = False
         temp = ...
         for item in file.readlines():

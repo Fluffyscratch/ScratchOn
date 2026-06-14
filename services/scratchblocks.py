@@ -5,11 +5,11 @@ Scratchblocks rendering service.
 import os
 from pyppeteer import launch
 
-TEMPLATE_PATH = "ScratchOn/scratchblocks_template.html"
+TEMPLATE_PATH = "scratchblocks_template.html"
 
 
 async def render_blocks_image(
-    code: str, style: str, output_path: str = "ScratchOn_private/blocks.png"
+    code: str, style: str, output_path: str = "private/blocks.png"
 ) -> str:
     """
     Renders scratchblocks code to an image.
@@ -35,15 +35,15 @@ async def render_blocks_image(
     # Update scratchblocks path
     html = html.replace(
         "scratchblocks/build/scratchblocks.min.js",
-        "../ScratchOn_private/scratchblocks/build/scratchblocks.min.js",
+        "../private/scratchblocks/build/scratchblocks.min.js",
     )
     html = html.replace(
         "scratchblocks/build/translations-all.js",
-        "../ScratchOn_private/scratchblocks/build/translations-all.js",
+        "../private/scratchblocks/build/translations-all.js",
     )
 
     # Save modified HTML to a temporary file
-    temp_path = "ScratchOn_private/temp_scratchblocks.html"
+    temp_path = "private/temp_scratchblocks.html"
     with open(temp_path, "w", encoding="utf-8") as f:
         f.write(html)
 

@@ -25,7 +25,7 @@ topGG.attach_to_bot(bot)
 
 def main():
     """Run the bot."""
-    with open("ScratchOn_private/token.txt") as f:
+    with open("private/token.txt") as f:
         token = f.readlines()[0].strip()
     bot.run(token)
 
