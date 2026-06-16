@@ -3,6 +3,8 @@ Discord bot events.
 """
 
 import interactions
+import logging
+from interactions.api.events import CommandError
 
 from config import bot, bot_statuses, button_states
 from database import add_server
@@ -97,7 +99,25 @@ class BotEvents(interactions.Extension):
             f"The **{button_id}** color changed to **{color_name}**!",
             ephemeral=True,
         )
+    
+    # ------------------------------------------------------------------ #
+    # Error handler                                                       #
+    # ------------------------------------------------------------------ #
 
+    @interactions.listen()
+    async def on_command_error(event: CommandError):
+        logging.exception(
+            f"Error in command {event.ctx.command.name}",
+            exc_info=event.error
+        )
+
+        try:
+            await event.ctx.send(
+                "❌ An internal error occurred.",
+                ephemeral=True
+            )
+        except Exception:
+            pass
 
 def setup(bot: interactions.Client):
     BotEvents(bot)

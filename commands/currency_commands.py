@@ -61,11 +61,12 @@ class CurrencyCommands(interactions.Extension):
             await ctx.send(
                 embed=interactions.Embed(
                     title="⚠️ Error",
-                    description=str(error),
+                    description=str(type(error).__name__),
                     color=0xFF0000,
                 ),
                 ephemeral=True,
             )
+            print(f"Error in blockbit_search command: {error}")
 
 
 def setup(bot: interactions.Client):
