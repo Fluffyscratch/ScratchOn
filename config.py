@@ -2,8 +2,7 @@
 Bot configuration and constants.
 """
 
-import discord
-from discord.ext import commands
+import interactions
 from itertools import cycle
 import sys
 import io
@@ -12,7 +11,7 @@ import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 # Bot setup
-bot = commands.Bot(command_prefix="s ", intents=discord.Intents.all())
+bot = interactions.Client(intents=interactions.Intents.ALL)
 
 # The statuses the bot will cycle through
 bot_statuses = cycle(
@@ -26,15 +25,15 @@ bot_statuses = cycle(
     ]
 )
 
-# The bot's theme colours
-scratch_orange = discord.Color(0xF6AB3C)
-scratch_gold = discord.Color(0xFFBE00)
-scratch_blue = discord.Color(0x4E97FE)
+# The bot's theme colours (plain hex integers — interactions.py accepts these directly)
+scratch_orange = 0xF6AB3C
+scratch_gold = 0xFFBE00
+scratch_blue = 0x4E97FE
 
 # Embed for experimental commands
-betaembed = discord.Embed(
+betaembed = interactions.Embed(
     title="Sorry, this command is still in beta ! You cannot use it yet.",
-    color=discord.Color.red(),
+    color=0xFF0000,
 )
 
 # Contributors and developers
@@ -42,6 +41,7 @@ contributors = ["EletrixTime", "TimMcCool", "AJustEpic"]
 devs = ["Fluffygamer_", "kRxZy_kRxZy"]
 
 # Global dictionary to store button states (for settings UI)
+# Values are interactions.ButtonStyle members
 button_states = {}
 
 # Memory storage for pending verifications (user_id: Verificator)
