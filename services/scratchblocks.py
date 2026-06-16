@@ -3,36 +3,38 @@ Scratchblocks rendering service.
 """
 
 import os
+
 from pyppeteer import launch
 
 TEMPLATE_PATH = "scratchblocks_template.html"
+TEMP_HTML = "private/temp_scratchblocks.html"
+CHROMIUM_PATH = "/usr/bin/chromium-browser"
 
 
 async def render_blocks_image(
-    code: str, style: str, output_path: str = "private/blocks.png"
+    code: str,
+    style: str,
+    output_path: str = "private/blocks.png",
 ) -> str:
     """
-    Renders scratchblocks code to an image.
+    Render scratchblocks code to a PNG image.
 
-    :param code: Scratchblocks code to render.
-    :param style: Style to use (scratch3, scratch3-high-contrast, scratch2).
-    :param output_path: Path to save the rendered image.
-    :return: Path to the rendered image.
+    :param code:        Scratchblocks source code.
+    :param style:       Rendering style (``scratch3``, ``scratch3-high-contrast``, ``scratch2``).
+    :param output_path: Destination path for the rendered image.
+    :return: The *output_path*.
     """
-    # Load the HTML template
-    with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
-        html = f.read()
+    with open(TEMPLATE_PATH, encoding="utf-8") as fh:
+        html = fh.read()
 
-    # Inject user code
-    html = html.replace(
-        "when green flag clicked\nsay [Hello world!]",
-        code.replace("<", "&lt;").replace(">", "&gt;").replace("\\n", "\n"),
-    )
+    # Inject user code (escape HTML entities first)
+    safe_code = code.replace("<", "&lt;").replace(">", "&gt;").replace("\\n", "\n")
+    html = html.replace("when green flag clicked\nsay [Hello world!]", safe_code)
 
-    # Add chosen style
+    # Apply chosen style
     html = html.replace('style: "scratch3"', f'style: "{style}"')
 
-    # Update scratchblocks path
+    # Rewrite scratchblocks asset paths
     html = html.replace(
         "scratchblocks/build/scratchblocks.min.js",
         "../private/scratchblocks/build/scratchblocks.min.js",
@@ -42,33 +44,20 @@ async def render_blocks_image(
         "../private/scratchblocks/build/translations-all.js",
     )
 
-    # Save modified HTML to a temporary file
-    temp_path = "private/temp_scratchblocks.html"
-    with open(temp_path, "w", encoding="utf-8") as f:
-        f.write(html)
+    with open(TEMP_HTML, "w", encoding="utf-8") as fh:
+        fh.write(html)
 
-    # Launch chromium browser using Pyppeteer
     browser = await launch(
-        executablePath="/usr/bin/chromium-browser", headless=True, args=["--no-sandbox"]
+        executablePath=CHROMIUM_PATH, headless=True, args=["--no-sandbox"]
     )
     page = await browser.newPage()
 
-    await page.setViewport(
-        {
-            "width": 800,
-            "height": 600,
-            "deviceScaleFactor": 2,  # Improves output resolution
-        }
-    )
+    await page.setViewport({"width": 800, "height": 600, "deviceScaleFactor": 2})
+    await page.goto(f"file://{os.path.abspath(TEMP_HTML)}")
 
-    # Navigate to the temporary file
-    await page.goto(f"file://{os.path.abspath(temp_path)}")
-
-    # Wait for scratchblocks to load
     await page.waitForFunction("typeof scratchblocks !== 'undefined'")
     await page.waitForSelector(".scratchblocks")
 
-    # Screenshot the result
     element = await page.querySelector(".preview")
     await element.screenshot({"path": output_path, "omitBackground": True})
     await browser.close()

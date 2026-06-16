@@ -2,120 +2,112 @@
 Utility functions for the bot.
 """
 
+import logging
 import os
+
 import scratchattach as scratch
 from scratchattach import MultiEventHandler
-from pyppeteer import launch
+
+logger = logging.getLogger(__name__)
 
 
 async def dc2scratch(username: str) -> str | None:
     """
-    Converts a Discord username to a Scratch username using stored bindings.
+    Convert a Discord username to a Scratch username using stored bindings.
 
     :param username: Discord username to look up.
-    :return: Corresponding Scratch username, or None if not found.
+    :return: Corresponding Scratch username, or ``None`` if not found.
     """
-    with (
-        open("private/dcusers.txt") as f1,
-        open("private/scusers.txt") as f2,
-    ):
-        dc_users = [line.strip() for line in f1.readlines()]
-        sc_users = [line.strip() for line in f2.readlines()]
+    with open("private/dcusers.txt") as dc_file, open("private/scusers.txt") as sc_file:
+        dc_users = [line.strip() for line in dc_file]
+        sc_users = [line.strip() for line in sc_file]
 
-        if username in dc_users:
-            index = dc_users.index(username)
-            return sc_users[index]
-        return None
+    if username in dc_users:
+        index = dc_users.index(username)
+        return sc_users[index]
+    return None
 
 
-async def replace_last_screenshot(url: str, screenshot_path: str = "screenshot.png"):
+async def replace_last_screenshot(
+    url: str,
+    screenshot_path: str = "screenshot.png",
+) -> None:
     """
-    Takes a screenshot of a URL, replacing any existing screenshot.
+    Take a screenshot of *url*, replacing any existing file at *screenshot_path*.
 
-    :param url: URL to screenshot.
-    :param screenshot_path: Path to save the screenshot.
+    :param url:            URL to screenshot.
+    :param screenshot_path: Destination path.
     """
     if os.path.exists(screenshot_path):
         os.remove(screenshot_path)
-        print(f"Deleted the previous screenshot: {screenshot_path}")
+        logger.info("Deleted previous screenshot: %s", screenshot_path)
+
+    from pyppeteer import launch
 
     browser = await launch(headless=True, executablePath="/usr/bin/chromium-browser")
     page = await browser.newPage()
     await page.goto(url)
     await page.screenshot({"path": screenshot_path})
-    print(f"New screenshot saved as: {screenshot_path}")
+    logger.info("New screenshot saved: %s", screenshot_path)
     await browser.close()
 
 
-def remove_line_by_index(file_path: str, index_to_remove: int):
+def remove_line_by_index(file_path: str, index_to_remove: int) -> None:
     """
-    Removes a specific line from a file by its index.
+    Remove a specific line from *file_path* by its zero-based index.
 
-    :param file_path: Path to the file.
-    :param index_to_remove: Zero-based index of the line to remove.
+    :param file_path:       Path to the file.
+    :param index_to_remove: Zero-based line index to remove.
     """
-    with open(file_path, "r") as file:
-        lines = file.readlines()
+    with open(file_path, "r") as fh:
+        lines = fh.readlines()
 
     if 0 <= index_to_remove < len(lines):
         del lines[index_to_remove]
 
-    with open(file_path, "w") as file:
-        file.writelines(lines)
+    with open(file_path, "w") as fh:
+        fh.writelines(lines)
 
 
-def update_pings():
+def update_pings() -> None:
     """
-    Updates the message event handlers for users who have ping notifications enabled.
+    Update the message-event handlers for users with ping notifications enabled.
     """
-    with open("private/users2ping.txt") as file:
-        whatever = False
-        temp = ...
-        for item in file.readlines():
-            if item == "\n" or item == "":
-                break
-            if whatever:
-                temp = temp, scratch.get_user(item.strip()).message_events()
-            else:
-                whatever = True
-                temp = scratch.get_user(item.strip()).message_events()
+    with open("private/users2ping.txt") as fh:
+        lines = fh.readlines()
 
-        multievents = len(file.readlines()) - 1 != 1
+    event_handler = None
+    for line in lines:
+        name = line.strip()
+        if not name:
+            break
+        user_events = scratch.get_user(name).message_events()
+        event_handler = (
+            user_events
+            if event_handler is None
+            else MultiEventHandler(event_handler, user_events)
+        )
 
-    if multievents:
-        combined = MultiEventHandler(temp)
-        print(temp)
-        print(combined)
+    if event_handler is None:
+        return
 
-        @combined.event(function=combined)
-        def on_ready():
-            print("Message trackers are up to date !")
+    @event_handler.event
+    def on_ready():
+        logger.info("Message trackers are up to date!")
 
-        @combined.request(function=combined)
-        def your_request(): ...
+    @event_handler.request
+    def on_request():
+        pass
 
-        combined.start()
-    else:
-        events = temp
-
-        @events.event()
-        def on_count_change(old_count, new_count):
-            print("message count changed from", old_count, "to", new_count)
-
-        @events.event()
-        def on_ready():
-            print("Event listener ready!")
-
-        events.start()
+    event_handler.start()
 
 
 def limiter(text: str, limit: int) -> str:
     """
-    Limits text to a certain length and adds ellipsis.
+    Truncate *text* to *limit* characters and append an ellipsis.
 
-    :param text: Text to limit.
+    :param text:  Text to truncate.
     :param limit: Maximum character length.
-    :return: Limited text with ellipsis.
+    :return: Truncated text.
     """
-    result = text[:limit]
-    return f"{result}..."
+    return text[:limit] + "..."

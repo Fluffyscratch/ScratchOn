@@ -5,7 +5,7 @@ All command modules are loaded as Extensions from main.py via:
     bot.load_extension("commands.<module_name>")
 """
 
-__all__ = [
+__all__: list[str] = [
     "user_commands",
     "project_commands",
     "studio_forum_commands",

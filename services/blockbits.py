@@ -1,33 +1,29 @@
 """
-Blockbit communication portal
+BlockBit cloud variable communication.
 """
 
-import scratchattach as sa
-from scratchattach import Encoding
+import json
+import logging
 
 import websockets
-import json
+from scratchattach import Encoding
+
+logger = logging.getLogger(__name__)
+
+latest_value: int | str | None = None
 
 
-# Login to Scratch (temporarily ignored to avoid bugs with Scratch API)
-# with open("private/password.txt") as f:
-#    session = sa.login(username="_Scratch-On_", password=f.readlines()[0])
-
-# Connect to the Blockbit project's cloud variables
-# cloud = session.connect_cloud(669020072)
-latest_value = 1
-
-
-def request_search(username: str):
+def request_search(username: str) -> None:
     """
-    Send a request to Scratch asking for a user's balance or data.
+    Send a request to the Scratch project asking for a user's balance.
 
-    The Scratch project listens for messages in the TO_HOST variable.
+    The Scratch project listens for messages in the ``TO_HOST`` variable.
     """
     # cloud.set_var("TO_HOST", Encoding.encode(f"search&{username}"))
 
 
-async def get_response():
+async def _fetch_response() -> None:
+    """Connect to the cloud-data websocket and update *latest_value*."""
     global latest_value
     async with websockets.connect("wss://clouddata.scratch.mit.edu") as ws:
         await ws.send(json.dumps({"method": "handshake", "project_id": 669020072}))
@@ -36,16 +32,20 @@ async def get_response():
             if message.get("method") == "variables":
                 variables = Encoding.decode(message.get("variables", {}))
                 if variables:
-                    # Get the last variable value received
-                    last_var = list(variables.values())[-1]
-                    latest_value = last_var
+                    latest_value = list(variables.values())[-1]
 
 
 def get_latest_response() -> int | str | None:
     """
-    Get the most recent response sent back by the Scratch project.
+    Return the most recent response from the Scratch project.
 
-    If the response is a number, return it as an int. Otherwise, return it as a string.
+    If the response is numeric it is returned as an ``int``.
     """
-    get_response()
-    return float(latest_value) if latest_value is not None else None
+    # NOTE: _fetch_response is async and must be started as a background task
+    # before calling this function; here we simply return the cached value.
+    if latest_value is None:
+        return None
+    try:
+        return float(latest_value)
+    except (ValueError, TypeError):
+        return latest_value

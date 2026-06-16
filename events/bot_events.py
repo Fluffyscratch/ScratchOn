@@ -2,24 +2,27 @@
 Discord bot events.
 """
 
-import interactions
 import logging
+
+import interactions
 from interactions.api.events import CommandError
 
-from config import bot, bot_statuses, button_states
+from config import bot_statuses, button_states
 from database import add_server
+
+logger = logging.getLogger(__name__)
 
 
 class BotEvents(interactions.Extension):
-    """Extension for core bot lifecycle events."""
+    """Core bot lifecycle events and error handling."""
 
     # ------------------------------------------------------------------ #
-    # Status cycling task                                                  #
+    # Status cycling                                                       #
     # ------------------------------------------------------------------ #
 
     @interactions.Task.create(interactions.IntervalTrigger(seconds=10))
     async def status_task(self):
-        """Cycles through bot statuses every 10 seconds."""
+        """Cycle through bot statuses every 10 seconds."""
         await self.bot.change_presence(
             activity=interactions.Activity(
                 name=next(bot_statuses),
@@ -32,44 +35,37 @@ class BotEvents(interactions.Extension):
     # ------------------------------------------------------------------ #
 
     @interactions.listen(interactions.events.Ready)
-    async def on_ready(self, event: interactions.events.Ready):
-        print("ScratchOn is ready !")
+    async def on_ready(self, event: interactions.events.Ready) -> None:
+        logger.info("ScratchOn is ready!")
         self.status_task.start()
 
     @interactions.listen(interactions.events.GuildJoin)
-    async def on_guild_join(self, event: interactions.events.GuildJoin):
-        """When joining a server, register it in the database."""
+    async def on_guild_join(self, event: interactions.events.GuildJoin) -> None:
+        """Register a newly joined server in the database."""
         add_server(event.guild.id)
 
     # ------------------------------------------------------------------ #
-    # Component interaction handler (settings buttons)                    #
+    # Component interaction handler (settings buttons)                     #
     # ------------------------------------------------------------------ #
 
     @interactions.listen(interactions.events.Component)
-    async def on_component(self, event: interactions.events.Component):
-        """Toggle button states for the /settings UI."""
+    async def on_component(self, event: interactions.events.Component) -> None:
+        """Toggle button states for the ``/settings`` UI."""
         ctx = event.ctx
         button_id = ctx.custom_id
 
-        # Only handle the two known settings toggles
         if button_id not in ("ai_button", "embeds_button"):
             return
 
-        # Default to DANGER (red = disabled) when first seen
-        if button_id not in button_states:
-            button_states[button_id] = interactions.ButtonStyle.DANGER
-
-        current_style = button_states[button_id]
-
-        # Toggle: SUCCESS (green) ↔ DANGER (red)
+        current = button_states.get(button_id, interactions.ButtonStyle.DANGER)
         new_style = (
             interactions.ButtonStyle.SUCCESS
-            if current_style == interactions.ButtonStyle.DANGER
+            if current == interactions.ButtonStyle.DANGER
             else interactions.ButtonStyle.DANGER
         )
         button_states[button_id] = new_style
 
-        # Rebuild the full component layout with updated styles
+        # Rebuild components with updated styles
         ai_button = interactions.Button(
             label="AI",
             style=button_states.get("ai_button", interactions.ButtonStyle.DANGER),
@@ -90,34 +86,27 @@ class BotEvents(interactions.Extension):
         action_row = interactions.ActionRow(ai_button, embeds_button)
         select_row = interactions.ActionRow(language_select)
 
-        # Edit the original message in-place
         await ctx.edit_origin(components=[action_row, select_row])
 
-        # Acknowledge the toggle with an ephemeral followup
         color_name = "green" if new_style == interactions.ButtonStyle.SUCCESS else "red"
         await ctx.send(
-            f"The **{button_id}** color changed to **{color_name}**!",
-            ephemeral=True,
+            f"The **{button_id}** color changed to **{color_name}**!", ephemeral=True
         )
-    
+
     # ------------------------------------------------------------------ #
-    # Error handler                                                       #
+    # Error handler                                                        #
     # ------------------------------------------------------------------ #
 
     @interactions.listen()
-    async def on_command_error(event: CommandError):
-        logging.exception(
-            f"Error in command {event.ctx.command.name}",
-            exc_info=event.error
+    async def on_command_error(event: CommandError) -> None:
+        logger.exception(
+            "Error in command %s", event.ctx.command.name, exc_info=event.error
         )
-
         try:
-            await event.ctx.send(
-                "❌ An internal error occurred.",
-                ephemeral=True
-            )
+            await event.ctx.send("An internal error occurred.", ephemeral=True)
         except Exception:
             pass
 
-def setup(bot: interactions.Client):
+
+def setup(bot: interactions.Client) -> None:
     BotEvents(bot)

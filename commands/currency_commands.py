@@ -1,15 +1,18 @@
 """
-Scratch cloud → Discord bridge commands.
+Scratch cloud to Discord bridge commands.
 
 Handles communication with a BlockBit server using cloud variables.
 """
 
 import asyncio
+import logging
 
 import interactions
 
 from config import scratch_orange
 from services import request_search, get_latest_response
+
+logger = logging.getLogger(__name__)
 
 
 class CurrencyCommands(interactions.Extension):
@@ -25,24 +28,21 @@ class CurrencyCommands(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def blockbit_search(self, ctx: interactions.SlashContext, username: str):
-        """Communicates with the Scratch cloud project to retrieve a balance."""
+    async def blockbit_search(
+        self, ctx: interactions.SlashContext, username: str
+    ) -> None:
+        """Communicate with the Scratch cloud project to retrieve a balance."""
         await ctx.defer()
 
         try:
-            # Send request to Scratch
             request_search(username)
-
-            # Wait briefly to allow Scratch to process the request
             await asyncio.sleep(1.2)
-
-            # Fetch the response
             response = get_latest_response()
 
             if response is None:
                 await ctx.send(
                     embed=interactions.Embed(
-                        title="❌ No response",
+                        title="No response",
                         description="Scratch did not respond in time. Try again.",
                         color=0xFF0000,
                     )
@@ -51,23 +51,23 @@ class CurrencyCommands(interactions.Extension):
 
             await ctx.send(
                 embed=interactions.Embed(
-                    title="✅ Scratch Response",
-                    description=f"```{username}``` has ```{response}``` Bits",
+                    title="Scratch Response",
+                    description=f"**{username}** has **{response}** Bits",
                     color=scratch_orange,
                 )
             )
 
         except Exception as error:
+            logger.exception("Error in blockbit_search command")
             await ctx.send(
                 embed=interactions.Embed(
-                    title="⚠️ Error",
+                    title="Error",
                     description=str(type(error).__name__),
                     color=0xFF0000,
                 ),
                 ephemeral=True,
             )
-            print(f"Error in blockbit_search command: {error}")
 
 
-def setup(bot: interactions.Client):
+def setup(bot: interactions.Client) -> None:
     CurrencyCommands(bot)

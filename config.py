@@ -2,18 +2,24 @@
 Bot configuration and constants.
 """
 
-import interactions
-from itertools import cycle
-import sys
 import io
+import sys
+from itertools import cycle
 
-# Ensures proper utf-8 encoding for prints
+import interactions
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
-# Bot setup
+# ---------------------------------------------------------------------------
+# Bot instance
+# ---------------------------------------------------------------------------
+
 bot = interactions.Client(intents=interactions.Intents.ALL)
 
-# The statuses the bot will cycle through
+# ---------------------------------------------------------------------------
+# Statuses the bot cycles through
+# ---------------------------------------------------------------------------
+
 bot_statuses = cycle(
     [
         "Scratch API",
@@ -25,24 +31,33 @@ bot_statuses = cycle(
     ]
 )
 
-# The bot's theme colours (plain hex integers — interactions.py accepts these directly)
-scratch_orange = 0xF6AB3C
-scratch_gold = 0xFFBE00
-scratch_blue = 0x4E97FE
+# ---------------------------------------------------------------------------
+# Theme colours (plain hex integers — interactions.py accepts these directly)
+# ---------------------------------------------------------------------------
 
-# Embed for experimental commands
+scratch_orange: int = 0xF6AB3C
+scratch_gold: int = 0xFFBE00
+scratch_blue: int = 0x4E97FE
+
+# ---------------------------------------------------------------------------
+# Reusable embeds
+# ---------------------------------------------------------------------------
+
 betaembed = interactions.Embed(
     title="Sorry, this command is still in beta ! You cannot use it yet.",
     color=0xFF0000,
 )
 
-# Contributors and developers
-contributors = ["EletrixTime", "TimMcCool", "AJustEpic"]
-devs = ["Fluffygamer_", "kRxZy_kRxZy"]
+# ---------------------------------------------------------------------------
+# Contributors / developers
+# ---------------------------------------------------------------------------
 
-# Global dictionary to store button states (for settings UI)
-# Values are interactions.ButtonStyle members
-button_states = {}
+contributors: list[str] = ["EletrixTime", "TimMcCool", "AJustEpic"]
+devs: list[str] = ["Fluffygamer_", "kRxZy_kRxZy"]
 
-# Memory storage for pending verifications (user_id: Verificator)
-pending_verifiers: dict = {}
+# ---------------------------------------------------------------------------
+# Shared mutable state (settings UI button styles)
+# ---------------------------------------------------------------------------
+
+button_states: dict[str, interactions.ButtonStyle] = {}
+pending_verifiers: dict[int, object] = {}

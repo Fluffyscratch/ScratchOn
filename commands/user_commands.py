@@ -2,9 +2,9 @@
 User-related slash commands.
 """
 
-import interactions
 from datetime import datetime
 
+import interactions
 import scratchattach as scratch
 
 from config import scratch_orange, contributors, devs, pending_verifiers
@@ -24,14 +24,14 @@ class UserCommands(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def s_profile(self, ctx: interactions.SlashContext, user: str):
+    async def s_profile(self, ctx: interactions.SlashContext, user: str) -> None:
         await ctx.defer()
-        embeded_message = interactions.Embed(title=user)
+        embed = interactions.Embed(title=user)
 
         try:
             usr = scratch.get_user(user)
 
-            # Rank finder
+            # Determine rank
             if usr.is_new_scratcher():
                 rank = "<:newscratcher:1330550984971259954> New scratcher"
             elif usr.scratchteam:
@@ -47,42 +47,53 @@ class UserCommands(interactions.Extension):
             else:
                 rank = "<:ScratchCat:1330547949721223238> Scratcher"
 
-            with open("private/scusers.txt") as f:
-                lines = [line.rstrip("\n") for line in f]
-                if usr.name in lines:
-                    idx = lines.index(usr.name)
-                    binded = open("private/dcusers.txt").readlines()[idx].rstrip("\n")
-                else:
-                    binded = "*No binded account found*"
+            # Look up Discord binding
+            with open("private/scusers.txt") as sc_file:
+                sc_users = [line.strip() for line in sc_file]
+
+            if usr.name in sc_users:
+                idx = sc_users.index(usr.name)
+                with open("private/dcusers.txt") as dc_file:
+                    dc_lines = [line.strip() for line in dc_file]
+                bound = (
+                    dc_lines[idx]
+                    if idx < len(dc_lines)
+                    else "*No binded account found*"
+                )
+            else:
+                bound = "*No binded account found*"
 
             join_date = datetime.fromisoformat(
                 usr.join_date.replace("Z", "+00:00")
             ).strftime("%B %d, %Y at %H:%M:%S UTC")
 
-            embeded_message.description = (
+            featured = usr.featured_data()
+            embed.description = (
                 f"**{rank}**\n\n"
-                f"**Account binded to :** {binded}\n"
-                f"*Joined scratch on {join_date} - Lives in {usr.country}* \n"
-                f"**{user}** has **{usr.message_count()}** message(s). \n\n"
-                f"**<:ocular:1333041343668158515>Ocular :** \n"
-                f"Color : {usr.ocular_status().get('color')} Status : {usr.ocular_status().get('status')}* \n\n"
+                f"**Account binded to :** {bound}\n"
+                f"*Joined scratch on {join_date} - Lives in {usr.country}*\n"
+                f"**{user}** has **{usr.message_count()}** message(s).\n\n"
+                f"**<:ocular:1333041343668158515>Ocular :**\n"
+                f"Color : {usr.ocular_status().get('color')} "
+                f"Status : {usr.ocular_status().get('status')}*\n\n"
                 f"**About {user}** : \n"
-                f"{usr.about_me} \n\n"
+                f"{usr.about_me}\n\n"
                 f"**What is {user} working on** : \n"
                 f"{usr.wiwo}\n\n"
                 f"**{user}** is followed by **{usr.follower_count()}** scratchers, "
                 f"and is following **{usr.following_count()}** scratchers.\n"
                 f"They also loved **{usr.loves_count()} projects** and favourited "
                 f"**{usr.favorites_count()} projects** in total.\n\n"
-                f"{usr.featured_data()['label']} : [{usr.featured_data()['project']['title']}]"
-                f"(https://scratch.mit.edu/projects/{usr.featured_data()['project']['id']})"
+                f"{featured['label']} : "
+                f"[{featured['project']['title']}]"
+                f"(https://scratch.mit.edu/projects/{featured['project']['id']})"
             )
 
-            embeded_message.set_thumbnail(url=usr.icon_url)
-            embeded_message.set_footer(text=f"{user}'s ID : {usr.id}")
-            embeded_message.color = scratch_orange
-            embeded_message.set_image(url=usr.featured_data()["project"]["thumbnail_url"])
-            await ctx.send(embed=embeded_message)
+            embed.set_thumbnail(url=usr.icon_url)
+            embed.set_footer(text=f"{user}'s ID : {usr.id}")
+            embed.color = scratch_orange
+            embed.set_image(url=featured["project"]["thumbnail_url"])
+            await ctx.send(embed=embed)
 
         except scratch.utils.exceptions.UserNotFound:
             await ctx.send(
@@ -103,15 +114,25 @@ class UserCommands(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def check_username(self, ctx: interactions.SlashContext, username: str):
-        msg = interactions.Embed(title="This username is...")
+    async def check_username(
+        self, ctx: interactions.SlashContext, username: str
+    ) -> None:
+        embed = interactions.Embed(title="This username is...")
         if scratch.check_username(username) == "valid username":
-            msg.description = "Avaliable ! :partying_face: \n [Claim it](<https://scratch.mit.edu/join>) <:happycat:1330550173335982160>"
-            msg.color = 0x57F287  # green
+            embed.description = (
+                "Available ! :partying_face: \n"
+                "[Claim it](<https://scratch.mit.edu/join>) "
+                "<:happycat:1330550173335982160>"
+            )
+            embed.color = 0x57F287
         else:
-            msg.description = f"Taken ! :smiling_face_with_tear:\n Link : https://scratch.mit.edu/users/{username} <a:sadcat:1330550126745227335>"
-            msg.color = 0xFF0000  # red
-        await ctx.send(embed=msg)
+            embed.description = (
+                f"Taken ! :smiling_face_with_tear:\n"
+                f"Link : https://scratch.mit.edu/users/{username} "
+                f"<a:sadcat:1330550126745227335>"
+            )
+            embed.color = 0xFF0000
+        await ctx.send(embed=embed)
 
     @interactions.slash_command(
         name="bind",
@@ -123,25 +144,24 @@ class UserCommands(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def bind(self, ctx: interactions.SlashContext, username: str):
+    async def bind(self, ctx: interactions.SlashContext, username: str) -> None:
         await ctx.defer()
         user_id = ctx.author.id
         target = str(ctx.author)
-        found = False
 
         # Check if user is already binded
-        with open("private/dcusers.txt") as file:
-            for item in file.readlines():
-                if item.strip() == target:
-                    found = True
-                    break
+        with open("private/dcusers.txt") as fh:
+            already_bound = any(line.strip() == target for line in fh)
 
-        if found:
-            binded = await dc2scratch(ctx.author.username)
+        if already_bound:
+            bound_user = await dc2scratch(ctx.author.username)
             await ctx.send(
                 embed=interactions.Embed(
-                    title="❌ A scratch account is already linked to your discord account!",
-                    description=f"Your account is linked to **{binded}**.\nScratchOn can't handle replacements yet.",
+                    title="A scratch account is already linked to your discord account!",
+                    description=(
+                        f"Your account is linked to **{bound_user}**.\n"
+                        "ScratchOn can't handle replacements yet."
+                    ),
                     color=0xFF0000,
                 )
             )
@@ -149,48 +169,51 @@ class UserCommands(interactions.Extension):
 
         user = scratch.get_user(username)
 
-        # If the user hasn't started verification yet, issue a code
+        # First step: issue a verification code
         if user_id not in pending_verifiers:
             v = user.verify_identity()
             pending_verifiers[user_id] = v
             await ctx.send(
                 embed=interactions.Embed(
-                    title="⏳ Wait!",
+                    title="Wait!",
                     description=(
-                        f"To verify ownership, please comment **'{v.code}'** on this project: {v.projecturl}\n"
-                        "Then, run this command again."
+                        f"To verify ownership, please comment **'{v.code}'** on this project: "
+                        f"{v.projecturl}\nThen, run this command again."
                     ),
                     color=scratch_orange,
                 )
             )
             return
 
-        # User already started verification — check now
+        # Second step: verify the code
         v = pending_verifiers[user_id]
         if v.check():
-            with open("private/dcusers.txt", "a") as file:
-                file.write(f"{str(ctx.author)}\n")
-            with open("private/scusers.txt", "a") as file:
-                file.write(f"{str(username)}\n")
+            with open("private/dcusers.txt", "a") as dc_file:
+                dc_file.write(f"{ctx.author}\n")
+            with open("private/scusers.txt", "a") as sc_file:
+                sc_file.write(f"{username}\n")
 
             del pending_verifiers[user_id]
 
             await ctx.send(
                 embed=interactions.Embed(
-                    title="✅ Success!",
-                    description=f"Your Discord account is now linked to your Scratch account, **{username}**!",
+                    title="Success!",
+                    description=(
+                        f"Your Discord account is now linked to your Scratch account, "
+                        f"**{username}**!"
+                    ),
                     color=0x57F287,
                 )
             )
         else:
             await ctx.send(
                 embed=interactions.Embed(
-                    title="⏳ Still waiting...",
+                    title="Still waiting...",
                     description=(
-                        f"Please comment **'{v.code}'** on this project: {v.projecturl}\n"
-                        "Then, run this command again."
+                        f"Please comment **'{v.code}'** on this project: "
+                        f"{v.projecturl}\nThen, run this command again."
                     ),
-                    color=0xE67E22,  # orange
+                    color=0xE67E22,
                 )
             )
 
@@ -212,7 +235,7 @@ class UserCommands(interactions.Extension):
     )
     async def followedby(
         self, ctx: interactions.SlashContext, username: str, followed_by: str
-    ):
+    ) -> None:
         if scratch.get_user(username).is_followed_by(followed_by):
             await ctx.send(
                 embed=interactions.Embed(
@@ -248,23 +271,18 @@ class UserCommands(interactions.Extension):
     )
     async def mutualfollowers(
         self, ctx: interactions.SlashContext, user_1: str, user_2: str
-    ):
+    ) -> None:
         await ctx.defer()
-        msg = interactions.Embed()
-        count = 0
-        desc = ""
 
-        followers1 = scratch.get_user(user_1).follower_names(
+        followers_1 = scratch.get_user(user_1).follower_names(
             limit=int(scratch.get_user(user_1).follower_count())
         )
-        followers2 = scratch.get_user(user_2).follower_names(
+        followers_2 = scratch.get_user(user_2).follower_names(
             limit=int(scratch.get_user(user_2).follower_count())
         )
 
-        for item in followers1:
-            if item in followers2:
-                count += 1
-                desc = f"{desc}\n{item}"
+        mutual = [name for name in followers_1 if name in followers_2]
+        count = len(mutual)
 
         if count == 0:
             await ctx.send(
@@ -274,14 +292,17 @@ class UserCommands(interactions.Extension):
                 )
             )
         else:
-            msg.title = (
-                f"<:together:1330551758166036500>"
-                f"{user_1} and {user_2} have {count} mutual followers"
-                f"<:together:1330551758166036500> :"
+            await ctx.send(
+                embed=interactions.Embed(
+                    title=(
+                        f"<:together:1330551758166036500>"
+                        f"{user_1} and {user_2} have {count} mutual followers"
+                        f"<:together:1330551758166036500> :"
+                    ),
+                    description="\n".join(mutual),
+                    color=scratch_orange,
+                )
             )
-            msg.description = desc
-            msg.color = scratch_orange
-            await ctx.send(embed=msg)
 
     @interactions.slash_command(
         name="scratchactivity",
@@ -299,52 +320,54 @@ class UserCommands(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def activity(self, ctx: interactions.SlashContext, user: str, limit: str):
+    async def activity(
+        self, ctx: interactions.SlashContext, user: str, limit: str
+    ) -> None:
         await ctx.defer()
 
-        msg = interactions.Embed(
-            title="This user 's past scratch activity :", color=scratch_orange
-        )
-        result = ""
-
+        lines: list[str] = []
         for item in scratch.get_user(user).activity(limit=limit):
-            result = f"{result}\n`{user}` made action {item.type} at "
-
             target = item.target()
-            if type(target) == scratch.User:
+
+            if isinstance(target, scratch.User):
                 where = f"[{target.username}](https://scratch.mit.edu/users/{target.username})"
-            elif type(target) == scratch.Project:
+            elif isinstance(target, scratch.Project):
                 where = f"[{target.id}](https://scratch.mit.edu/projects/{target.id})"
-            elif type(target) == scratch.Studio:
+            elif isinstance(target, scratch.Studio):
                 where = f"[{target.id}](https://scratch.mit.edu/studios/{target.id})"
-            elif type(target) == scratch.Comment:
-                where = "Comment (I ain't writing 100 lines to support comments links because of API limitations, sorry)"
+            elif isinstance(target, scratch.Comment):
+                where = "Comment"
             else:
                 where = "Unknown"
 
-            result = f"{result}{where}."
+            lines.append(f"`{user}` made action {item.type} at {where}.")
 
-        msg.description = result
-        await ctx.send(embed=msg)
+        await ctx.send(
+            embed=interactions.Embed(
+                title="This user's past scratch activity :",
+                description="\n".join(lines),
+                color=scratch_orange,
+            )
+        )
 
     @interactions.slash_command(
         name="scratchteam",
         description="Gets all scratch team members !",
     )
-    async def scratchteam(self, ctx: interactions.SlashContext):
-        msg = interactions.Embed(
-            title="<:ScratchTeam:1330549427580178472> The Scratch Team is composed of :",
-            description="",
-            color=scratch_orange,
+    async def scratchteam(self, ctx: interactions.SlashContext) -> None:
+        members = "\n".join(
+            f"- **[{m['userName']}](https://scratch.mit.edu/users/{m['userName']})** "
+            f"<:separator:1333808735101124668> {m['name']}"
+            for m in scratch.scratch_team_members()
         )
-        for item in scratch.scratch_team_members():
-            msg.description = (
-                f"{msg.description}\n- **[{item['userName']}]"
-                f"(https://scratch.mit.edu/users/{item['userName']})** "
-                f"<:separator:1333808735101124668> {item['name']}"
+        await ctx.send(
+            embed=interactions.Embed(
+                title="<:ScratchTeam:1330549427580178472> The Scratch Team is composed of :",
+                description=members,
+                color=scratch_orange,
             )
-        await ctx.send(embed=msg)
+        )
 
 
-def setup(bot: interactions.Client):
+def setup(bot: interactions.Client) -> None:
     UserCommands(bot)

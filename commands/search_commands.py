@@ -6,8 +6,6 @@ import random
 from itertools import islice
 
 import interactions
-import requests
-
 import scratchattach as scratch
 
 from config import scratch_orange
@@ -26,49 +24,56 @@ class SearchCommands(interactions.Extension):
         opt_type=interactions.OptionType.INTEGER,
         required=True,
     )
-    async def randomprojects(self, ctx: interactions.SlashContext, number: int):
+    async def randomprojects(self, ctx: interactions.SlashContext, number: int) -> None:
         await ctx.defer()
 
-        message = ""
-        max_project_id = scratch.total_site_stats().get("PROJECT_COUNT")
-        for i in range(number):
+        max_project_id = scratch.total_site_stats().get("PROJECT_COUNT", 1)
+        project_links: list[str] = []
+
+        for _ in range(number):
             while True:
                 try:
-                    project = scratch.get_project(random.randint(1, max_project_id))
+                    proj = scratch.get_project(random.randint(1, max_project_id))
+                    project_links.append(
+                        f"[**{proj.title}**](https://scratch.mit.edu/projects/{proj.id})"
+                    )
+                    break
                 except scratch.utils.exceptions.ProjectNotFound:
                     continue
-                break
-            message = (
-                f"{message} [**{project.title}**]"
-                f"(https://scratch.mit.edu/projects/{project.id})\n\n"
-            )
 
-        msg = interactions.Embed()
-        msg.title = "Here is 1 random project !" if number == 1 else f"Here are {number} random projects !"
-        msg.description = message
-        msg.color = scratch_orange
-        await ctx.send(embed=msg)
+        title = (
+            "Here is 1 random project !"
+            if number == 1
+            else f"Here are {number} random projects !"
+        )
+        await ctx.send(
+            embed=interactions.Embed(
+                title=title,
+                description="\n\n".join(project_links),
+                color=scratch_orange,
+            )
+        )
 
     @interactions.slash_command(
         name="christmas",
         description="Take a look at the best christmas projects easily !",
     )
-    async def christmas(self, ctx: interactions.SlashContext):
+    async def christmas(self, ctx: interactions.SlashContext) -> None:
         await ctx.defer()
 
-        message = ""
         projects = scratch.search_projects(
             query="christmas", mode="popular", language="en", limit=10, offset=0
         )
-        for item in projects:
-            message = (
-                f"{message}\n\n **[{item.title}](<https://scratch.mit.edu/projects/{item.id}>)**\n"
-                f"-# by [{item.author().username}](https://scratch.mit.edu/users/{item.author().username})"
-            )
+        lines = [
+            f"**[{p.title}](<https://scratch.mit.edu/projects/{p.id}>)**\n"
+            f"-# by [{p.author().username}](https://scratch.mit.edu/users/{p.author().username})"
+            for p in projects
+        ]
+
         await ctx.send(
             embed=interactions.Embed(
                 title="<:SantaCat:1444277069826494557>Top 10 popular christmas projects<:SantaCat:1444277069826494557> :",
-                description=message,
+                description="\n\n".join(lines),
                 color=scratch_orange,
             )
         )
@@ -99,7 +104,7 @@ class SearchCommands(interactions.Extension):
         ctx: interactions.SlashContext,
         username: str,
         recommendation_type: str,
-    ):
+    ) -> None:
         await ctx.defer()
 
         try:
@@ -114,138 +119,166 @@ class SearchCommands(interactions.Extension):
             )
             return
 
-        msg = interactions.Embed(color=scratch_orange)
+        embed = interactions.Embed(color=scratch_orange)
 
         if recommendation_type == "projects":
-            loved_projects = list(islice(user.loved_projects(limit=10), 10))
-
-            if not loved_projects:
-                msg.title = f"No recommendations found for {username}"
-                msg.description = "This user hasn't loved any projects yet!"
-                await ctx.send(embed=msg)
-                return
-
-            recommendations = []
-            seen_ids = set()
-
-            for project in loved_projects[:3]:
-                try:
-                    author = project.author()
-                    for proj in list(author.projects(limit=5)):
-                        if proj.id not in seen_ids and proj.id != project.id:
-                            recommendations.append(proj)
-                            seen_ids.add(proj.id)
-                            if len(recommendations) >= 5:
-                                break
-                except Exception:
-                    continue
-                if len(recommendations) >= 5:
-                    break
-
-            if recommendations:
-                msg.title = f"📚 Project recommendations for {username}"
-                description = "Based on projects you loved, you might enjoy:\n"
-                for proj in recommendations[:5]:
-                    description += (
-                        f"\n**[{proj.title}](<https://scratch.mit.edu/projects/{proj.id}>)**\n"
-                        f"-# by [{proj.author_name}](https://scratch.mit.edu/users/{proj.author_name}) "
-                        f"• ❤️ {proj.loves} • ⭐ {proj.favorites}\n"
-                    )
-                msg.description = description
-            else:
-                msg.title = f"No recommendations found for {username}"
-                msg.description = "Could not find similar projects at this time."
-
+            embed = self._recommend_projects(user, username)
         elif recommendation_type == "users":
-            following = list(islice(user.following_names(limit=20), 20))
-
-            if not following:
-                msg.title = f"No recommendations found for {username}"
-                msg.description = "This user isn't following anyone yet!"
-                await ctx.send(embed=msg)
-                return
-
-            recommendations = []
-            seen_users = set(following + [username])
-
-            for followed_username in following[:5]:
-                try:
-                    followed_user = scratch.get_user(followed_username)
-                    for potential_rec in list(followed_user.following_names(limit=10)):
-                        if potential_rec not in seen_users:
-                            try:
-                                rec_user = scratch.get_user(potential_rec)
-                                recommendations.append(rec_user)
-                                seen_users.add(potential_rec)
-                                if len(recommendations) >= 5:
-                                    break
-                            except Exception:
-                                continue
-                except Exception:
-                    continue
-                if len(recommendations) >= 5:
-                    break
-
-            if recommendations:
-                msg.title = f"👥 User recommendations for {username}"
-                description = "Based on who you follow, you might like:\n"
-                for rec_user in recommendations[:5]:
-                    description += (
-                        f"\n**[{rec_user.username}](https://scratch.mit.edu/users/{rec_user.username})**\n"
-                        f"-# {rec_user.follower_count()} followers • {rec_user.following_count()} following\n"
-                    )
-                msg.description = description
-            else:
-                msg.title = f"No recommendations found for {username}"
-                msg.description = "Could not find similar users at this time."
-
+            embed = self._recommend_users(user, username)
         elif recommendation_type == "studios":
-            curating = list(islice(user.studios_curating(limit=20), 20))
+            embed = self._recommend_studios(user, username)
 
-            if not curating:
-                msg.title = f"No recommendations found for {username}"
-                msg.description = "This user isn't curating any studios yet!"
-                await ctx.send(embed=msg)
-                return
+        await ctx.send(embed=embed)
 
-            recommendations = []
-            seen_ids = set(s.id for s in curating)
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
 
-            for studio in curating[:5]:
-                try:
-                    for curator_name in list(studio.curator_names(limit=10))[:3]:
-                        try:
-                            curator = scratch.get_user(curator_name)
-                            for potential_studio in list(curator.studios_curating(limit=5)):
-                                if potential_studio.id not in seen_ids:
-                                    recommendations.append(potential_studio)
-                                    seen_ids.add(potential_studio.id)
-                                    if len(recommendations) >= 5:
-                                        break
-                        except Exception:
-                            continue
+    def _recommend_projects(self, user, username: str) -> interactions.Embed:
+        loved = list(islice(user.loved_projects(limit=10), 10))
+        if not loved:
+            return interactions.Embed(
+                title=f"No recommendations found for {username}",
+                description="This user hasn't loved any projects yet!",
+                color=scratch_orange,
+            )
+
+        recommendations = []
+        seen_ids: set[int] = set()
+
+        for project in loved[:3]:
+            try:
+                author = project.author()
+                for proj in list(author.projects(limit=5)):
+                    if proj.id not in seen_ids and proj.id != project.id:
+                        recommendations.append(proj)
+                        seen_ids.add(proj.id)
                         if len(recommendations) >= 5:
                             break
-                except Exception:
-                    continue
-                if len(recommendations) >= 5:
-                    break
+            except Exception:
+                continue
+            if len(recommendations) >= 5:
+                break
 
-            if recommendations:
-                msg.title = f"🎨 Studio recommendations for {username}"
-                description = "Based on studios you're in, you might like:\n"
-                for studio in recommendations[:5]:
-                    description += (
-                        f"\n**[{studio.title}](<https://scratch.mit.edu/studios/{studio.id}>)**\n"
-                        f"-# {studio.project_count} projects • {studio.follower_count} followers\n"
-                    )
-                msg.description = description
-            else:
-                msg.title = f"No recommendations found for {username}"
-                msg.description = "Could not find similar studios at this time."
+        if not recommendations:
+            return interactions.Embed(
+                title=f"No recommendations found for {username}",
+                description="Could not find similar projects at this time.",
+                color=scratch_orange,
+            )
 
-        await ctx.send(embed=msg)
+        lines = [
+            f"**[{p.title}](<https://scratch.mit.edu/projects/{p.id}>)**\n"
+            f"-# by [{p.author_name}](https://scratch.mit.edu/users/{p.author_name}) "
+            f"• {p.loves} loves • {p.favorites} faves"
+            for p in recommendations[:5]
+        ]
+        return interactions.Embed(
+            title=f"Project recommendations for {username}",
+            description="Based on projects you loved, you might enjoy:\n"
+            + "\n".join(lines),
+            color=scratch_orange,
+        )
+
+    def _recommend_users(self, user, username: str) -> interactions.Embed:
+        following = list(islice(user.following_names(limit=20), 20))
+        if not following:
+            return interactions.Embed(
+                title=f"No recommendations found for {username}",
+                description="This user isn't following anyone yet!",
+                color=scratch_orange,
+            )
+
+        recommendations = []
+        seen_users = set(following + [username])
+
+        for followed_name in following[:5]:
+            try:
+                followed_user = scratch.get_user(followed_name)
+                for potential in list(followed_user.following_names(limit=10)):
+                    if potential not in seen_users:
+                        try:
+                            rec_user = scratch.get_user(potential)
+                            recommendations.append(rec_user)
+                            seen_users.add(potential)
+                            if len(recommendations) >= 5:
+                                break
+                        except Exception:
+                            continue
+            except Exception:
+                continue
+            if len(recommendations) >= 5:
+                break
+
+        if not recommendations:
+            return interactions.Embed(
+                title=f"No recommendations found for {username}",
+                description="Could not find similar users at this time.",
+                color=scratch_orange,
+            )
+
+        lines = [
+            f"**[{u.username}](https://scratch.mit.edu/users/{u.username})**\n"
+            f"-# {u.follower_count()} followers • {u.following_count()} following"
+            for u in recommendations[:5]
+        ]
+        return interactions.Embed(
+            title=f"User recommendations for {username}",
+            description="Based on who you follow, you might like:\n" + "\n".join(lines),
+            color=scratch_orange,
+        )
+
+    def _recommend_studios(self, user, username: str) -> interactions.Embed:
+        curating = list(islice(user.studios_curating(limit=20), 20))
+        if not curating:
+            return interactions.Embed(
+                title=f"No recommendations found for {username}",
+                description="This user isn't curating any studios yet!",
+                color=scratch_orange,
+            )
+
+        recommendations = []
+        seen_ids: set[int] = set(s.id for s in curating)
+
+        for studio in curating[:5]:
+            try:
+                for curator_name in list(studio.curator_names(limit=10))[:3]:
+                    try:
+                        curator = scratch.get_user(curator_name)
+                        for potential in list(curator.studios_curating(limit=5)):
+                            if potential.id not in seen_ids:
+                                recommendations.append(potential)
+                                seen_ids.add(potential.id)
+                                if len(recommendations) >= 5:
+                                    break
+                    except Exception:
+                        continue
+                    if len(recommendations) >= 5:
+                        break
+            except Exception:
+                continue
+            if len(recommendations) >= 5:
+                break
+
+        if not recommendations:
+            return interactions.Embed(
+                title=f"No recommendations found for {username}",
+                description="Could not find similar studios at this time.",
+                color=scratch_orange,
+            )
+
+        lines = [
+            f"**[{s.title}](<https://scratch.mit.edu/studios/{s.id}>)**\n"
+            f"-# {s.project_count} projects • {s.follower_count} followers"
+            for s in recommendations[:5]
+        ]
+        return interactions.Embed(
+            title=f"Studio recommendations for {username}",
+            description="Based on studios you're in, you might like:\n"
+            + "\n".join(lines),
+            color=scratch_orange,
+        )
 
 
-def setup(bot: interactions.Client):
+def setup(bot: interactions.Client) -> None:
     SearchCommands(bot)
