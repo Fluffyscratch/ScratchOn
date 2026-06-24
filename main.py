@@ -20,14 +20,14 @@ bot.load_extension("commands.project_commands")
 bot.load_extension("commands.studio_forum_commands")
 bot.load_extension("commands.search_commands")
 bot.load_extension("commands.utility_commands")
-# bot.load_extension("commands.experimental_commands")  # uncomment when ready
+bot.load_extension("commands.experimental_commands")
 bot.load_extension("commands.prefix_commands")
 bot.load_extension("commands.currency_commands")
 
 # Attach Top.gg integration (registers its own listeners on `bot`)
-import topGG
+# import topGG
 
-topGG.attach_to_bot(bot)
+# topGG.attach_to_bot(bot)
 
 
 def main():
