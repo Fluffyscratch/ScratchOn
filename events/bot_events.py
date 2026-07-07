@@ -107,7 +107,7 @@ class BotEvents(interactions.Extension):
     @interactions.listen()
     async def on_command_error(event: CommandError):
         logging.exception(
-            f"Error in command {event.ctx.command.name}",
+            f"Error in command",
             exc_info=event.error
         )
 
