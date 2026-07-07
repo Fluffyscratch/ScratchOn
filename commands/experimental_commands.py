@@ -240,16 +240,16 @@ class ExperimentalCommands(interactions.Extension):
                 sc_user2 = scratch.get_user(user2)
 
                 embed = interactions.Embed(
-                    title=f"Comparing {user1} and {user2}", color=scratch_orange
+                    title=f"{user1} and {user2}", color=scratch_orange
                 )
                 embed.add_field(
                     name=user1,
                     value=(
-                        f"Projects: {sc_user1.project_count()}\n"
-                        f"Followers: {sc_user1.follower_count()}\n"
-                        f"Following: {sc_user1.following_count()}\n"
-                        f"Loves: {sc_user1.loves_count()}\n"
-                        f"Favorites: {sc_user1.favorites_count()}"
+                        f"{sc_user1.project_count()} projects\n"
+                        f"{sc_user1.follower_count()} <:Followers:1524005976485924874>\n"
+                        f"{sc_user1.following_count()} <:Followings:1524093134060130405>\n"
+                        f"{sc_user1.loves_count()} <:Heart:1524004399104655440>\n"
+                        f"{sc_user1.favorites_count()} <:Star:1524004383778406562>"
                     ),
                     inline=True,
                 )
@@ -257,11 +257,11 @@ class ExperimentalCommands(interactions.Extension):
                 embed.add_field(
                     name=user2,
                     value=(
-                        f"Projects: {sc_user2.project_count()}\n"
-                        f"Followers: {sc_user2.follower_count()}\n"
-                        f"Following: {sc_user2.following_count()}\n"
-                        f"Loves: {sc_user2.loves_count()}\n"
-                        f"Favorites: {sc_user2.favorites_count()}"
+                        f"{sc_user2.project_count()} projects\n"
+                        f"{sc_user2.follower_count()} <:Followers:1524005976485924874>\n"
+                        f"{sc_user2.following_count()} <:Followings:1524093134060130405>\n"
+                        f"{sc_user2.loves_count()} <:Heart:1524004399104655440>\n"
+                        f"{sc_user2.favorites_count()} <:Star:1524004383778406562>"
                     ),
                     inline=True,
                 )
