@@ -128,10 +128,11 @@ class SearchCommands(interactions.Extension):
             recommendations = []
             seen_ids = set()
 
-            for project in loved_projects[:3]:
+            for project in loved_projects[:5]:
                 try:
+                    project.update()  # .favorites() doesn't return the author, so we update the project to get it
                     author = project.author()
-                    for proj in list(author.projects(limit=5)):
+                    for proj in list(author.projects(limit=10)):
                         if proj.id not in seen_ids and proj.id != project.id:
                             recommendations.append(proj)
                             seen_ids.add(proj.id)
