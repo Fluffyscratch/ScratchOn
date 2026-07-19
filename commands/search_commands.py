@@ -117,7 +117,7 @@ class SearchCommands(interactions.Extension):
         msg = interactions.Embed(color=scratch_orange)
 
         if recommendation_type == "projects":
-            loved_projects = list(islice(user.loved_projects(limit=10), 10))
+            loved_projects = list(islice(user.favorites(limit=40), 40))
 
             if not loved_projects:
                 msg.title = f"No recommendations found for {username}"
@@ -128,16 +128,18 @@ class SearchCommands(interactions.Extension):
             recommendations = []
             seen_ids = set()
 
-            for project in loved_projects[:3]:
+            for project in loved_projects[:5]:
                 try:
+                    project.update()  # .favorites() doesn't return the author, so we update the project to get it
                     author = project.author()
-                    for proj in list(author.projects(limit=5)):
+                    for proj in list(author.projects(limit=10)):
                         if proj.id not in seen_ids and proj.id != project.id:
                             recommendations.append(proj)
                             seen_ids.add(proj.id)
                             if len(recommendations) >= 5:
                                 break
-                except Exception:
+                except Exception as e:
+                    print(e)
                     continue
                 if len(recommendations) >= 5:
                     break
@@ -148,7 +150,7 @@ class SearchCommands(interactions.Extension):
                 for proj in recommendations[:5]:
                     description += (
                         f"\n**[{proj.title}](<https://scratch.mit.edu/projects/{proj.id}>)**\n"
-                        f"-# by [{proj.author_name}](https://scratch.mit.edu/users/{proj.author_name}) "
+                        f"-# by [{proj.author().username}](https://scratch.mit.edu/users/{proj.author().username}) "
                         f"• ❤️ {proj.loves} • ⭐ {proj.favorites}\n"
                     )
                 msg.description = description
@@ -157,7 +159,7 @@ class SearchCommands(interactions.Extension):
                 msg.description = "Could not find similar projects at this time."
 
         elif recommendation_type == "users":
-            following = list(islice(user.following_names(limit=20), 20))
+            following = list(islice(user.following_names(limit=40), 20))
 
             if not following:
                 msg.title = f"No recommendations found for {username}"
@@ -200,7 +202,7 @@ class SearchCommands(interactions.Extension):
                 msg.description = "Could not find similar users at this time."
 
         elif recommendation_type == "studios":
-            curating = list(islice(user.studios_curating(limit=20), 20))
+            curating = list(islice(user.studios(limit=40), 20))
 
             if not curating:
                 msg.title = f"No recommendations found for {username}"
@@ -213,10 +215,9 @@ class SearchCommands(interactions.Extension):
 
             for studio in curating[:5]:
                 try:
-                    for curator_name in list(studio.curator_names(limit=10))[:3]:
+                    for curator in list(studio.curators(limit=10))[:3]:
                         try:
-                            curator = scratch.get_user(curator_name)
-                            for potential_studio in list(curator.studios_curating(limit=5)):
+                            for potential_studio in list(curator.studios(limit=5)):
                                 if potential_studio.id not in seen_ids:
                                     recommendations.append(potential_studio)
                                     seen_ids.add(potential_studio.id)
@@ -235,6 +236,7 @@ class SearchCommands(interactions.Extension):
                 msg.title = f"🎨 Studio recommendations for {username}"
                 description = "Based on studios you're in, you might like:\n"
                 for studio in recommendations[:5]:
+                    studio.update()  # Ensure we have all available data about the studio
                     description += (
                         f"\n**[{studio.title}](<https://scratch.mit.edu/studios/{studio.id}>)**\n"
                         f"-# {studio.project_count} projects • {studio.follower_count} followers\n"
