@@ -69,20 +69,32 @@ class StudioForumCommands(interactions.Extension):
             interactions.SlashCommandChoice(name="Project Ideas", value=9),
             interactions.SlashCommandChoice(name="Collaboration", value=10),
             interactions.SlashCommandChoice(name="Requests", value=11),
-            interactions.SlashCommandChoice(name="Project Save & Level Codes", value=60),
+            interactions.SlashCommandChoice(
+                name="Project Save & Level Codes", value=60
+            ),
             interactions.SlashCommandChoice(name="Questions about scratch", value=4),
             interactions.SlashCommandChoice(name="Suggestions", value=1),
             interactions.SlashCommandChoice(name="Bugs and Glitches", value=3),
             interactions.SlashCommandChoice(name="Advanced Topics", value=31),
-            interactions.SlashCommandChoice(name="Connecting to the Physical World", value=32),
-            interactions.SlashCommandChoice(name="Developing Scratch Extensions", value=48),
+            interactions.SlashCommandChoice(
+                name="Connecting to the Physical World", value=32
+            ),
+            interactions.SlashCommandChoice(
+                name="Developing Scratch Extensions", value=48
+            ),
             interactions.SlashCommandChoice(name="Open Source Projects", value=49),
-            interactions.SlashCommandChoice(name="Things I'm Making and Creating", value=29),
-            interactions.SlashCommandChoice(name="Things I'm Reading and Playing", value=30),
+            interactions.SlashCommandChoice(
+                name="Things I'm Making and Creating", value=29
+            ),
+            interactions.SlashCommandChoice(
+                name="Things I'm Reading and Playing", value=30
+            ),
         ],
     )
     async def forums(self, ctx: interactions.SlashContext, category: int):
-        msg = interactions.Embed(title="Topics in this category :", color=scratch_orange)
+        msg = interactions.Embed(
+            title="Topics in this category :", color=scratch_orange
+        )
         desc = ""
         for item in scratch.get_topic_list(category_id=category, page=1):
             desc = (

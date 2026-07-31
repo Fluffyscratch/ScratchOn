@@ -44,7 +44,11 @@ class SearchCommands(interactions.Extension):
             )
 
         msg = interactions.Embed()
-        msg.title = "Here is 1 random project !" if number == 1 else f"Here are {number} random projects !"
+        msg.title = (
+            "Here is 1 random project !"
+            if number == 1
+            else f"Here are {number} random projects !"
+        )
         msg.description = message
         msg.color = scratch_orange
         await ctx.send(embed=msg)

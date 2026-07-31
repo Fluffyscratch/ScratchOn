@@ -38,9 +38,7 @@ class ProjectCommands(interactions.Extension):
             )
             embeded_msg.color = 0xFF0000
         elif status == "safe":
-            embeded_msg.description = (
-                "<:Verified:1333795453250175058>Safe (FE) !<:Verified:1333795453250175058>"
-            )
+            embeded_msg.description = "<:Verified:1333795453250175058>Safe (FE) !<:Verified:1333795453250175058>"
             embeded_msg.color = 0x57F287
         else:
             embeded_msg.description = (

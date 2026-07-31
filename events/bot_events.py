@@ -99,25 +99,20 @@ class BotEvents(interactions.Extension):
             f"The **{button_id}** color changed to **{color_name}**!",
             ephemeral=True,
         )
-    
+
     # ------------------------------------------------------------------ #
     # Error handler                                                       #
     # ------------------------------------------------------------------ #
 
     @interactions.listen()
     async def on_command_error(event: CommandError):
-        logging.exception(
-            f"Error in command",
-            exc_info=event.error
-        )
+        logging.exception(f"Error in command", exc_info=event.error)
 
         try:
-            await event.ctx.send(
-                "❌ An internal error occurred.",
-                ephemeral=True
-            )
+            await event.ctx.send("❌ An internal error occurred.", ephemeral=True)
         except Exception:
             pass
+
 
 def setup(bot: interactions.Client):
     BotEvents(bot)

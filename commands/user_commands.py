@@ -81,7 +81,9 @@ class UserCommands(interactions.Extension):
             embeded_message.set_thumbnail(url=usr.icon_url)
             embeded_message.set_footer(text=f"{user}'s ID : {usr.id}")
             embeded_message.color = scratch_orange
-            embeded_message.set_image(url=usr.featured_data()["project"]["thumbnail_url"])
+            embeded_message.set_image(
+                url=usr.featured_data()["project"]["thumbnail_url"]
+            )
             await ctx.send(embed=embeded_message)
 
         except scratch.utils.exceptions.UserNotFound:
@@ -344,6 +346,81 @@ class UserCommands(interactions.Extension):
                 f"<:separator:1333808735101124668> {item['name']}"
             )
         await ctx.send(embed=msg)
+
+    @interactions.slash_command(
+        name="compare",
+        description="Compares two Scratch users' stats.",
+    )
+    @interactions.slash_option(
+        name="user1",
+        description="First Scratch username",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    @interactions.slash_option(
+        name="user2",
+        description="Second Scratch username",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    async def compare(self, ctx: interactions.SlashContext, user1: str, user2: str):
+        await ctx.defer()
+
+        try:
+            sc_user1 = scratch.get_user(user1)
+            sc_user2 = scratch.get_user(user2)
+
+        except scratch.utils.exceptions.UserNotFound:
+            await ctx.send(
+                embed=interactions.Embed(
+                    title="Error",
+                    description="One or both of the specified users do not exist on Scratch.",
+                    color=0xFF0000,
+                )
+            )
+
+        project_count1 = sc_user1.project_count()
+        love_count1 = 0
+        favorite_count1 = 0
+
+        project_count2 = sc_user2.project_count()
+        love_count2 = 0
+        favorite_count2 = 0
+
+        for project in sc_user1.projects(limit=project_count1):
+            love_count1 += project.loves
+            favorite_count1 += project.favorites
+
+        for project in sc_user2.projects(limit=project_count2):
+            love_count2 += project.loves
+            favorite_count2 += project.favorites
+
+        embed = interactions.Embed(title=f"{user1} and {user2}", color=scratch_orange)
+        embed.add_field(
+            name=user1,
+            value=(
+                f"{project_count1} projects\n"
+                f"{sc_user1.follower_count()} <:Followers:1524005976485924874>\n"
+                f"{sc_user1.following_count()} <:Followings:1524093134060130405>\n"
+                f"{love_count1} <:Heart:1524004399104655440>\n"
+                f"{favorite_count1} <:Star:1524004383778406562>"
+            ),
+            inline=True,
+        )
+        embed.add_field(name="\u200b", value="\u200b", inline=True)
+        embed.add_field(
+            name=user2,
+            value=(
+                f"{project_count2} projects\n"
+                f"{sc_user2.follower_count()} <:Followers:1524005976485924874>\n"
+                f"{sc_user2.following_count()} <:Followings:1524093134060130405>\n"
+                f"{love_count2} <:Heart:1524004399104655440>\n"
+                f"{favorite_count2} <:Star:1524004383778406562>"
+            ),
+            inline=True,
+        )
+
+        await ctx.send(embed=embed)
 
 
 def setup(bot: interactions.Client):
