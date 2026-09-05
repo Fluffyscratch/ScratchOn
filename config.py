@@ -25,14 +25,14 @@ bot_statuses = cycle(
     ]
 )
 
-# The bot's theme colours (plain hex integers — interactions.py accepts these directly)
+# The bot's theme colours
 scratch_orange = 0xF6AB3C
 scratch_gold = 0xFFBE00
 scratch_blue = 0x4E97FE
 
 # Embed for experimental commands
 betaembed = interactions.Embed(
-    title="Sorry, this command is still in beta ! You cannot use it yet.",
+    title="Sorry, this command is still in beta! You cannot use it yet.",
     color=0xFF0000,
 )
 
