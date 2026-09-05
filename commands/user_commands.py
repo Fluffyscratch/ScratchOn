@@ -253,6 +253,7 @@ class UserCommands(interactions.Extension):
         msg = interactions.Embed()
         count = 0
         desc = ""
+        limit_reached = False
 
         followers1 = scratch.get_user(user_1).follower_names(
             limit=int(scratch.get_user(user_1).follower_count())
@@ -265,6 +266,10 @@ class UserCommands(interactions.Extension):
             if item in followers2:
                 count += 1
                 desc = f"{desc}\n{item}"
+            if count > 100:
+                desc = f"{desc}\n**And more...**"
+                limit_reached = True
+                break
 
         if count == 0:
             await ctx.send(
@@ -274,11 +279,18 @@ class UserCommands(interactions.Extension):
                 )
             )
         else:
-            msg.title = (
-                f"<:together:1330551758166036500>"
-                f"{user_1} and {user_2} have {count} mutual followers"
-                f"<:together:1330551758166036500> :"
-            )
+            if limit_reached:
+                msg.title = (
+                    f"<:together:1330551758166036500>"
+                    f"{user_1} and {user_2} have over 100 mutual followers"
+                    f"<:together:1330551758166036500> :"
+                )
+            else:
+                msg.title = (
+                    f"<:together:1330551758166036500>"
+                    f"{user_1} and {user_2} have {count} mutual followers"
+                    f"<:together:1330551758166036500> :"
+                )
             msg.description = desc
             msg.color = scratch_orange
             await ctx.send(embed=msg)
@@ -296,10 +308,11 @@ class UserCommands(interactions.Extension):
     @interactions.slash_option(
         name="limit",
         description="Number of activities to show",
-        opt_type=interactions.OptionType.STRING,
+        opt_type=interactions.OptionType.INTEGER,
         required=True,
+        max_value=50,
     )
-    async def activity(self, ctx: interactions.SlashContext, user: str, limit: str):
+    async def activity(self, ctx: interactions.SlashContext, user: str, limit: int):
         await ctx.defer()
 
         msg = interactions.Embed(
