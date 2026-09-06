@@ -25,6 +25,7 @@ class SearchCommands(interactions.Extension):
         description="How many random projects to return",
         opt_type=interactions.OptionType.INTEGER,
         required=True,
+        max_value=20,
     )
     async def randomprojects(self, ctx: interactions.SlashContext, number: int):
         await ctx.defer()

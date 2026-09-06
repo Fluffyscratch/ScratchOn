@@ -170,6 +170,7 @@ class ProjectCommands(interactions.Extension):
         description="How many trending projects to check",
         opt_type=interactions.OptionType.INTEGER,
         required=True,
+        max_value=520,
     )
     async def ontrend(
         self,
