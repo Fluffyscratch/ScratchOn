@@ -256,20 +256,20 @@ class UserCommands(interactions.Extension):
         limit_reached = False
 
         followers1 = scratch.get_user(user_1).follower_names(
-            limit=int(scratch.get_user(user_1).follower_count())
+            limit=min(1000, int(scratch.get_user(user_1).follower_count()))
         )
         followers2 = scratch.get_user(user_2).follower_names(
-            limit=int(scratch.get_user(user_2).follower_count())
+            limit=min(1000, int(scratch.get_user(user_2).follower_count()))
         )
 
         for item in followers1:
             if item in followers2:
                 count += 1
-                desc = f"{desc}\n{item}"
-            if count > 100:
+                if not limit_reached:
+                    desc = f"{desc}\n{item}"
+            if count == 200:
                 desc = f"{desc}\n**And more...**"
                 limit_reached = True
-                break
 
         if count == 0:
             await ctx.send(
@@ -279,10 +279,10 @@ class UserCommands(interactions.Extension):
                 )
             )
         else:
-            if limit_reached:
+            if len(followers1) > 1000 or len(followers2) > 1000:
                 msg.title = (
                     f"<:together:1330551758166036500>"
-                    f"{user_1} and {user_2} have over 100 mutual followers"
+                    f"{user_1} and {user_2} have over {count} mutual followers"
                     f"<:together:1330551758166036500> :"
                 )
             else:
