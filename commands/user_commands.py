@@ -81,7 +81,9 @@ class UserCommands(interactions.Extension):
             embeded_message.set_thumbnail(url=usr.icon_url)
             embeded_message.set_footer(text=f"{user}'s ID : {usr.id}")
             embeded_message.color = scratch_orange
-            embeded_message.set_image(url=usr.featured_data()["project"]["thumbnail_url"])
+            embeded_message.set_image(
+                url=usr.featured_data()["project"]["thumbnail_url"]
+            )
             await ctx.send(embed=embeded_message)
 
         except scratch.utils.exceptions.UserNotFound:

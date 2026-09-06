@@ -22,6 +22,7 @@ APPLICATION_ID = None
 # Decorator for excluding commands from Top.gg
 # ---------------------------------------------------------------------------
 
+
 def exclude_from_topgg(func):
     """
     Decorator to exclude a command from Top.gg posting.
@@ -40,6 +41,7 @@ def exclude_from_topgg(func):
 # ---------------------------------------------------------------------------
 # Logging setup
 # ---------------------------------------------------------------------------
+
 
 def setup_logging():
     """Configure file + stdout logging."""
@@ -61,6 +63,7 @@ def setup_logging():
 # ---------------------------------------------------------------------------
 # Top.gg integration
 # ---------------------------------------------------------------------------
+
 
 class TopGGIntegration:
     """Handles Top.gg API integration for command posting."""
@@ -89,7 +92,9 @@ class TopGGIntegration:
                 return False
 
             async with aiohttp.ClientSession() as session:
-                async with session.post(url, headers=headers, json=commands_data) as resp:
+                async with session.post(
+                    url, headers=headers, json=commands_data
+                ) as resp:
                     if resp.status in (200, 204):
                         logging.info(
                             f"✅ Successfully posted {len(commands_data)} commands to Top.gg"
@@ -136,10 +141,14 @@ class TopGGIntegration:
     def _is_command_excluded(self, command) -> bool:
         """Return True if this command carries the @exclude_from_topgg marker."""
         # Check the decorated callback function
-        if hasattr(command, "callback") and hasattr(command.callback, "_exclude_from_topgg"):
+        if hasattr(command, "callback") and hasattr(
+            command.callback, "_exclude_from_topgg"
+        ):
             return True
         # Some internals store it differently
-        if hasattr(command, "_callback") and hasattr(command._callback, "_exclude_from_topgg"):
+        if hasattr(command, "_callback") and hasattr(
+            command._callback, "_exclude_from_topgg"
+        ):
             return True
         # Direct attribute (set manually)
         if hasattr(command, "_exclude_from_topgg"):
@@ -180,7 +189,8 @@ class TopGGIntegration:
                 command_data.update(
                     {
                         "type": 1,  # CHAT_INPUT
-                        "description": getattr(command, "description", "") or "No description",
+                        "description": getattr(command, "description", "")
+                        or "No description",
                     }
                 )
 
@@ -196,7 +206,10 @@ class TopGGIntegration:
                         command_data["options"] = converted_options
 
             # Honour default_member_permissions if present
-            if hasattr(command, "default_member_permissions") and command.default_member_permissions:
+            if (
+                hasattr(command, "default_member_permissions")
+                and command.default_member_permissions
+            ):
                 command_data["default_member_permissions"] = str(
                     command.default_member_permissions.value
                     if hasattr(command.default_member_permissions, "value")
@@ -222,7 +235,8 @@ class TopGGIntegration:
 
             option_data: Dict = {
                 "name": option.name,
-                "description": getattr(option, "description", "Parameter") or "Parameter",
+                "description": getattr(option, "description", "Parameter")
+                or "Parameter",
                 "required": getattr(option, "required", True),
                 "type": type_value,
             }
@@ -243,7 +257,9 @@ class TopGGIntegration:
             return option_data
 
         except Exception as e:
-            logging.error(f"❌ Error converting option '{getattr(option, 'name', '?')}': {e}")
+            logging.error(
+                f"❌ Error converting option '{getattr(option, 'name', '?')}': {e}"
+            )
             return None
 
     async def start_periodic_updates(self):
@@ -257,12 +273,13 @@ class TopGGIntegration:
                 await asyncio.sleep(86_400)  # 24 hours
             except Exception as e:
                 logging.error(f"❌ Error in periodic command update: {e}")
-                await asyncio.sleep(3_600)   # retry after 1 hour
+                await asyncio.sleep(3_600)  # retry after 1 hour
 
 
 # ---------------------------------------------------------------------------
 # Command syncer
 # ---------------------------------------------------------------------------
+
 
 class CommandSyncer:
     """Wraps interactions.py's command synchronisation."""
@@ -291,6 +308,7 @@ class CommandSyncer:
 # ---------------------------------------------------------------------------
 # attach_to_bot — public entry point
 # ---------------------------------------------------------------------------
+
 
 def attach_to_bot(bot: interactions.Client, env_path: str = "TopGG.env"):
     """Attach Top.gg integration to an existing ``interactions.Client`` instance.
@@ -326,9 +344,7 @@ def attach_to_bot(bot: interactions.Client, env_path: str = "TopGG.env"):
 
     @bot.listen(interactions.events.Ready)
     async def _on_ready(event: interactions.events.Ready):
-        logging.info(
-            f"🚀 Bot logged in as {bot.user.username} (ID: {bot.user.id})"
-        )
+        logging.info(f"🚀 Bot logged in as {bot.user.username} (ID: {bot.user.id})")
         logging.info(f"📊 Connected to {len(bot.guilds)} guilds")
 
         try:
@@ -364,6 +380,7 @@ def attach_to_bot(bot: interactions.Client, env_path: str = "TopGG.env"):
 # ---------------------------------------------------------------------------
 # Helper for ad-hoc posting
 # ---------------------------------------------------------------------------
+
 
 async def post_commands_now(bot: interactions.Client) -> bool:
     """Post commands immediately using the bot's attached integration (if any)."""

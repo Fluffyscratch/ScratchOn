@@ -82,7 +82,9 @@ class UtilityCommands(interactions.Extension):
 
         bot_name = self.bot.user.username
 
-        msg = interactions.Embed(title="🤔 About ScratchOn <:BestBot:1388503205373280337> :")
+        msg = interactions.Embed(
+            title="🤔 About ScratchOn <:BestBot:1388503205373280337> :"
+        )
         msg.description = (
             "<:together:1330551758166036500> **Contributors :**\n\n"
             "- <:fluffy:1340009005581598820>** Fluffy**<:separator:1333808735101124668>Basically the bot founder and owner, who coded ScratchOn.\n"
@@ -273,7 +275,9 @@ class UtilityCommands(interactions.Extension):
         )
 
         await ctx.send(
-            embed=interactions.Embed(title="Done! Here is the output ⬆️", color=scratch_orange),
+            embed=interactions.Embed(
+                title="Done! Here is the output ⬆️", color=scratch_orange
+            ),
             file=audio_file,
         )
 
@@ -294,7 +298,9 @@ class UtilityCommands(interactions.Extension):
         required=False,
         choices=[
             interactions.SlashCommandChoice(name="Scratch 3.0", value="scratch3"),
-            interactions.SlashCommandChoice(name="Scratch 3.0 (high-contrast)", value="scratch3-high-contrast"),
+            interactions.SlashCommandChoice(
+                name="Scratch 3.0 (high-contrast)", value="scratch3-high-contrast"
+            ),
             interactions.SlashCommandChoice(name="Scratch 2.0", value="scratch2"),
         ],
     )
