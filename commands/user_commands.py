@@ -279,7 +279,7 @@ class UserCommands(interactions.Extension):
                 )
             )
         else:
-            if len(followers1) > 1000 or len(followers2) > 1000:
+            if len(followers1) == 1000 or len(followers2) == 1000:
                 msg.title = (
                     f"<:together:1330551758166036500>"
                     f"{user_1} and {user_2} have over {count} mutual followers"
