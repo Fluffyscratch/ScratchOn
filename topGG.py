@@ -170,7 +170,7 @@ class TopGGIntegration:
 
             command_data: Dict = {
                 "id": cmd_id,
-                "application_id": str(self.bot.app_id),
+                "application_id": str(self.bot.app.id),
                 "name": command.name,
                 "version": "1",
             }
