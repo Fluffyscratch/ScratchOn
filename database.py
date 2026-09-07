@@ -9,9 +9,8 @@ db = duckdb.connect("private/ScratchOn.duckdb")
 
 # Initialize table
 db.execute("""CREATE TABLE IF NOT EXISTS ScratchOn (
-    serverid INTEGER PRIMARY KEY,
+    serverid BIGINT PRIMARY KEY,
     language TEXT DEFAULT 'en',
-    ai BOOLEAN DEFAULT FALSE,
     embeds BOOLEAN DEFAULT FALSE
 )""")
 
