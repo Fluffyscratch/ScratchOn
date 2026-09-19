@@ -46,3 +46,6 @@ button_states = {}
 
 # Memory storage for pending verifications (user_id: Verificator)
 pending_verifiers: dict = {}
+
+# Variable to indicate if the bot is ready
+bot_ready = False
