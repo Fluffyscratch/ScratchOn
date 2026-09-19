@@ -6,7 +6,7 @@ import interactions
 import logging
 from interactions.api.events import CommandError
 
-from config import bot, bot_statuses, button_states
+from config import bot, bot_statuses, button_states, bot_ready
 from database import add_server
 
 
@@ -34,12 +34,16 @@ class BotEvents(interactions.Extension):
     @interactions.listen(interactions.events.Ready)
     async def on_ready(self, event: interactions.events.Ready):
         print("ScratchOn is ready !")
+        global bot_ready
+        bot_ready = True
         self.status_task.start()
 
     @interactions.listen(interactions.events.GuildJoin)
     async def on_guild_join(self, event: interactions.events.GuildJoin):
         """When joining a server, register it in the database."""
-        add_server(event.guild.id)
+        global bot_ready
+        if bot_ready:
+            add_server(event.guild.id)
 
     # ------------------------------------------------------------------ #
     # Component interaction handler (settings buttons)                    #
