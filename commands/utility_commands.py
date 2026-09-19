@@ -11,6 +11,7 @@ import interactions
 
 import scratchattach as scratch
 
+import config
 from config import scratch_orange
 
 
@@ -315,6 +316,27 @@ class UtilityCommands(interactions.Extension):
         await ctx.defer()
         filename = await render_blocks_image(code=code, style=style)
         await ctx.send(file=interactions.File(file=filename))
+
+    @interactions.slash_command(
+        name="community",
+        description="Check what the Scratch community is up to.",
+    )
+    async def community(self, ctx: interactions.SlashContext):
+        stats = config.activity_stats
+        await ctx.send(
+            embed=interactions.Embed(
+                title=":eyes: What the community is up to:",
+                description=(
+                    f"**{stats['scratch3']}** people are using Scratch 3\n"
+                    f"- **{stats['streaming_scratch3']}** people are streaming it\n"
+                    f"**{stats['turbowarp']}** people are using TurboWarp Desktop\n"
+                    f"- **{stats['streaming_turbowarp']}** people are streaming it\n"
+                    f"**{stats['scratch2']}** people are using Scratch 2\n"
+                    f"**{stats['scratch1']}** people are using Scratch 1.4\n"
+                ),
+                color=scratch_orange,
+            )
+        )
 
 
 def setup(bot: interactions.Client):
