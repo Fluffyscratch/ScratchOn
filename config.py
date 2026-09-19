@@ -49,3 +49,13 @@ pending_verifiers: dict = {}
 
 # Variable to indicate if the bot is ready
 bot_ready = False
+
+# Activity statistics
+activity_stats = {
+    "turbowarp": 0,
+    "streaming_turbowarp": 0,
+    "scratch3": 0,
+    "streaming_scratch3": 0,
+    "scratch2": 0,
+    "scratch1": 0,
+}
