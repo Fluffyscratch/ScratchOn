@@ -2,12 +2,57 @@
 Discord bot events.
 """
 
+from re import match
 import interactions
 import logging
 from interactions.api.events import CommandError
 
+import config
 from config import bot, bot_statuses, button_states, bot_ready
 from database import add_server
+
+# ------------------------------------------------------------------ #
+# Helper functions                                                        #
+# ------------------------------------------------------------------ #
+def classify(activity) -> str | None:
+    """Map an activity to a stats key, or None if irrelevant."""
+    T = interactions.ActivityType
+    name = activity.name or ""
+    playing = activity.type == T.PLAYING
+    streaming = activity.type == T.STREAMING
+
+    if name == "TurboWarp Desktop":
+        return "streaming_turbowarp" if streaming else "turbowarp" if playing else None
+    if match(r"Scratch 3\.\d+\.\d+", name):
+        return "streaming_scratch3" if streaming else "scratch3" if playing else None
+    if playing and name == "Scratch 2 Offline Editor":
+        return "scratch2"
+    if playing and match(r"Scratch 1\.4 of \d{2}-[A-Za-z]{3}-\d{2}", name):
+        return "scratch1"
+    return None
+
+_presence: dict[int, set[str]] = {}   # people currently using Scratch or TurboWarp
+_streaming: set[int] = set()          # people currently streaming Scratch or TurboWarp
+_applied: dict[int, set[str]] = {}    # keys currently counted in stats
+
+def _effective(uid: int) -> set[str]:
+    keys = set(_presence.get(uid, set()))
+    if uid in _streaming:
+        for base in ("turbowarp", "scratch3"):
+            if base in keys:
+                keys.add(f"streaming_{base}")
+    return keys
+
+def _refresh(uid: int):
+    stats = config.activity_stats
+    new, old = _effective(uid), _applied.get(uid, set())
+    for k in old - new:
+        stats[k] -= 1
+    for k in new - old:
+        stats[k] += 1
+    _applied[uid] = new
+
+_user_states: dict[int, set[str]] = {}
 
 
 class BotEvents(interactions.Extension):
@@ -44,6 +89,22 @@ class BotEvents(interactions.Extension):
         global bot_ready
         if bot_ready:
             add_server(event.guild.id)
+
+    @interactions.listen(interactions.events.PresenceUpdate)
+    async def on_presence_update(self, event: interactions.events.PresenceUpdate):
+        uid = int(event.user.id)
+        _presence[uid] = {k for a in event.activities if (k := classify(a))}
+        _refresh(uid)
+
+    @interactions.listen(interactions.events.VoiceStateUpdate)
+    async def on_voice_state_update(self, event: interactions.events.VoiceStateUpdate):
+        state = event.after or event.before
+        uid = int(state.member.id)
+        if event.after and event.after.self_stream:
+            _streaming.add(uid)
+        else:
+            _streaming.discard(uid)  # stopped streaming or left voice
+        _refresh(uid)
 
     # ------------------------------------------------------------------ #
     # Component interaction handler (settings buttons)                    #
@@ -109,7 +170,7 @@ class BotEvents(interactions.Extension):
     # ------------------------------------------------------------------ #
 
     @interactions.listen()
-    async def on_command_error(event: CommandError):
+    async def on_command_error(self, event: CommandError):
         logging.exception(f"Error in command", exc_info=event.error)
 
         try:
