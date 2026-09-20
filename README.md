@@ -3,7 +3,7 @@ The ultimate [scratch.mit.edu](https://scratch.mit.edu) discord integration.
 
 ## What is ScratchOn ?
 
-ScratchOn is an **extremely feature packed** discord bot, with **20+ commands** ! From precise project preview to fun scratch Text to Speech, ScratchOn will for sure give you all the commands you would possibly need, offering an outstanding scratch integration right into discord.
+ScratchOn is an **extremely feature packed** discord bot, with **20+ commands**! From precise project preview to fun scratch Text to Speech, ScratchOn will for sure give you all the commands you would possibly need, offering an outstanding scratch integration right into discord.
 
 ## Disclaimers
 
@@ -22,4 +22,4 @@ There are many more scratch discord bots. However, ScratchOn has a bunch of adva
 
 ## Can we trust ScratchOn ?
 
-**Yes !** ScratchOn cumulates **100 servers** and more than **100 000 unique members** !
+**Yes !** ScratchOn cumulates **100 servers** and more than **30 000 unique members**!
