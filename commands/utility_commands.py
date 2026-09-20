@@ -325,11 +325,11 @@ class UtilityCommands(interactions.Extension):
         stats = config.activity_stats
         await ctx.send(
             embed=interactions.Embed(
-                title=":eyes: What the community is up to:",
+                title="<a:onlineGreendot:1551223053021880330> What the community is up to:",
                 description=(
-                    f"**{stats['scratch3']}** people are using Scratch 3\n"
+                    f"<:scratch:1330550333751169104> **{stats['scratch3']}** people are using Scratch 3\n"
                     f"- **{stats['streaming_scratch3']}** people are streaming it\n"
-                    f"**{stats['turbowarp']}** people are using TurboWarp Desktop\n"
+                    f"<:Turbowarp:1330552274774396979> **{stats['turbowarp']}** people are using TurboWarp Desktop\n"
                     f"- **{stats['streaming_turbowarp']}** people are streaming it\n"
                     f"**{stats['scratch2']}** people are using Scratch 2\n"
                     f"**{stats['scratch1']}** people are using Scratch 1.4\n"
