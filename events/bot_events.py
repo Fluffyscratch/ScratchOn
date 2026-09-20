@@ -11,6 +11,27 @@ import config
 from config import bot, bot_statuses, button_states, bot_ready
 from database import add_server
 
+# ------------------------------------------------------------------ #
+# Helper functions                                                        #
+# ------------------------------------------------------------------ #
+def classify(activity) -> str | None:
+    """Map an activity to a stats key, or None if irrelevant."""
+    T = interactions.ActivityType
+    name = activity.name or ""
+    playing = activity.type == T.PLAYING
+    streaming = activity.type == T.STREAMING
+
+    if name == "TurboWarp Desktop":
+        return "turbowarp" if playing else "streaming_turbowarp" if streaming else None
+    if match(r"Scratch 3\.\d+\.\d+", name):
+        return "scratch3" if playing else "streaming_scratch3" if streaming else None
+    if playing and name == "Scratch 2 Offline Editor":
+        return "scratch2"
+    if playing and match(r"Scratch 1\.4 of \d{2}-[A-Za-z]{3}-\d{2}", name):
+        return "scratch1"
+    return None
+
+_user_states: dict[int, set[str]] = {}
 
 class BotEvents(interactions.Extension):
     """Extension for core bot lifecycle events."""
@@ -47,56 +68,21 @@ class BotEvents(interactions.Extension):
         if bot_ready:
             add_server(event.guild.id)
 
-    @interactions.listen(interactions.events.MemberUpdate)
-    async def on_member_update(self, before, after):
+    @interactions.listen(interactions.events.PresenceUpdate)
+    async def on_member_update(self, event):
         """Handle member rich presence update events."""
-        if before.activities != after.activities:
-            # Handle activity changes to update stats
-            stats = config.activity_stats
-            for newactivity, oldactivity in zip(after.activities, before.activities):
-                # Handle new activities
-                if newactivity.name == "TurboWarp Desktop":
-                    if newactivity.type == interactions.ActivityType.PLAYING:
-                        stats["turbowarp"] += 1
-                    elif newactivity.type == interactions.ActivityType.STREAMING:
-                        stats["streaming_turbowarp"] += 1
-                elif match(r"Scratch 3\.\d+\.\d+", newactivity.name):
-                    if newactivity.type == interactions.ActivityType.PLAYING:
-                        stats["scratch3"] += 1
-                    elif newactivity.type == interactions.ActivityType.STREAMING:
-                        stats["streaming_scratch3"] += 1
-                elif (
-                    newactivity.name == "Scratch 2 Offline Editor"
-                    and newactivity.type == interactions.ActivityType.PLAYING
-                ):
-                    stats["scratch2"] += 1
-                elif (
-                    match(r"Scratch 1\.4 of \d{2}-[A-Za-z]{3}-\d{2}", newactivity.name)
-                    and newactivity.type == interactions.ActivityType.PLAYING
-                ):
-                    stats["scratch1"] += 1
+        stats = config.activity_stats
+        uid = int(event.user.id)
 
-                # Handle removed activities
-                if oldactivity.name == "TurboWarp Desktop":
-                    if oldactivity.type == interactions.ActivityType.PLAYING:
-                        stats["turbowarp"] -= 1
-                    elif oldactivity.type == interactions.ActivityType.STREAMING:
-                        stats["streaming_turbowarp"] -= 1
-                elif match(r"Scratch 3\.\d+\.\d+", oldactivity.name):
-                    if oldactivity.type == interactions.ActivityType.PLAYING:
-                        stats["scratch3"] -= 1
-                    elif oldactivity.type == interactions.ActivityType.STREAMING:
-                        stats["streaming_scratch3"] -= 1
-                elif (
-                    oldactivity.name == "Scratch 2 Offline Editor"
-                    and oldactivity.type == interactions.ActivityType.PLAYING
-                ):
-                    stats["scratch2"] -= 1
-                elif (
-                    match(r"Scratch 1\.4 of \d{2}-[A-Za-z]{3}-\d{2}", oldactivity.name)
-                    and oldactivity.type == interactions.ActivityType.PLAYING
-                ):
-                    stats["scratch1"] -= 1
+        new = {k for a in event.activities if (k := classify(a))}
+        old = _user_states.get(uid, set())
+
+        for key in old - new:
+            stats[key] -= 1
+        for key in new - old:
+            stats[key] += 1
+
+        _user_states[uid] = new
 
     # ------------------------------------------------------------------ #
     # Component interaction handler (settings buttons)                    #
@@ -162,7 +148,7 @@ class BotEvents(interactions.Extension):
     # ------------------------------------------------------------------ #
 
     @interactions.listen()
-    async def on_command_error(event: CommandError):
+    async def on_command_error(self, event: CommandError):
         logging.exception(f"Error in command", exc_info=event.error)
 
         try:
