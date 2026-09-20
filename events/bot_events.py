@@ -22,16 +22,38 @@ def classify(activity) -> str | None:
     streaming = activity.type == T.STREAMING
 
     if name == "TurboWarp Desktop":
-        return "turbowarp" if playing else "streaming_turbowarp" if streaming else None
+        return "streaming_turbowarp" if streaming else "turbowarp" if playing else None
     if match(r"Scratch 3\.\d+\.\d+", name):
-        return "scratch3" if playing else "streaming_scratch3" if streaming else None
+        return "streaming_scratch3" if streaming else "scratch3" if playing else None
     if playing and name == "Scratch 2 Offline Editor":
         return "scratch2"
     if playing and match(r"Scratch 1\.4 of \d{2}-[A-Za-z]{3}-\d{2}", name):
         return "scratch1"
     return None
 
+_presence: dict[int, set[str]] = {}   # people currently using Scratch or TurboWarp
+_streaming: set[int] = set()          # people currently streaming Scratch or TurboWarp
+_applied: dict[int, set[str]] = {}    # keys currently counted in stats
+
+def _effective(uid: int) -> set[str]:
+    keys = set(_presence.get(uid, set()))
+    if uid in _streaming:
+        for base in ("turbowarp", "scratch3"):
+            if base in keys:
+                keys.add(f"streaming_{base}")
+    return keys
+
+def _refresh(uid: int):
+    stats = config.activity_stats
+    new, old = _effective(uid), _applied.get(uid, set())
+    for k in old - new:
+        stats[k] -= 1
+    for k in new - old:
+        stats[k] += 1
+    _applied[uid] = new
+
 _user_states: dict[int, set[str]] = {}
+
 
 class BotEvents(interactions.Extension):
     """Extension for core bot lifecycle events."""
@@ -69,20 +91,20 @@ class BotEvents(interactions.Extension):
             add_server(event.guild.id)
 
     @interactions.listen(interactions.events.PresenceUpdate)
-    async def on_member_update(self, event):
-        """Handle member rich presence update events."""
-        stats = config.activity_stats
+    async def on_presence_update(self, event: interactions.events.PresenceUpdate):
         uid = int(event.user.id)
+        _presence[uid] = {k for a in event.activities if (k := classify(a))}
+        _refresh(uid)
 
-        new = {k for a in event.activities if (k := classify(a))}
-        old = _user_states.get(uid, set())
-
-        for key in old - new:
-            stats[key] -= 1
-        for key in new - old:
-            stats[key] += 1
-
-        _user_states[uid] = new
+    @interactions.listen(interactions.events.VoiceStateUpdate)
+    async def on_voice_state_update(self, event: interactions.events.VoiceStateUpdate):
+        state = event.after or event.before
+        uid = int(state.member.id)
+        if event.after and event.after.self_stream:
+            _streaming.add(uid)
+        else:
+            _streaming.discard(uid)  # stopped streaming or left voice
+        _refresh(uid)
 
     # ------------------------------------------------------------------ #
     # Component interaction handler (settings buttons)                    #
