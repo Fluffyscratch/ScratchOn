@@ -9,7 +9,7 @@ from datetime import datetime
 import scratchattach as scratch
 
 from config import scratch_orange
-from utils import limiter
+from utils import project_embed
 
 
 class ProjectCommands(interactions.Extension):
@@ -83,42 +83,7 @@ class ProjectCommands(interactions.Extension):
         required=True,
     )
     async def project(self, ctx: interactions.SlashContext, project: str):
-        id = "".join(filter(str.isdigit, project))
-        project_obj = scratch.get_project(id)
-
-        msg = interactions.Embed(title=f"{project_obj.title} :")
-
-        msg.add_field(name="Views :", value=f"{project_obj.views} :eye:")
-        msg.add_field(name="Loves :", value=f"{project_obj.loves} :heart:")
-        msg.add_field(name="Faves :", value=f"{project_obj.favorites} :star:")
-        msg.add_field(
-            name="Loves per view :",
-            value=f"{round(project_obj.loves / project_obj.views, 2)} :heart: / :eye:",
-        )
-        msg.add_field(
-            name="Faves per view :",
-            value=f"{round(project_obj.favorites / project_obj.views, 2)} :star: / :eye:",
-        )
-        msg.add_field(
-            name="Loves per view (%) :",
-            value=f"{round((project_obj.loves / project_obj.views) * 100)} :heart: / 100 :eye:",
-        )
-        msg.add_field(
-            name="Faves per view (%) :",
-            value=f"{round((project_obj.favorites / project_obj.views) * 100)} :star: / 100 :eye:",
-        )
-
-        msg.color = scratch_orange
-        desc = limiter(text=project_obj.instructions, limit=500)
-        msg.description = (
-            f"Made by {project_obj.author_name}, at {project_obj.share_date} "
-            f"(Last modified at {project_obj.last_modified})\n"
-            f"<:Turbowarp:1330552274774396979>Turbowarp link : https://turbowarp.org/{id}\n\n"
-            f"**Description :**\n{desc}\n\n"
-            f"**Notes and Credits :**\n{project_obj.notes}\n\n"
-            "<:scratchstats:1330550531864662018> Statistics :\n"
-        )
-        msg.set_image(url=project_obj.thumbnail_url)
+        msg = project_embed(project)
         await ctx.send(embed=msg)
 
     @interactions.slash_command(

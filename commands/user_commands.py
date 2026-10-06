@@ -8,7 +8,7 @@ from datetime import datetime
 import scratchattach as scratch
 
 from config import scratch_orange, contributors, devs, pending_verifiers
-from utils import dc2scratch
+from utils import dc2scratch, user_embed
 
 
 class UserCommands(interactions.Extension):
@@ -26,74 +26,7 @@ class UserCommands(interactions.Extension):
     )
     async def s_profile(self, ctx: interactions.SlashContext, user: str):
         await ctx.defer()
-        embeded_message = interactions.Embed(title=user)
-
-        try:
-            usr = scratch.get_user(user)
-
-            # Rank finder
-            if usr.is_new_scratcher():
-                rank = "<:newscratcher:1330550984971259954> New scratcher"
-            elif usr.scratchteam:
-                rank = "<:ScratchTeam:1330549427580178472> Scratch team member"
-            elif usr.follower_count() > 10000:
-                rank = "<:forumcool:1341109220119941140> Legend scratcher (>10 000 followers)"
-            elif usr.name in contributors:
-                rank = "<:coolcat:1330548833209417821> Contributor"
-            elif usr.name in devs:
-                rank = "<:code:1333794362315767870> ScratchOn dev"
-            elif usr.name == "Fluffygamer_":
-                rank = "<:Verified:1333795453250175058> ScratchOn owner"
-            else:
-                rank = "<:ScratchCat:1330547949721223238> Scratcher"
-
-            with open("private/scusers.txt") as f:
-                lines = [line.rstrip("\n") for line in f]
-                if usr.name in lines:
-                    idx = lines.index(usr.name)
-                    binded = open("private/dcusers.txt").readlines()[idx].rstrip("\n")
-                else:
-                    binded = "*No binded account found*"
-
-            join_date = datetime.fromisoformat(
-                usr.join_date.replace("Z", "+00:00")
-            ).strftime("%B %d, %Y at %H:%M:%S UTC")
-
-            embeded_message.description = (
-                f"**{rank}**\n\n"
-                f"**Account binded to :** {binded}\n"
-                f"*Joined scratch on {join_date} - Lives in {usr.country}* \n"
-                f"**{user}** has **{usr.message_count()}** message(s). \n\n"
-                f"**<:ocular:1333041343668158515>Ocular :** \n"
-                f"Color : {usr.ocular_status().get('color')} Status : {usr.ocular_status().get('status')}* \n\n"
-                f"**About {user}** : \n"
-                f"{usr.about_me} \n\n"
-                f"**What is {user} working on** : \n"
-                f"{usr.wiwo}\n\n"
-                f"**{user}** is followed by **{usr.follower_count()}** scratchers, "
-                f"and is following **{usr.following_count()}** scratchers.\n"
-                f"They also loved **{usr.loves_count()} projects** and favourited "
-                f"**{usr.favorites_count()} projects** in total.\n\n"
-                f"{usr.featured_data()['label']} : [{usr.featured_data()['project']['title']}]"
-                f"(https://scratch.mit.edu/projects/{usr.featured_data()['project']['id']})"
-            )
-
-            embeded_message.set_thumbnail(url=usr.icon_url)
-            embeded_message.set_footer(text=f"{user}'s ID : {usr.id}")
-            embeded_message.color = scratch_orange
-            embeded_message.set_image(
-                url=usr.featured_data()["project"]["thumbnail_url"]
-            )
-            await ctx.send(embed=embeded_message)
-
-        except scratch.utils.exceptions.UserNotFound:
-            await ctx.send(
-                embed=interactions.Embed(
-                    title="Error :",
-                    description="This user doesn't exist !<:giga404:1330551323610976339>",
-                    color=0xFF0000,
-                )
-            )
+        await ctx.send(embed=user_embed(user))
 
     @interactions.slash_command(
         name="check_username",

@@ -7,7 +7,7 @@ import interactions
 import scratchattach as scratch
 
 from config import scratch_orange
-from utils import limiter
+from utils import studio_embed
 
 
 class StudioForumCommands(interactions.Extension):
@@ -24,32 +24,7 @@ class StudioForumCommands(interactions.Extension):
         required=True,
     )
     async def studio(self, ctx: interactions.SlashContext, studio: str):
-        id = "".join(filter(str.isdigit, studio))
-        studio_obj = scratch.get_studio(id)
-
-        access = "Everyone" if studio_obj.open_to_all else "Only curators"
-
-        msg = interactions.Embed(title=studio_obj.title)
-        msg.set_image(url=studio_obj.image_url)
-        msg.set_thumbnail(url=studio_obj.host().icon_url)
-        desc = limiter(text=studio_obj.description, limit=500)
-
-        msg.description = (
-            f"Owned by **{studio_obj.host()}**, with id {studio_obj.host_id}\n"
-            f"**{access}** can add projects.\n\n"
-            "**This studio has :**\n"
-            f"- {studio_obj.project_count} projects\n"
-            f"- {studio_obj.follower_count} followers\n"
-            f"- {studio_obj.manager_count} managers\n\n"
-            f"**Description :**\n{desc}"
-        )
-        msg.set_footer(
-            text=(
-                f"Studio id : {studio_obj.id}, "
-                f"link : https://scratch.mit.edu/studios/{studio_obj.id}"
-            )
-        )
-        msg.color = scratch_orange
+        msg = studio_embed(studio)
         await ctx.send(embed=msg)
 
     @interactions.slash_command(
