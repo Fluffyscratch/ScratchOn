@@ -139,11 +139,11 @@ class UserCommands(interactions.Extension):
                     break
 
         if found:
-            binded = await dc2scratch(ctx.author.username)
+            bound = await dc2scratch(ctx.author.username)
             await ctx.send(
                 embed=interactions.Embed(
                     title="❌ A scratch account is already linked to your discord account!",
-                    description=f"Your account is linked to **{binded}**.\nScratchOn can't handle replacements yet.",
+                    description=f"Your account is linked to **{bound}**.\nScratchOn can't handle replacements yet.",
                     color=0xFF0000,
                 )
             )
