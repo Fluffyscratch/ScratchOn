@@ -25,9 +25,9 @@ bot.load_extension("commands.prefix_commands")
 bot.load_extension("commands.currency_commands")
 
 # Attach Top.gg integration (registers its own listeners on `bot`)
-import topGG
+# import topGG
 
-topGG.attach_to_bot(bot)
+# topGG.attach_to_bot(bot)
 
 
 def main():
