@@ -10,6 +10,8 @@ from interactions.api.events import CommandError
 import config
 from config import bot, bot_statuses, button_states, bot_ready
 from database import add_server
+from utils import project_embed, studio_embed, user_embed
+
 
 # ------------------------------------------------------------------ #
 # Helper functions                                                        #
@@ -31,9 +33,11 @@ def classify(activity) -> str | None:
         return "scratch1"
     return None
 
-_presence: dict[int, set[str]] = {}   # people currently using Scratch or TurboWarp
-_streaming: set[int] = set()          # people currently streaming Scratch or TurboWarp
-_applied: dict[int, set[str]] = {}    # keys currently counted in stats
+
+_presence: dict[int, set[str]] = {}  # people currently using Scratch or TurboWarp
+_streaming: set[int] = set()  # people currently streaming Scratch or TurboWarp
+_applied: dict[int, set[str]] = {}  # keys currently counted in stats
+
 
 def _effective(uid: int) -> set[str]:
     keys = set(_presence.get(uid, set()))
@@ -43,6 +47,7 @@ def _effective(uid: int) -> set[str]:
                 keys.add(f"streaming_{base}")
     return keys
 
+
 def _refresh(uid: int):
     stats = config.activity_stats
     new, old = _effective(uid), _applied.get(uid, set())
@@ -51,6 +56,7 @@ def _refresh(uid: int):
     for k in new - old:
         stats[k] += 1
     _applied[uid] = new
+
 
 _user_states: dict[int, set[str]] = {}
 
@@ -105,6 +111,37 @@ class BotEvents(interactions.Extension):
         else:
             _streaming.discard(uid)  # stopped streaming or left voice
         _refresh(uid)
+
+    @interactions.listen(interactions.events.MessageCreate)
+    async def on_message_create(self, event: interactions.events.MessageCreate):
+        """Look for messages with a Scratch or TurboWarp link to embed."""
+        if event.message.author.bot:
+            return  # ignore bot messages
+
+        content = event.message.content
+        if match(r"https?://scratch\.mit\.edu/projects/\d+", content):
+            # Reply to the message with a project embed
+            project_id = match(
+                r"https?://scratch\.mit\.edu/projects/(\d+)", content
+            ).group(1)
+            msg = project_embed(project_id)
+            await event.message.reply(embed=msg)
+
+        if match(r"https?://scratch\.mit\.edu/studios/\d+", content):
+            # Reply to the message with a studio embed
+            studio_id = match(
+                r"https?://scratch\.mit\.edu/studios/(\d+)", content
+            ).group(1)
+            msg = studio_embed(studio_id)
+            await event.message.reply(embed=msg)
+
+        if match(r"https?://scratch\.mit\.edu/users/[A-Za-z0-9_-]+", content):
+            # Reply to the message with a user embed
+            user_id = match(
+                r"https?://scratch\.mit\.edu/users/([A-Za-z0-9_-]+)", content
+            ).group(1)
+            msg = user_embed(user_id)
+            await event.message.reply(embed=msg)
 
     # ------------------------------------------------------------------ #
     # Component interaction handler (settings buttons)                    #
