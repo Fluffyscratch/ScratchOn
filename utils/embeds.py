@@ -36,7 +36,8 @@ def user_embed(username: str):
             lines = [line.rstrip("\n") for line in f]
             if user.name in lines:
                 idx = lines.index(user.name)
-                bound = f"{open('private/dcusers.txt').readlines()[idx].rstrip('\n')} on Discord\n\n"
+                dc_user = open('private/dcusers.txt').readlines()[idx].rstrip('\n')
+                bound = f"{dc_user} on Discord\n\n"
             else:
                 bound = ""
     
