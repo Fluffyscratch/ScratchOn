@@ -11,7 +11,7 @@ import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 # Bot setup
-bot = interactions.Client(intents=interactions.Intents.DEFAULT | interactions.Intents.GUILD_MEMBERS | interactions.Intents.GUILD_PRESENCES)
+bot = interactions.Client(intents=interactions.Intents.ALL)
 
 # The statuses the bot will cycle through
 bot_statuses = cycle(
