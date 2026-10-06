@@ -2,7 +2,7 @@
 Discord bot events.
 """
 
-from re import match
+from re import match, search
 import interactions
 import logging
 from interactions.api.events import CommandError
@@ -119,25 +119,25 @@ class BotEvents(interactions.Extension):
             return  # ignore bot messages
 
         content = event.message.content
-        if match(r"https?://scratch\.mit\.edu/projects/\d+", content):
+        if search(r"https?://scratch\.mit\.edu/projects/\d+", content):
             # Reply to the message with a project embed
-            project_id = match(
+            project_id = search(
                 r"https?://scratch\.mit\.edu/projects/(\d+)", content
             ).group(1)
             msg = project_embed(project_id)
             await event.message.reply(embed=msg)
 
-        if match(r"https?://scratch\.mit\.edu/studios/\d+", content):
+        if search(r"https?://scratch\.mit\.edu/studios/\d+", content):
             # Reply to the message with a studio embed
-            studio_id = match(
+            studio_id = search(
                 r"https?://scratch\.mit\.edu/studios/(\d+)", content
             ).group(1)
             msg = studio_embed(studio_id)
             await event.message.reply(embed=msg)
 
-        if match(r"https?://scratch\.mit\.edu/users/[A-Za-z0-9_-]+", content):
+        if search(r"https?://scratch\.mit\.edu/users/[A-Za-z0-9_-]+", content):
             # Reply to the message with a user embed
-            user_id = match(
+            user_id = search(
                 r"https?://scratch\.mit\.edu/users/([A-Za-z0-9_-]+)", content
             ).group(1)
             msg = user_embed(user_id)
