@@ -123,27 +123,27 @@ def project_embed(project : str | int):
 def studio_embed(studio : str | int):
     id = "".join(filter(str.isdigit, studio))
     studio_obj = scratch.get_studio(id)
+    host = studio_obj.host()
     
     access = "Everyone" if studio_obj.open_to_all else "Only curators"
     
     msg = interactions.Embed(title=studio_obj.title)
     msg.set_image(url=studio_obj.image_url)
-    msg.set_thumbnail(url=studio_obj.host().icon_url)
+    msg.set_thumbnail(url=host.icon_url)
     desc = limiter(text=studio_obj.description, limit=500)
     
     msg.description = (
-        f"Owned by **{studio_obj.host()}**, with id {studio_obj.host_id}\n"
+        f"Owned by (https://scratch.mit.edu/users/{host.username}/)[{host.username}] (id {studio_obj.host_id})\n"
         f"**{access}** can add projects.\n\n"
-        "**This studio has :**\n"
+        "**This studio has:**\n"
         f"- {studio_obj.project_count} projects\n"
         f"- {studio_obj.follower_count} followers\n"
         f"- {studio_obj.manager_count} managers\n\n"
-        f"**Description :**\n{desc}"
+        f"**Description:**\n{desc}"
     )
     msg.set_footer(
         text=(
-            f"Studio id : {studio_obj.id}, "
-            f"link : https://scratch.mit.edu/studios/{studio_obj.id}"
+            f"(https://scratch.mit.edu/studios/{studio_obj.id})[Studio id: {studio_obj.id}]"
         )
     )
     msg.color = scratch_orange
