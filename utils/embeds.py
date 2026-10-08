@@ -85,35 +85,36 @@ def project_embed(project : str | int):
     
     msg = interactions.Embed(title=f"{project_obj.title} :")
     
-    msg.add_field(name="Views :", value=f"{project_obj.views} :eye:")
-    msg.add_field(name="Loves :", value=f"{project_obj.loves} :heart:")
-    msg.add_field(name="Faves :", value=f"{project_obj.favorites} :star:")
+    msg.add_field(value=f"{project_obj.views} :eye:", inline=True)
+    msg.add_field(value=f"{project_obj.loves} :heart:", inline=True)
+    msg.add_field(value=f"{project_obj.favorites} :star:", inline=True)
     msg.add_field(
-        name="Loves per view :",
         value=f"{round(project_obj.loves / project_obj.views, 2)} :heart: / :eye:",
+        inline=True,
     )
     msg.add_field(
-        name="Faves per view :",
         value=f"{round(project_obj.favorites / project_obj.views, 2)} :star: / :eye:",
+        inline=True,
     )
     msg.add_field(
-        name="Loves per view (%) :",
         value=f"{round((project_obj.loves / project_obj.views) * 100)} :heart: / 100 :eye:",
+        inline=True,
     )
     msg.add_field(
-        name="Faves per view (%) :",
         value=f"{round((project_obj.favorites / project_obj.views) * 100)} :star: / 100 :eye:",
+        inline=True,
     )
     
     msg.color = scratch_orange
     desc = limiter(text=project_obj.instructions, limit=500)
+    notes  = limiter(text=project_obj.notes, limit=500)
     msg.description = (
-        f"Made by {project_obj.author_name}, at {project_obj.share_date} "
-        f"(Last modified at {project_obj.last_modified})\n"
-        f"<:Turbowarp:1330552274774396979>Turbowarp link : https://turbowarp.org/{id}\n\n"
-        f"**Description :**\n{desc}\n\n"
-        f"**Notes and Credits :**\n{project_obj.notes}\n\n"
-        "<:scratchstats:1330550531864662018> Statistics :\n"
+        f"Made by (https://scratch.mit.edu/users/{project_obj.author_name}/)[{project_obj.author_name}], at {project_obj.share_date}\n"
+        f"-# Last modified at {project_obj.last_modified}\n"
+        f"(https://turbowarp.org/{id})[<:Turbowarp:1330552274774396979> view on Turbowarp]\n\n"
+        f"**Description:**\n{desc}\n\n"
+        f"**Notes and Credits:**\n{notes}\n\n"
+        "<:scratchstats:1330550531864662018> Statistics:\n"
     )
     msg.set_image(url=project_obj.thumbnail_url)
 
