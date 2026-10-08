@@ -15,7 +15,7 @@ class StudioForumCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="studio",
-        description="Reads informations about a studio.",
+        description="Gets informations about a studio.",
     )
     @interactions.slash_option(
         name="studio",
@@ -29,7 +29,7 @@ class StudioForumCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="forums",
-        description="Check for topics in any forum category !",
+        description="Check for topics in any forum category!",
     )
     @interactions.slash_option(
         name="category",
@@ -68,7 +68,7 @@ class StudioForumCommands(interactions.Extension):
     )
     async def forums(self, ctx: interactions.SlashContext, category: int):
         msg = interactions.Embed(
-            title="Topics in this category :", color=scratch_orange
+            title="Topics in this category:", color=scratch_orange
         )
         desc = ""
         for item in scratch.get_topic_list(category_id=category, page=1):
@@ -96,11 +96,11 @@ class StudioForumCommands(interactions.Extension):
         stopic = scratch.get_topic(id)
         msg = interactions.Embed(title=stopic.title, color=scratch_orange)
         msg.description = (
-            f"Link : https://scratch.mit.edu/discuss/topic/{stopic.id}\n"
-            f"Category : {stopic.category_name}\n"
-            f" Last updated : {stopic.last_updated}\n"
-            f"Author : {stopic.first_post().author_name}\n"
-            "First post :\n"
+            f"Link: https://scratch.mit.edu/discuss/topic/{stopic.id}\n"
+            f"Category: {stopic.category_name}\n"
+            f" Last updated: {stopic.last_updated}\n"
+            f"Author: {stopic.first_post().author_name}\n"
+            "First post:\n"
             f"```{stopic.first_post().content}```"
         )
         msg.set_thumbnail(url=stopic.first_post().author().icon_url)

@@ -46,9 +46,9 @@ class SearchCommands(interactions.Extension):
 
         msg = interactions.Embed()
         msg.title = (
-            "Here is 1 random project !"
+            "Here is 1 random project!"
             if number == 1
-            else f"Here are {number} random projects !"
+            else f"Here are {number} random projects!"
         )
         msg.description = message
         msg.color = scratch_orange
@@ -56,7 +56,7 @@ class SearchCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="christmas",
-        description="Take a look at the best christmas projects easily !",
+        description="Take a look at the best christmas projects easily!",
     )
     async def christmas(self, ctx: interactions.SlashContext):
         await ctx.defer()
@@ -72,7 +72,7 @@ class SearchCommands(interactions.Extension):
             )
         await ctx.send(
             embed=interactions.Embed(
-                title="<:SantaCat:1444277069826494557>Top 10 popular christmas projects<:SantaCat:1444277069826494557> :",
+                title="<:SantaCat:1444277069826494557>Top 10 most popular christmas projects<:SantaCat:1444277069826494557>:",
                 description=message,
                 color=scratch_orange,
             )

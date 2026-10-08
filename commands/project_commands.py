@@ -69,8 +69,8 @@ class ProjectCommands(interactions.Extension):
 
         link = project_obj.embed_url
         msg = interactions.Embed(
-            title="This project is now embedded ! <:embed:1343565862077988904>",
-            description=f"🔗 Link : {link}",
+            title="This project is now embedded! <:embed:1343565862077988904>",
+            description=f"🔗 Link: {link}",
             color=scratch_orange,
         )
         await ctx.send(embed=msg)
@@ -110,7 +110,7 @@ class ProjectCommands(interactions.Extension):
         await ctx.send(
             embed=interactions.Embed(
                 title=(
-                    f"<:popular:1330550904813916272>'{proj.title}' has a trending score of {score} !"
+                    f"<:popular:1330550904813916272>'{proj.title}' has a trending score of {score}!"
                     "<:popular:1330550904813916272>"
                 ),
                 color=0xF1C40F,  # gold
@@ -185,7 +185,7 @@ class ProjectCommands(interactions.Extension):
 
         await ctx.send(
             embed=interactions.Embed(
-                title="<:newscratcher:1330550984971259954>Newest scratch projects :",
+                title="<:newscratcher:1330550984971259954>Newest scratch projects:",
                 description=pprint.pformat(scratch.newest_projects()),
                 color=scratch_orange,
             )

@@ -76,7 +76,7 @@ class ExperimentalCommands(interactions.Extension):
                     await ctx.send(
                         embed=interactions.Embed(
                             title="Success !",
-                            description="Pinging when receiving a scratch message is now disabled for your account !",
+                            description="Pinging when receiving a scratch message is now disabled for your account!",
                             color=0x57F287,
                         )
                     )
@@ -87,7 +87,7 @@ class ExperimentalCommands(interactions.Extension):
                     await ctx.send(
                         embed=interactions.Embed(
                             title="Success !",
-                            description="Pinging when receiving a scratch message is now enabled for your account !",
+                            description="Pinging when receiving a scratch message is now enabled for your account!",
                             color=0x57F287,
                         )
                     )
@@ -95,7 +95,7 @@ class ExperimentalCommands(interactions.Extension):
                 await ctx.send(
                     embed=interactions.Embed(
                         title="Error :",
-                        description="You need to bind your scratch account to use this command. To bind your scratch account, use /bind !",
+                        description="You need to bind your scratch account to use this command. To bind your scratch account, use /bind!",
                         color=0xFF0000,
                     )
                 )
@@ -160,7 +160,7 @@ class ExperimentalCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="scratchgpt",
-        description="BETA - Chat with a powerful AI to get scratch related help !",
+        description="BETA - Chat with a powerful AI to get scratch related help!",
     )
     @interactions.slash_option(
         name="prompt",

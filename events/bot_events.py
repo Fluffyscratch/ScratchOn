@@ -84,7 +84,7 @@ class BotEvents(interactions.Extension):
 
     @interactions.listen(interactions.events.Ready)
     async def on_ready(self, event: interactions.events.Ready):
-        print("ScratchOn is ready !")
+        print("ScratchOn is ready!")
         global bot_ready
         bot_ready = True
         self.status_task.start()

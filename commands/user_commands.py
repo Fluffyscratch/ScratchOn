@@ -16,7 +16,7 @@ class UserCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="s_profile",
-        description="Take a look at a scratcher's profile !",
+        description="Take a look at a scratcher's profile!",
     )
     @interactions.slash_option(
         name="user",
@@ -30,7 +30,7 @@ class UserCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="check_username",
-        description="Checks if a scratch username is already claimed or not !",
+        description="Checks if a scratch username is already claimed or not!",
     )
     @interactions.slash_option(
         name="username",
@@ -41,10 +41,10 @@ class UserCommands(interactions.Extension):
     async def check_username(self, ctx: interactions.SlashContext, username: str):
         msg = interactions.Embed(title="This username is...")
         if scratch.check_username(username) == "valid username":
-            msg.description = "Avaliable ! :partying_face: \n [Claim it](<https://scratch.mit.edu/join>) <:happycat:1330550173335982160>"
+            msg.description = "Available! :partying_face: \n [Claim it](<https://scratch.mit.edu/join>) <:happycat:1330550173335982160>"
             msg.color = 0x57F287  # green
         else:
-            msg.description = f"Taken ! :smiling_face_with_tear:\n Link : https://scratch.mit.edu/users/{username} <a:sadcat:1330550126745227335>"
+            msg.description = f"Taken! :smiling_face_with_tear:\n Link: https://scratch.mit.edu/users/{username} <a:sadcat:1330550126745227335>"
             msg.color = 0xFF0000  # red
         await ctx.send(embed=msg)
 
@@ -251,7 +251,7 @@ class UserCommands(interactions.Extension):
         await ctx.defer()
 
         msg = interactions.Embed(
-            title="This user 's past scratch activity :", color=scratch_orange
+            title="This user 's past scratch activity:", color=scratch_orange
         )
         result = ""
 
@@ -277,11 +277,11 @@ class UserCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="scratchteam",
-        description="Gets all scratch team members !",
+        description="Gets all scratch team members!",
     )
     async def scratchteam(self, ctx: interactions.SlashContext):
         msg = interactions.Embed(
-            title="<:ScratchTeam:1330549427580178472> The Scratch Team is composed of :",
+            title="<:ScratchTeam:1330549427580178472> The Scratch Team is composed of:",
             description="",
             color=scratch_orange,
         )

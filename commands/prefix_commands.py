@@ -12,7 +12,7 @@ class PrefixCommands(interactions.Extension):
     @prefixed_command(name="ping")
     async def ping(self, ctx: PrefixedContext):
         """Returns the bot's current latency."""
-        msg = interactions.Embed(title="🏓 Pong !", description="ScratchOn is up and running!")
+        msg = interactions.Embed(title="🏓 Pong!", description="ScratchOn is up and running!")
         msg.add_field(
             name=f"{self.bot.user.username}'s Latency (ms): ",
             value=f"{round(self.bot.latency * 1000)}ms.",
