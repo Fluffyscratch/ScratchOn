@@ -34,16 +34,19 @@ class ProjectCommands(interactions.Extension):
 
         if status == "notsafe":
             embeded_msg.description = (
-                "<:Nope:1333795409403052032>Not Safe (NFE) !<:Nope:1333795409403052032>"
+                "<:Nope:1333795409403052032>**Not Safe (NFE)!**<:Nope:1333795409403052032>\n"
+                "This means your project is hidden from search results and cannot appear on the front page or Explore page, but can be accessed by link or from studios."
             )
             embeded_msg.color = 0xFF0000
         elif status == "safe":
-            embeded_msg.description = "<:Verified:1333795453250175058>Safe (FE) !<:Verified:1333795453250175058>"
+            embeded_msg.description = ("<:Verified:1333795453250175058>**Safe (FE)!**<:Verified:1333795453250175058>\n"
+                "This means your project shows in search results and can appear on the front page and Explore page."
+            )
             embeded_msg.color = 0x57F287
         else:
             embeded_msg.description = (
-                "<:forumneutral:1341109236679053312>Not Reviewed (counts as FE) !"
-                "<:forumneutral:1341109236679053312>"
+                "<:forumneutral:1341109236679053312>**Not Reviewed (counts as FE)!**<:forumneutral:1341109236679053312>\n"
+                "This means your project shows in search results and can appear on the front page and Explore page."
             )
             embeded_msg.color = 0x99AAB5  # light grey
 
