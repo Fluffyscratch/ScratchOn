@@ -17,18 +17,18 @@ def user_embed(username: str):
         user = scratch.get_user(username)
 
         # Rank finder
-        if user.is_new_scratcher():
-            rank = "<:newscratcher:1330550984971259954> New scratcher"
-        elif user.scratchteam:
+        if user.scratchteam:
             rank = "<:ScratchTeam:1330549427580178472> Scratch team member"
-        elif user.follower_count() > 10000:
-            rank = "<:forumcool:1341109220119941140> Legend scratcher (>10 000 followers)"
+        elif user.name == "Fluffygamer_":
+            rank = "<:Verified:1333795453250175058> ScratchOn owner"
         elif user.name in contributors:
             rank = "<:coolcat:1330548833209417821> Contributor"
         elif user.name in devs:
             rank = "<:code:1333794362315767870> ScratchOn dev"
-        elif user.name == "Fluffygamer_":
-            rank = "<:Verified:1333795453250175058> ScratchOn owner"
+        elif user.follower_count() > 10000:
+            rank = "<:forumcool:1341109220119941140> Legend scratcher (>10 000 followers)"
+        elif user.is_new_scratcher():
+            rank = "<:newscratcher:1330550984971259954> New scratcher"
         else:
             rank = "<:ScratchCat:1330547949721223238> Scratcher"
     
