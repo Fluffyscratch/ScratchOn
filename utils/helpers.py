@@ -117,5 +117,8 @@ def limiter(text: str, limit: int) -> str:
     :param limit: Maximum character length.
     :return: Limited text with ellipsis.
     """
-    result = text[:limit]
-    return f"{result}..."
+    if len(text) >= limit:
+        result = text[:limit]
+        return f"{result}..."
+    else:
+        return text
