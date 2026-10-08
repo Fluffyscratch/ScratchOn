@@ -55,7 +55,7 @@ class ProjectCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="embed",
-        description="Gives an embeded version of the specified project, mainly for websites.",
+        description="Gives a link to the embed of the specified project, mainly for websites.",
     )
     @interactions.slash_option(
         name="project",
