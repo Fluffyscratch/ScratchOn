@@ -17,7 +17,7 @@ class ProjectCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="modstatus",
-        description="Tells if a project is either FE or NFE.",
+        description="Tells if a project can appear in search results (FE/NFE).",
     )
     @interactions.slash_option(
         name="project",
@@ -30,28 +30,28 @@ class ProjectCommands(interactions.Extension):
         project_obj = scratch.get_project(id)
 
         status = project_obj.moderation_status()
-        embeded_msg = interactions.Embed(title="This project is...")
+        msg = interactions.Embed()
 
         if status == "notsafe":
-            embeded_msg.description = (
+            msg.description = (
                 "<:Nope:1333795409403052032>**Not Safe (NFE)!**<:Nope:1333795409403052032>\n"
                 "This means your project is hidden from search results and cannot appear on the front page or Explore page, but can be accessed by link or from studios."
             )
-            embeded_msg.color = 0xFF0000
+            msg.color = 0xFF0000
         elif status == "safe":
-            embeded_msg.description = ("<:Verified:1333795453250175058>**Safe (FE)!**<:Verified:1333795453250175058>\n"
+            msg.description = ("<:Verified:1333795453250175058>**Safe (FE)!**<:Verified:1333795453250175058>\n"
                 "This means your project shows in search results and can appear on the front page and Explore page."
             )
-            embeded_msg.color = 0x57F287
+            msg.color = 0x57F287
         else:
-            embeded_msg.description = (
+            msg.description = (
                 "<:forumneutral:1341109236679053312>**Not Reviewed (counts as FE)!**<:forumneutral:1341109236679053312>\n"
                 "This means your project shows in search results and can appear on the front page and Explore page."
             )
-            embeded_msg.color = 0x99AAB5  # light grey
+            msg.color = 0x99AAB5  # light grey
 
-        embeded_msg.set_footer(text=f"Project ID : {id}")
-        await ctx.send(embed=embeded_msg)
+        msg.set_footer(text=f"Project ID : {id}")
+        await ctx.send(embed=msg)
 
     @interactions.slash_command(
         name="embed",
@@ -68,12 +68,12 @@ class ProjectCommands(interactions.Extension):
         project_obj = scratch.get_project(id)
 
         link = project_obj.embed_url
-        embeded_msg = interactions.Embed(
+        msg = interactions.Embed(
             title="This project is now embedded ! <:embed:1343565862077988904>",
             description=f"🔗 Link : {link}",
             color=scratch_orange,
         )
-        await ctx.send(embed=embeded_msg)
+        await ctx.send(embed=msg)
 
     @interactions.slash_command(
         name="project",
