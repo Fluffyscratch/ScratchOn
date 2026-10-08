@@ -44,38 +44,52 @@ def user_embed(username: str):
             join_date = datetime.fromisoformat(
                 user.join_date.replace("Z", "+00:00")
             ).strftime("%B %d, %Y at %H:%M:%S UTC")
-    
+
+        ocular_status = user.ocular_status()
+
+        if ocular_status == "None":
+            ocular = ""
+        else:
+            ocular = f"<:ocular:1333041343668158515>{ocular_status.get('color')} {ocular_status.get('status')} \n\n"
+
+        message_count = user.message_count()
+
+        if message_count <= 1:
+            unread_messages = f"**{username}** has **{message_count}** unread message."
+        else:
+            unread_messages = f"**{username}** has **{message_count}** unread messages."
+
+        featured_data = user.featured_data()
         embeded_message.description = (
             f"**{rank}**\n\n"
             f"{bound}"
-            f"*Joined scratch on {join_date} - Lives in {user.country}* \n"
-            f"**{username}** has **{user.message_count()}** message(s). \n\n"
-            f"**<:ocular:1333041343668158515>Ocular :** \n"
-            f"Color : {user.ocular_status().get('color')} Status : {user.ocular_status().get('status')}* \n\n"
-            f"**About {username}** : \n"
+            f"*Joined scratch on {join_date} - Lives in {user.country}*\n"
+            f"{unread_messages}\n\n"
+            f"{ocular}"
+            f"**About {username}**: \n"
             f"{user.about_me} \n\n"
-            f"**What is {username} working on** : \n"
+            f"**{username} is working on**:\n"
             f"{user.wiwo}\n\n"
             f"**{username}** is followed by **{user.follower_count()}** scratchers, "
             f"and is following **{user.following_count()}** scratchers.\n"
             f"They also loved **{user.loves_count()} projects** and favourited "
             f"**{user.favorites_count()} projects** in total.\n\n"
-            f"{user.featured_data()['label']} : [{user.featured_data()['project']['title']}]"
-            f"(https://scratch.mit.edu/projects/{user.featured_data()['project']['id']})"
+            f"{featured_data['label']}: [{featured_data['project']['title']}]"
+            f"(https://scratch.mit.edu/projects/{featured_data['project']['id']})"
         )
     
         embeded_message.set_thumbnail(url=user.icon_url)
-        embeded_message.set_footer(text=f"{username}'s ID : {user.id}")
+        embeded_message.set_footer(text=f"{username}'s ID: {user.id}")
         embeded_message.color = scratch_orange
         embeded_message.set_image(
-            url=user.featured_data()["project"]["thumbnail_url"]
+            url=featured_data["project"]["thumbnail_url"]
         )
         return embeded_message
     
     except scratch.utils.exceptions.UserNotFound:
         return interactions.Embed(
-            title="Error :",
-                description="This user doesn't exist !<:giga404:1330551323610976339>",
+                title="Error:",
+                description="This user doesn't exist!<:giga404:1330551323610976339>",
                 color=0xFF0000,
             )
 
