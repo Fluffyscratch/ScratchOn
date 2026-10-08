@@ -206,12 +206,12 @@ class BotEvents(interactions.Extension):
     # Error handler                                                       #
     # ------------------------------------------------------------------ #
 
-    @interactions.listen()
+    @interactions.listen(disable_default_listeners=True)
     async def on_command_error(self, event: CommandError):
         logging.exception(f"Error in command", exc_info=event.error)
 
         try:
-            await event.ctx.send("❌ An internal error occurred.", ephemeral=True)
+            await event.ctx.send("❌ An internal error occurred and was automatically reported. Sorry!", ephemeral=True)
         except Exception:
             pass
 
