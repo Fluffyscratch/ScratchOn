@@ -119,9 +119,9 @@ def project_embed(project : str | int):
     desc = limiter(text=project_obj.instructions, limit=500)
     notes  = limiter(text=project_obj.notes, limit=500)
     msg.description = (
-        f"Made by (https://scratch.mit.edu/users/{project_obj.author_name}/)[{project_obj.author_name}], at {project_obj.share_date}\n"
+        f"Made by [{project_obj.author_name}](https://scratch.mit.edu/users/{project_obj.author_name}/), at {project_obj.share_date}\n"
         f"-# Last modified at {project_obj.last_modified}\n"
-        f"(https://turbowarp.org/{id})[<:Turbowarp:1330552274774396979> view on Turbowarp]\n\n"
+        f"[<:Turbowarp:1330552274774396979> view on Turbowarp](https://turbowarp.org/{id})\n\n"
         f"**Description:**\n{desc}\n\n"
         f"**Notes and Credits:**\n{notes}\n\n"
         "<:scratchstats:1330550531864662018> Statistics:\n"
@@ -143,7 +143,7 @@ def studio_embed(studio : str | int):
     desc = limiter(text=studio_obj.description, limit=500)
     
     msg.description = (
-        f"Owned by (https://scratch.mit.edu/users/{host.username}/)[{host.username}] (id {studio_obj.host_id})\n"
+        f"Owned by [{host.username}](https://scratch.mit.edu/users/{host.username}/) (id {studio_obj.host_id})\n"
         f"**{access}** can add projects.\n\n"
         "**This studio has:**\n"
         f"- {studio_obj.project_count} projects\n"
@@ -153,7 +153,7 @@ def studio_embed(studio : str | int):
     )
     msg.set_footer(
         text=(
-            f"(https://scratch.mit.edu/studios/{studio_obj.id})[Studio id: {studio_obj.id}]"
+            f"[Studio id: {studio_obj.id}](https://scratch.mit.edu/studios/{studio_obj.id})"
         )
     )
     msg.color = scratch_orange
