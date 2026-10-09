@@ -99,27 +99,19 @@ def project_embed(project : str | int):
     
     msg = interactions.Embed(title=f"{project_obj.title} :")
     
-    msg.add_field(name="\u200b", value=f"{project_obj.views}  :eye:", inline=True)
-    msg.add_field(name="\u200b", value=f"{project_obj.loves}  :heart:", inline=True)
-    msg.add_field(name="\u200b", value=f"{project_obj.favorites}  :star:", inline=True)
+    msg.add_field(name="\u200b", value=f"**{project_obj.views}**  :eye:", inline=True)
+    msg.add_field(name="\u200b", value=f"**{project_obj.loves}**  :heart:", inline=True)
+    msg.add_field(name="\u200b", value=f"**{project_obj.favorites}**  :star:", inline=True)
+    
+    msg.add_field(name="\u200b", value="\u200b", inline=True)
     msg.add_field(
-        name="\u200b",
-        value=f"{round(project_obj.loves / project_obj.views, 2)}  :heart: / :eye:",
+        name=f"{round(project_obj.loves / project_obj.views, 2)}  :heart: / :eye:",
+        value=f"({round((project_obj.loves / project_obj.views) * 100)}%)",
         inline=True,
     )
     msg.add_field(
-        name="\u200b",
-        value=f"{round(project_obj.favorites / project_obj.views, 2)}  :star: / :eye:",
-        inline=True,
-    )
-    msg.add_field(
-        name="\u200b",
-        value=f"{round((project_obj.loves / project_obj.views) * 100)}  :heart: / 100 :eye:",
-        inline=True,
-    )
-    msg.add_field(
-        name="\u200b",
-        value=f"{round((project_obj.favorites / project_obj.views) * 100)}  :star: / 100 :eye:",
+        name=f"{round(project_obj.favorites / project_obj.views, 2)}  :star: / :eye:",
+        value=f"({round((project_obj.favorites / project_obj.views) * 100)}%)",
         inline=True,
     )
     
