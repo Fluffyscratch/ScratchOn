@@ -162,16 +162,16 @@ class ProjectCommands(interactions.Extension):
         if found:
             await ctx.send(
                 embed=interactions.Embed(
-                    title="Project found !",
-                    description=f"This project is on trending, at the **{i}th** position !",
+                    title="Project found!",
+                    description=f"This project is on trending, at the **{i}th** position!",
                     color=0x57F287,
                 )
             )
         else:
             await ctx.send(
                 embed=interactions.Embed(
-                    title="Project not found !",
-                    description="This project is not on trending !",
+                    title="Project not found!",
+                    description="This project is not on trending!",
                     color=0xFF0000,
                 )
             )
