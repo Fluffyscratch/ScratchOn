@@ -49,7 +49,6 @@ class UserCommands(interactions.Extension):
             msg.description = "Available! :partying_face: \n [Claim it](https://scratch.mit.edu/join) <:happycat:1330550173335982160>"
             msg.color = 0x57F287  # green
         else:
-
             msg.description = f"Taken! :smiling_face_with_tear:\n Link: https://scratch.mit.edu/users/{username} <a:sadcat:1330550126745227335>"
             msg.color = 0xFF0000  # red
         await ctx.send(embed=msg)
