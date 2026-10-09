@@ -41,7 +41,7 @@ class SearchCommands(interactions.Extension):
                 break
             message = (
                 f"{message} [**{project.title}**]"
-                f"(https://scratch.mit.edu/projects/{project.id})\n\n"
+                f"(https://scratch.mit.edu/projects/{project.id})\n{project.views} :view: {project.loves} :heart: {project.favorites} :star:\n"
             )
 
         msg = interactions.Embed()
