@@ -123,6 +123,9 @@ class SearchCommands(interactions.Extension):
 
         if recommendation_type == "projects":
             loved_projects = list(islice(user.favorites(limit=40), 40))
+            
+            # randomize loved projects to base recommendations on, proposing different recommendations each time
+            loved_projects = random.sample(loved_projects, min(10, len(loved_projects)))
 
             if not loved_projects:
                 msg.title = f"No recommendations found for {username}"
@@ -133,16 +136,15 @@ class SearchCommands(interactions.Extension):
             recommendations = []
             seen_ids = set()
 
-            for project in loved_projects[:5]:
+            for project in loved_projects:
                 try:
                     project.update()  # .favorites() doesn't return the author, so we update the project to get it
                     author = project.author()
-                    for proj in list(author.projects(limit=10)):
+                    for proj in list(author.projects(limit=40)):
                         if proj.id not in seen_ids and proj.id != project.id:
                             recommendations.append(proj)
                             seen_ids.add(proj.id)
-                            if len(recommendations) >= 5:
-                                break
+                            break
                 except Exception as e:
                     print(e)
                     continue
