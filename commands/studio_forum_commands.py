@@ -94,16 +94,17 @@ class StudioForumCommands(interactions.Extension):
     async def topic(self, ctx: interactions.SlashContext, topic: str):
         id = "".join(filter(str.isdigit, topic))
         stopic = scratch.get_topic(id)
+        first_post = stopic.first_post()
         msg = interactions.Embed(title=stopic.title, color=scratch_orange)
         msg.description = (
             f"Link: https://scratch.mit.edu/discuss/topic/{stopic.id}\n"
             f"Category: {stopic.category_name}\n"
-            f" Last updated: {stopic.last_updated}\n"
-            f"Author: {stopic.first_post().author_name}\n"
+            f"Last updated: {stopic.last_updated}\n"
+            f"Author: [{first_post.author_name}](https://scratch.mit.edu/users/{first_post.author_name})\n"
             "First post:\n"
-            f"```{stopic.first_post().content}```"
+            f"```{first_post.content}```"
         )
-        msg.set_thumbnail(url=stopic.first_post().author().icon_url)
+        msg.set_thumbnail(url=first_post.author().icon_url)
         await ctx.send(embed=msg)
 
 
