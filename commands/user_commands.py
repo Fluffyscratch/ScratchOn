@@ -254,28 +254,48 @@ class UserCommands(interactions.Extension):
     )
     async def activity(self, ctx: interactions.SlashContext, user: str, limit: int):
         await ctx.defer()
+        user = "".join(filter(str.isdigit, user))
 
         msg = interactions.Embed(
-            title="This user 's past scratch activity:", color=scratch_orange
+            title=f"{user}'s past scratch activity:", color=scratch_orange
         )
         result = ""
 
         for item in scratch.get_user(user).activity(limit=limit):
-            result = f"{result}\n`{user}` made action {item.type} at "
 
+            # Handle where the user did this action
             target = item.target()
             if type(target) == scratch.User:
                 where = f"[{target.username}](https://scratch.mit.edu/users/{target.username})"
             elif type(target) == scratch.Project:
-                where = f"[{target.id}](https://scratch.mit.edu/projects/{target.id})"
+                where = f"[{scratch.get_project(target.id).title}](https://scratch.mit.edu/projects/{target.id})"
             elif type(target) == scratch.Studio:
-                where = f"[{target.id}](https://scratch.mit.edu/studios/{target.id})"
+                where = f"[{scratch.get_studio(target.id).title}](https://scratch.mit.edu/studios/{target.id})"
             elif type(target) == scratch.Comment:
-                where = "Comment (I ain't writing 100 lines to support comments links because of API limitations, sorry)"
+                where = "Comment¹"
             else:
                 where = "Unknown"
 
-            result = f"{result}{where}."
+            # Handle the type of action
+            if item.type == "becomecurator":
+                action = "became a curator of"
+            elif item.type == "was promoted to manager of":
+                action = "became a manager of"
+            elif item.type == "followstudio ":
+                action = "followed the studio"
+            elif item.type == "followuser":
+                action = "is following"
+            elif item.type == "loveproject":
+                action = "loved"
+            elif item.type == "favoriteproject":
+                action = "favorited"
+            else:
+                action = item.type
+
+            result = f"{result}\n`{user}` {action} {where}"
+
+        if "Comment¹" in result:
+            result = f"{result}\n\n¹ This is just \"Comment\" because it would be too much work to fetch the comment's URL with the way the API is built."
 
         msg.description = result
         await ctx.send(embed=msg)
