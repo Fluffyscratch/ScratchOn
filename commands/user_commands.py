@@ -39,11 +39,17 @@ class UserCommands(interactions.Extension):
         required=True,
     )
     async def check_username(self, ctx: interactions.SlashContext, username: str):
-        msg = interactions.Embed(title="This username is...")
-        if scratch.check_username(username) == "valid username":
-            msg.description = "Available! :partying_face: \n [Claim it](<https://scratch.mit.edu/join>) <:happycat:1330550173335982160>"
+        check = scratch.check_username(username)
+        msg = interactions.Embed(title=f"Username \"{username}\" is...")
+        if check == "bad username":
+            msg.title = "Invalid username!"
+            msg.description = "This username is not appropriate! <:Nope:1333795409403052032> \n [Check the rules](https://scratch.mit.edu/community_guidelines) :arrow_left:"
+            msg.color = 0xFF0000  # red
+        elif check == "valid username":
+            msg.description = "Available! :partying_face: \n [Claim it](https://scratch.mit.edu/join) <:happycat:1330550173335982160>"
             msg.color = 0x57F287  # green
         else:
+
             msg.description = f"Taken! :smiling_face_with_tear:\n Link: https://scratch.mit.edu/users/{username} <a:sadcat:1330550126745227335>"
             msg.color = 0xFF0000  # red
         await ctx.send(embed=msg)
