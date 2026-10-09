@@ -69,7 +69,7 @@ class UserCommands(interactions.Extension):
         target = str(ctx.author)
         found = False
 
-        # Check if user is already binded
+        # Check if user is already bound
         with open("private/dcusers.txt") as file:
             for item in file.readlines():
                 if item.strip() == target:
@@ -105,7 +105,7 @@ class UserCommands(interactions.Extension):
             )
             return
 
-        # User already started verification — check now
+        # If the user already started verification, check now
         v = pending_verifiers[user_id]
         if v.check():
             with open("private/dcusers.txt", "a") as file:
@@ -119,7 +119,7 @@ class UserCommands(interactions.Extension):
                 embed=interactions.Embed(
                     title="✅ Success!",
                     description=f"Your Discord account is now linked to your Scratch account, **{username}**!",
-                    color=0x57F287,
+                    color=0x57F287,  # green
                 )
             )
         else:
@@ -157,7 +157,7 @@ class UserCommands(interactions.Extension):
             await ctx.send(
                 embed=interactions.Embed(
                     title=username,
-                    description=f"Is followed by {followed_by} !",
+                    description=f"Is followed by {followed_by}!",
                     color=0x57F287,
                 )
             )
@@ -165,7 +165,7 @@ class UserCommands(interactions.Extension):
             await ctx.send(
                 embed=interactions.Embed(
                     title=username,
-                    description=f"Is not followed by {followed_by} !",
+                    description=f"Is not followed by {followed_by}!",
                     color=0xFF0000,
                 )
             )
