@@ -62,7 +62,7 @@ class UtilityCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="about",
-        description="Everything you need to know about ScratchOn !",
+        description="Everything you need to know about ScratchOn!",
     )
     async def about(self, ctx: interactions.SlashContext):
         language_counts = Counter()
@@ -72,7 +72,7 @@ class UtilityCommands(interactions.Extension):
 
         top_languages = language_counts.most_common(2)
 
-        langs = "\n**Top Languages :**\n"
+        langs = "\n**Top Languages:**\n"
         for i, (lang, count) in enumerate(top_languages, 1):
             langs = f"{langs}\n{i}. {lang} with {count} servers"
 
@@ -84,26 +84,26 @@ class UtilityCommands(interactions.Extension):
         bot_name = self.bot.user.username
 
         msg = interactions.Embed(
-            title="🤔 About ScratchOn <:BestBot:1388503205373280337> :"
+            title="🤔 About ScratchOn <:BestBot:1388503205373280337>:"
         )
         msg.description = (
-            "<:together:1330551758166036500> **Contributors :**\n\n"
+            "<:together:1330551758166036500> **Contributors:**\n\n"
             "- <:fluffy:1340009005581598820>** Fluffy**<:separator:1333808735101124668>Basically the bot founder and owner, who coded ScratchOn.\n"
             "- <:timmccool:1340009073990701238>** TimMcCool**<:separator:1333808735101124668>Maker of scratchattach, the python library this bot is mainly based on.\n"
-            "- <:kRxZy_kRxZy:1455522693758849156>** kRxZy_kRxZy**<:separator:1333808735101124668>Very skilled ScratchOn Developer, working on this project for free.\n"
+            "- <:kRxZy_kRxZy:1455522693758849156>** kRxZy_kRxZy**<:separator:1333808735101124668>Very skilled ScratchOn Contributor, who helped this project for free.\n"
             "- <:AJustEpic:1368235230749528276>** A Just Epic**<:separator:1333808735101124668>The amazing artist behind the PFP, who did it for completely free.\n"
             f"- 🫵** You**<:separator:1333808735101124668> {bot_name} user, motivating me to continue updating this bot !\n"
-            f"\n📍 **Where is {bot_name} ?** 🌎\n\n"
+            f"\n📍 **Where is {bot_name}?** 🌎\n\n"
             f"📈 {bot_name} is in **{len(self.bot.guilds)}** servers, and used by **{total_unique_members}** unique scratchers worldwide. <:together:1330551758166036500>\n"
             f"{langs}"
-            "\n\n🔗 **Links :**\n\n"
+            "\n\n🔗 **Links:**\n\n"
             f"- [➕ Add {bot_name}](https://discord.com/oauth2/authorize?client_id=1300009645078876170&permissions=274877990912&integration_type=0&scope=bot)\n"
             "- [🔧 Support server](https://discord.gg/dgymF2Ye4k)\n\n"
-            f"**⬆️ Help {bot_name} by upvoting it there ⬆️ :**\n"
+            f"**⬆️ Help {bot_name} by upvoting it there ⬆️:**\n"
             "- [Top.gg](https://top.gg/bot/1300009645078876170)\n"
             "- [Discordbotlist.com](https://discordbotlist.com/bots/ScratchOn)\n"
             "- [Discordlist.gg](https://discordlist.gg/bot/1300009645078876170)\n"
-            "Or you can directly contribute to the code there : https://github.com/Fluffyscratch/ScratchOn"
+            "Or you can directly contribute to the code there: https://github.com/Fluffyscratch/ScratchOn"
         )
         msg.color = scratch_orange
         await ctx.send(embed=msg)
@@ -119,11 +119,11 @@ class UtilityCommands(interactions.Extension):
             title=":bar_chart: Statistics about Scratch :bar_chart:"
         )
         embeded_message.description = (
-            f"**On scratch, there are :**\n\n"
+            f"**On scratch, there are:**\n\n"
             f"- {stats.get('PROJECT_COUNT')} projects 💻\n"
             f"- {stats.get('USER_COUNT')} users <:together:1330551758166036500>\n"
             f"- {stats.get('STUDIO_COUNT')} studios 🗂️\n\n"
-            f"**There are {stats.get('COMMENT_COUNT')} comments 💬 :**\n\n"
+            f"**There are {stats.get('COMMENT_COUNT')} comments 💬:**\n\n"
             f"- {stats.get('PROFILE_COMMENT_COUNT')} are profile comments <:together:1330551758166036500>\n"
             f"- {stats.get('PROJECT_COMMENT_COUNT')} are project comments 💻\n"
             f"- {stats.get('STUDIO_COMMENT_COUNT')} are studio comments 🗂️"
@@ -142,7 +142,7 @@ class UtilityCommands(interactions.Extension):
 
         await ctx.send(
             embed=interactions.Embed(
-                title="❤️‍🩹 Scratch's health status :",
+                title="❤️‍🩹 Scratch's health status:",
                 description=(
                     f"{modified_description}\n\n"
                     "## Tip : press control + F (or command + F on mac) and search the health data you're looking for."
@@ -164,7 +164,7 @@ class UtilityCommands(interactions.Extension):
     async def yttoscratch(self, ctx: interactions.SlashContext, link: str):
         await ctx.send(
             embed=interactions.Embed(
-                title="Conversion finished ! Link :",
+                title="Conversion finished! Link:",
                 description=scratch.youtube_link_to_scratch(link),
                 color=scratch_orange,
             )
@@ -176,7 +176,7 @@ class UtilityCommands(interactions.Extension):
     )
     async def tips(self, ctx: interactions.SlashContext):
         msg = interactions.Embed()
-        msg.title = "Here are some helpful tips and tricks for scratch !"
+        msg.title = "Here are some helpful tips and tricks for scratch!"
         msg.color = scratch_orange
         msg.description = (
             "**Cool emojis compatible with scratch:**\n\n"
@@ -186,7 +186,7 @@ class UtilityCommands(interactions.Extension):
             "🎧 🎤 📷 📹 🎬 🏞 🖼 🖊️ 🎞 🎟 🎪 🎭 🎬 🕹️ 🎮 ⌨ 🖱 🔍 📝 🏁 🏆 🏅 🏆\n"
             "🏅 🏆 🏁 🏟 ⛹️‍♂️ 🏋️‍♀️ 💆‍♀️ 🚴‍♀️ 🏊‍♂️ 🤾‍♀️ 🤽‍♀️ 🧘‍♀️ 🎾 🏸 🏓 🏒\n"
             "🎳 🏏 🎯 ⚽ 🏀 🏐 🏓 🏒 🏆 🏅 🏆 ⛳ 🎯 🏆 🏅 🏅 🔗 📎 🖇 🏷️ 🎀 🎁 🧧\n\n"
-            "**Scratchmojis :**\n"
+            "**Scratchmojis:**\n"
             "Cats :\n\n"
             "<:cat:1330548816843374655> <:separator:1333808735101124668> `_:)_`\n"
             "<:awwcat:1330548798841163840> <:separator:1333808735101124668> `_:D_`\n"
@@ -200,7 +200,7 @@ class UtilityCommands(interactions.Extension):
             "<:favitcat:1330548853317042196> <:separator:1333808735101124668> `_**_`\n"
             "<:rainbowcat:1330549122855600262> <:separator:1333808735101124668> `_:))_`\n"
             "<:pizzacat:1330549104249667655> <:separator:1333808735101124668> `_:D<_`\n\n"
-            "Other :"
+            "Other:"
         )
 
         msg.add_field(name="<:meow:1330549076223070269>", value="`_meow_`")
@@ -226,7 +226,7 @@ class UtilityCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="scratchtts",
-        description="Use scratch's Text to Speech in discord !",
+        description="Use scratch's Text to Speech in discord!",
     )
     @interactions.slash_option(
         name="text",
@@ -284,7 +284,7 @@ class UtilityCommands(interactions.Extension):
 
     @interactions.slash_command(
         name="scratchblocks",
-        description="Allow you to render scratchblocks easily !",
+        description="Allows you to render scratchblocks easily!",
     )
     @interactions.slash_option(
         name="code",
