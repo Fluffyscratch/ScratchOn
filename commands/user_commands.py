@@ -7,7 +7,7 @@ from datetime import datetime
 
 import scratchattach as scratch
 
-from config import scratch_orange, contributors, devs, pending_verifiers
+from config import scratch_orange, green, red, contributors, devs, pending_verifiers
 from utils import dc2scratch, user_embed
 
 
@@ -44,13 +44,13 @@ class UserCommands(interactions.Extension):
         if check == "bad username":
             msg.title = "Invalid username!"
             msg.description = "This username is not appropriate! <:Nope:1333795409403052032> \n [Check the rules](https://scratch.mit.edu/community_guidelines) :arrow_left:"
-            msg.color = 0xFF0000  # red
+            msg.color = red
         elif check == "valid username":
             msg.description = "Available! :partying_face: \n [Claim it](https://scratch.mit.edu/join) <:happycat:1330550173335982160>"
-            msg.color = 0x57F287  # green
+            msg.color = green
         else:
             msg.description = f"Taken! :smiling_face_with_tear:\n Link: https://scratch.mit.edu/users/{username} <a:sadcat:1330550126745227335>"
-            msg.color = 0xFF0000  # red
+            msg.color = red
         await ctx.send(embed=msg)
 
     @interactions.slash_command(
@@ -82,7 +82,7 @@ class UserCommands(interactions.Extension):
                 embed=interactions.Embed(
                     title="❌ A scratch account is already linked to your discord account!",
                     description=f"Your account is linked to **{bound}**.\nScratchOn can't handle replacements yet.",
-                    color=0xFF0000,
+                    color=red,
                 )
             )
             return
@@ -119,7 +119,7 @@ class UserCommands(interactions.Extension):
                 embed=interactions.Embed(
                     title="✅ Success!",
                     description=f"Your Discord account is now linked to your Scratch account, **{username}**!",
-                    color=0x57F287,  # green
+                    color=green,
                 )
             )
         else:
@@ -158,7 +158,7 @@ class UserCommands(interactions.Extension):
                 embed=interactions.Embed(
                     title=username,
                     description=f"Is followed by {followed_by}!",
-                    color=0x57F287,
+                    color=green,
                 )
             )
         else:
@@ -166,7 +166,7 @@ class UserCommands(interactions.Extension):
                 embed=interactions.Embed(
                     title=username,
                     description=f"Is not followed by {followed_by}!",
-                    color=0xFF0000,
+                    color=red,
                 )
             )
 
@@ -346,7 +346,7 @@ class UserCommands(interactions.Extension):
                 embed=interactions.Embed(
                     title="Error",
                     description="One or both of the specified users do not exist on Scratch.",
-                    color=0xFF0000,
+                    color=red,
                 )
             )
 

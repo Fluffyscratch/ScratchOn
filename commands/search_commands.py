@@ -10,7 +10,7 @@ import requests
 
 import scratchattach as scratch
 
-from config import scratch_orange
+from config import scratch_orange, red
 
 
 class SearchCommands(interactions.Extension):
@@ -114,7 +114,7 @@ class SearchCommands(interactions.Extension):
                 embed=interactions.Embed(
                     title="Error:",
                     description="This user doesn't exist! <:giga404:1330551323610976339>",
-                    color=0xFF0000,
+                    color=red,
                 )
             )
             return

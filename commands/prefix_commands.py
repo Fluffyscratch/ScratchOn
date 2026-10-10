@@ -2,6 +2,8 @@
 Traditional prefix commands (non-slash).
 """
 
+from config import scratch_orange
+
 import interactions
 from interactions.ext.prefixed_commands import prefixed_command, PrefixedContext
 
@@ -22,7 +24,7 @@ class PrefixCommands(interactions.Extension):
             text=f"Requested by {ctx.author.username}",
             icon_url=ctx.author.display_avatar.url,
         )
-        msg.color = 0xA84300  # dark orange
+        msg.color = scratch_orange
         await ctx.send(embed=msg)
 
 

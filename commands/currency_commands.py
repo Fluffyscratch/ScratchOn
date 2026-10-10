@@ -8,7 +8,7 @@ import asyncio
 
 import interactions
 
-from config import scratch_orange
+from config import scratch_orange, red
 from services import request_search, get_latest_response
 
 
@@ -44,7 +44,7 @@ class CurrencyCommands(interactions.Extension):
                     embed=interactions.Embed(
                         title="❌ No response",
                         description="Scratch did not respond in time. Try again.",
-                        color=0xFF0000,
+                        color=red,
                     )
                 )
                 return
@@ -62,7 +62,7 @@ class CurrencyCommands(interactions.Extension):
                 embed=interactions.Embed(
                     title="⚠️ Error",
                     description=str(type(error).__name__),
-                    color=0xFF0000,
+                    color=red,
                 ),
                 ephemeral=True,
             )

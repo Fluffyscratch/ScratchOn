@@ -7,7 +7,7 @@ import interactions
 import scratchattach as scratch
 import requests
 
-from config import scratch_orange, betaembed, button_states
+from config import scratch_orange, green, red, betaembed, button_states
 from database import get_server_data
 from utils import (
     dc2scratch,
@@ -77,7 +77,7 @@ class ExperimentalCommands(interactions.Extension):
                         embed=interactions.Embed(
                             title="Success !",
                             description="Pinging when receiving a scratch message is now disabled for your account!",
-                            color=0x57F287,
+                            color=green,
                         )
                     )
                 else:
@@ -88,7 +88,7 @@ class ExperimentalCommands(interactions.Extension):
                         embed=interactions.Embed(
                             title="Success !",
                             description="Pinging when receiving a scratch message is now enabled for your account!",
-                            color=0x57F287,
+                            color=green,
                         )
                     )
             else:
@@ -96,7 +96,7 @@ class ExperimentalCommands(interactions.Extension):
                     embed=interactions.Embed(
                         title="Error :",
                         description="You need to bind your scratch account to use this command. To bind your scratch account, use /bind!",
-                        color=0xFF0000,
+                        color=red,
                     )
                 )
         else:
@@ -196,7 +196,7 @@ class ExperimentalCommands(interactions.Extension):
             else:
                 await ctx.send(
                     embed=interactions.Embed(
-                        color=0xFF0000,
+                        color=red,
                         title="Sorry, the API we use appears to be down :/",
                     )
                 )
@@ -204,14 +204,14 @@ class ExperimentalCommands(interactions.Extension):
             if ctx.author.has_permission(interactions.Permissions.ADMINISTRATOR):
                 await ctx.send(
                     embed=interactions.Embed(
-                        color=0xFF0000,
+                        color=red,
                         title=":x: Sorry, AI is not allowed on this server. Since you're a server admin, you can change this using /settings.",
                     )
                 )
             else:
                 await ctx.send(
                     embed=interactions.Embed(
-                        color=0xFF0000,
+                        color=red,
                         title=":x: Sorry, AI is not allowed on this server.",
                     )
                 )
@@ -273,7 +273,7 @@ class ExperimentalCommands(interactions.Extension):
                     embed=interactions.Embed(
                         title="Error",
                         description="One or both of the specified users do not exist on Scratch.",
-                        color=0xFF0000,
+                        color=red,
                     )
                 )
         else:

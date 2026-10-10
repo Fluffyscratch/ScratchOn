@@ -26,6 +26,8 @@ bot_statuses = cycle(
 )
 
 # The bot's theme colours
+green = 0x57F287
+red = 0xFF0000
 scratch_orange = 0xF6AB3C
 scratch_gold = 0xFFBE00
 scratch_blue = 0x4E97FE
@@ -33,7 +35,7 @@ scratch_blue = 0x4E97FE
 # Embed for experimental commands
 betaembed = interactions.Embed(
     title="Sorry, this command is still in beta! You cannot use it yet.",
-    color=0xFF0000,
+    color=red,
 )
 
 # Contributors and developers

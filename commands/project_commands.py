@@ -8,7 +8,7 @@ from datetime import datetime
 
 import scratchattach as scratch
 
-from config import scratch_orange
+from config import scratch_orange, scratch_gold, green, red
 from utils import project_embed
 
 
@@ -37,12 +37,12 @@ class ProjectCommands(interactions.Extension):
                 "<:Nope:1333795409403052032>**Not Safe (NFE)!**<:Nope:1333795409403052032>\n"
                 "This means your project is hidden from search results and cannot appear on the front page or Explore page, but can be accessed by link or from studios."
             )
-            msg.color = 0xFF0000
+            msg.color = red
         elif status == "safe":
             msg.description = ("<:Verified:1333795453250175058>**Safe (FE)!**<:Verified:1333795453250175058>\n"
                 "This means your project shows in search results and can appear on the front page and Explore page."
             )
-            msg.color = 0x57F287
+            msg.color = green
         else:
             msg.description = (
                 "<:forumneutral:1341109236679053312>**Not Reviewed (counts as FE)!**<:forumneutral:1341109236679053312>\n"
@@ -113,7 +113,7 @@ class ProjectCommands(interactions.Extension):
                     f"<:popular:1330550904813916272>'{proj.title}' has a trending score of {score}!"
                     "<:popular:1330550904813916272>"
                 ),
-                color=0xF1C40F,  # gold
+                color=scratch_gold,
             )
         )
 
@@ -164,7 +164,7 @@ class ProjectCommands(interactions.Extension):
                 embed=interactions.Embed(
                     title="Project found!",
                     description=f"This project is on trending, at the **{i}th** position!",
-                    color=0x57F287,
+                    color=green,
                 )
             )
         else:
@@ -172,7 +172,7 @@ class ProjectCommands(interactions.Extension):
                 embed=interactions.Embed(
                     title="Project not found!",
                     description="This project is not on trending!",
-                    color=0xFF0000,
+                    color=red,
                 )
             )
 
