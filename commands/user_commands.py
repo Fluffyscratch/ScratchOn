@@ -66,18 +66,9 @@ class UserCommands(interactions.Extension):
     async def bind(self, ctx: interactions.SlashContext, username: str):
         await ctx.defer()
         user_id = ctx.author.id
-        target = str(ctx.author)
-        found = False
 
-        # Check if user is already bound
-        with open("private/dcusers.txt") as file:
-            for item in file.readlines():
-                if item.strip() == target:
-                    found = True
-                    break
-
-        if found:
-            bound = await dc2scratch(ctx.author.username)
+        bound = await dc2scratch(ctx.author.username)
+        if bound:
             await ctx.send(
                 embed=interactions.Embed(
                     title="❌ A scratch account is already linked to your discord account!",
