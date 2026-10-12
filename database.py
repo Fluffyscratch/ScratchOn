@@ -40,3 +40,14 @@ def add_server(server_id: int) -> None:
         "INSERT INTO ScratchOn (serverid) VALUES (?) ON CONFLICT DO NOTHING",
         [server_id],
     )
+
+
+def set_server_data(server_id: int, column_name: str, value) -> None:
+    """Set a setting for a server, creating the row if needed."""
+    if column_name not in ALLOWED_COLUMNS:
+        raise ValueError(f"Invalid column: {column_name!r}")
+    add_server(server_id)
+    db.execute(
+        f"UPDATE ScratchOn SET {column_name} = ? WHERE serverid = ?",
+        [value, server_id],
+    )
