@@ -1,46 +1,42 @@
-"""
-Database configuration and helper functions.
-"""
+"""Database configuration and helper functions."""
+
+import logging
+from pathlib import Path
 
 import duckdb
 
-# Database connection
-db = duckdb.connect("private/ScratchOn.duckdb")
+log = logging.getLogger(__name__)
 
-# Initialize table
-db.execute("""CREATE TABLE IF NOT EXISTS ScratchOn (
-    serverid BIGINT PRIMARY KEY,
-    language TEXT DEFAULT 'en',
-    embeds BOOLEAN DEFAULT FALSE
-)""")
+DB_PATH = Path(__file__).parent / "private" / "ScratchOn.duckdb"
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+db = duckdb.connect(str(DB_PATH))
+
+db.execute("""
+    CREATE TABLE IF NOT EXISTS ScratchOn (
+        serverid BIGINT PRIMARY KEY,
+        language TEXT DEFAULT 'en',
+        embeds BOOLEAN DEFAULT FALSE
+    )
+""")
+
+ALLOWED_COLUMNS = {"language", "embeds"}
+DEFAULTS = {"language": "en", "embeds": False}
 
 
 def get_server_data(server_id: int, column_name: str):
-    """
-    Retrieves specific data from the 'ScratchOn' table in the 'ScratchOn.duckdb' database.
-
-    :param server_id: The server ID to look for.
-    :param column_name: The column name whose value is requested.
-    :return: The value of the requested column for the given server ID, or None if not found.
-    """
-    try:
-        query = f"SELECT {column_name} FROM ScratchOn WHERE serverid = ?"
-        result = db.execute(query, [server_id]).fetchone()
-        return result[0] if result else None
-    except Exception as e:
-        print(f"Error occurred: {e}")
-        return None
+    """Return the value of `column_name` for a server, or the default if the server isn't registered."""
+    if column_name not in ALLOWED_COLUMNS:
+        raise ValueError(f"Invalid column: {column_name!r}")
+    row = db.execute(
+        f"SELECT {column_name} FROM ScratchOn WHERE serverid = ?", [server_id]
+    ).fetchone()
+    return row[0] if row else DEFAULTS[column_name]
 
 
-def add_server(server_id: int):
-    """
-    Adds a new server entry to the database.
-
-    :param server_id: The server ID to add.
-    """
+def add_server(server_id: int) -> None:
+    """Add a server with default settings; does nothing if it already exists."""
     db.execute(
-        """
-        INSERT INTO ScratchOn (serverid) VALUES (?)
-    """,
+        "INSERT INTO ScratchOn (serverid) VALUES (?) ON CONFLICT DO NOTHING",
         [server_id],
     )
