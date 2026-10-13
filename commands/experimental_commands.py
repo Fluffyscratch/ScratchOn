@@ -9,8 +9,8 @@ import requests
 
 from config import scratch_orange, green, red, betaembed, button_states
 from database import get_server_data
+from services import dc2scratch
 from utils import (
-    dc2scratch,
     replace_last_screenshot,
     remove_line_by_index,
     update_pings,
@@ -45,20 +45,10 @@ class ExperimentalCommands(interactions.Extension):
     )
     async def toggle_ping(self, ctx: interactions.SlashContext):
         if ctx.author.username == "fluffyscratch":
-            target = str(ctx.author)
-            found = False
+            s_user = dc2scratch(str(ctx.author))
             i = -1
 
-            with open("private/dcusers.txt") as file:
-                for item in file.readlines():
-                    i += 1
-                    if item.strip() == target:
-                        found = True
-                        break
-
-            if found:
-                with open("private/scusers.txt") as file:
-                    s_user = file.readlines()[i]
+            if s_user:
                 target = s_user
                 found = False
                 i = 0

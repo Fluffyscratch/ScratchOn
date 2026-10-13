@@ -8,26 +8,6 @@ from scratchattach import MultiEventHandler
 from pyppeteer import launch
 
 
-async def dc2scratch(username: str) -> str | None:
-    """
-    Converts a Discord username to a Scratch username using stored bindings.
-
-    :param username: Discord username to look up.
-    :return: Corresponding Scratch username, or None if not found.
-    """
-    with (
-        open("private/dcusers.txt") as f1,
-        open("private/scusers.txt") as f2,
-    ):
-        dc_users = [line.strip() for line in f1.readlines()]
-        sc_users = [line.strip() for line in f2.readlines()]
-
-        if username in dc_users:
-            index = dc_users.index(username)
-            return sc_users[index]
-        return None
-
-
 async def replace_last_screenshot(url: str, screenshot_path: str = "screenshot.png"):
     """
     Takes a screenshot of a URL, replacing any existing screenshot.

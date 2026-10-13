@@ -8,6 +8,7 @@ from datetime import datetime
 import scratchattach as scratch
 
 from config import contributors, devs, scratch_orange
+from services import scratch2dc
 from utils import limiter
 
 def user_embed(username: str):
@@ -32,18 +33,16 @@ def user_embed(username: str):
         else:
             rank = "<:ScratchCat:1330547949721223238> Scratcher"
     
-        with open("private/scusers.txt") as f:
-            lines = [line.rstrip("\n") for line in f]
-            if user.name in lines:
-                idx = lines.index(user.name)
-                dc_user = open('private/dcusers.txt').readlines()[idx].rstrip('\n')
-                bound = f"{dc_user} on Discord\n\n"
-            else:
-                bound = ""
+        dc_username = scratch2dc(username)
+
+        if dc_username:
+            bound = f"{dc_username} on Discord\n\n"
+        else:
+            bound = ""
     
-            join_date = datetime.fromisoformat(
-                user.join_date.replace("Z", "+00:00")
-            ).strftime("%B %d, %Y at %H:%M:%S UTC")
+        join_date = datetime.fromisoformat(
+            user.join_date.replace("Z", "+00:00")
+        ).strftime("%B %d, %Y at %H:%M:%S UTC")
 
         ocular_status = user.ocular_status()
 

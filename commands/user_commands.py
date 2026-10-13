@@ -8,7 +8,8 @@ from datetime import datetime
 import scratchattach as scratch
 
 from config import scratch_orange, green, red, contributors, devs, pending_verifiers
-from utils import dc2scratch, user_embed
+from services import bind_user, dc2scratch
+from utils import user_embed
 
 
 class UserCommands(interactions.Extension):
@@ -99,10 +100,7 @@ class UserCommands(interactions.Extension):
         # If the user already started verification, check now
         v = pending_verifiers[user_id]
         if v.check():
-            with open("private/dcusers.txt", "a") as file:
-                file.write(f"{str(ctx.author)}\n")
-            with open("private/scusers.txt", "a") as file:
-                file.write(f"{str(username)}\n")
+            bind_user(ctx.author.username, username)
 
             del pending_verifiers[user_id]
 
