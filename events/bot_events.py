@@ -8,7 +8,7 @@ import logging
 from interactions.api.events import CommandError
 
 import config
-from config import bot, bot_statuses, button_states, bot_ready
+from config import bot_statuses, button_states, bot_ready
 from database import add_server
 from utils import project_embed, studio_embed, user_embed
 

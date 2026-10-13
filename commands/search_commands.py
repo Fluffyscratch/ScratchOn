@@ -6,7 +6,6 @@ import random
 from itertools import islice
 
 import interactions
-import requests
 
 import scratchattach as scratch
 

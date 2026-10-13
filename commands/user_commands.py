@@ -3,11 +3,10 @@ User-related slash commands.
 """
 
 import interactions
-from datetime import datetime
 
 import scratchattach as scratch
 
-from config import scratch_orange, green, red, contributors, devs, pending_verifiers
+from config import scratch_orange, green, red, pending_verifiers
 from services import bind_user, dc2scratch
 from utils import user_embed
 

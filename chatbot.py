@@ -1,4 +1,4 @@
-import scratchattach as sa
+import scratchattach as scratch
 import requests
 import time
 from urllib.parse import quote
@@ -47,7 +47,7 @@ def answer(query: str, username: str):
 
 # Setup scratch connection (temporarily ignored to avoid bugs with Scratch API)
 # with open("private/password.txt") as f:
-#    session = sa.login(username="_Scratch-On_", password=f.readlines()[0])
+#    session = scratch.login(username="_Scratch-On_", password=f.readlines()[0])
 
 # profile = session.connect_linked_user()
 # events = session.connect_message_events()

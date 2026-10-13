@@ -2,7 +2,7 @@
 Blockbit communication portal
 """
 
-import scratchattach as sa
+import scratchattach as scratch
 from scratchattach import Encoding
 
 import websockets
@@ -11,7 +11,7 @@ import json
 
 # Login to Scratch (temporarily ignored to avoid bugs with Scratch API)
 # with open("private/password.txt") as f:
-#    session = sa.login(username="_Scratch-On_", password=f.readlines()[0])
+#    session = scratch.login(username="_Scratch-On_", password=f.readlines()[0])
 
 # Connect to the Blockbit project's cloud variables
 # cloud = session.connect_cloud(669020072)
