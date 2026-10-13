@@ -102,3 +102,9 @@ def limiter(text: str, limit: int) -> str:
         return f"{result}..."
     else:
         return text
+
+def get_id(link : str) -> int:
+    """
+    Extracts the numeric ID from a Scratch link (for example, project links).
+    """
+    return int("".join(filter(str.isdigit, link)))

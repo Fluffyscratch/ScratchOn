@@ -7,7 +7,7 @@ import interactions
 import scratchattach as scratch
 
 from config import scratch_orange
-from utils import studio_embed
+from utils import studio_embed, get_id
 
 
 class StudioForumCommands(interactions.Extension):
@@ -92,7 +92,7 @@ class StudioForumCommands(interactions.Extension):
         required=True,
     )
     async def topic(self, ctx: interactions.SlashContext, topic: str):
-        id = "".join(filter(str.isdigit, topic))
+        id = get_id(topic)
         stopic = scratch.get_topic(id)
         first_post = stopic.first_post()
         msg = interactions.Embed(title=stopic.title, color=scratch_orange)

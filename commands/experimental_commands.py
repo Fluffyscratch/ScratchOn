@@ -14,6 +14,7 @@ from utils import (
     replace_last_screenshot,
     remove_line_by_index,
     update_pings,
+    get_id,
 )
 
 
@@ -32,7 +33,7 @@ class ExperimentalCommands(interactions.Extension):
     )
     async def remixtree(self, ctx: interactions.SlashContext, project: str):
         if ctx.author.username == "fluffyscratch":
-            id = "".join(filter(str.isdigit, project))
+            id = get_id(project)
             # await directly — we're already inside an async function
             await replace_last_screenshot(f"scratch.mit.edu/projects/{id}/remixtree")
             await ctx.send(file=interactions.File(file="screenshot.png"))

@@ -9,7 +9,7 @@ from datetime import datetime
 import scratchattach as scratch
 
 from config import scratch_orange, scratch_gold, green, red
-from utils import project_embed
+from utils import project_embed, get_id
 
 
 class ProjectCommands(interactions.Extension):
@@ -26,7 +26,7 @@ class ProjectCommands(interactions.Extension):
         required=True,
     )
     async def modstatus(self, ctx: interactions.SlashContext, project: str):
-        id = "".join(filter(str.isdigit, project))
+        id = get_id(project)
         project_obj = scratch.get_project(id)
 
         status = project_obj.moderation_status()
@@ -64,7 +64,7 @@ class ProjectCommands(interactions.Extension):
         required=True,
     )
     async def embed(self, ctx: interactions.SlashContext, project: str):
-        id = "".join(filter(str.isdigit, project))
+        id = get_id(project)
         project_obj = scratch.get_project(id)
 
         link = project_obj.embed_url
@@ -100,7 +100,7 @@ class ProjectCommands(interactions.Extension):
         required=True,
     )
     async def trendscore(self, ctx: interactions.SlashContext, project: str):
-        id = "".join(filter(str.isdigit, project))
+        id = get_id(project)
         proj = scratch.get_project(id)
         diff = datetime.now() - datetime.strptime(
             proj.share_date, "%Y-%m-%dT%H:%M:%S.%fZ"
@@ -149,7 +149,7 @@ class ProjectCommands(interactions.Extension):
     ):
         i = 0
         found = False
-        id = "".join(filter(str.isdigit, project))
+        id = get_id(project)
 
         for item in scratch.explore_projects(
             language=language, limit=limit, mode="trending"
@@ -202,7 +202,7 @@ class ProjectCommands(interactions.Extension):
         required=True,
     )
     async def s_download(self, ctx: interactions.SlashContext, project: str):
-        id = "".join(filter(str.isdigit, project))
+        id = get_id(project)
         await ctx.defer()
         proj = scratch.get_project(id)
         proj.download(filename="project.sb3", dir="private")

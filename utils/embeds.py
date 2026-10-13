@@ -9,7 +9,7 @@ import scratchattach as scratch
 
 from config import contributors, devs, scratch_orange
 from services import scratch2dc
-from utils import limiter
+from utils import limiter, get_id
 
 def user_embed(username: str):
     embeded_message = interactions.Embed(title=username)
@@ -93,7 +93,7 @@ def user_embed(username: str):
             )
 
 def project_embed(project : str | int):
-    id = "".join(filter(str.isdigit, project))
+    id = get_id(project)
     project_obj = scratch.get_project(id)
     
     msg = interactions.Embed(title=f"{project_obj.title} :")
@@ -130,7 +130,7 @@ def project_embed(project : str | int):
     return msg
 
 def studio_embed(studio : str | int):
-    id = "".join(filter(str.isdigit, studio))
+    id = get_id(studio)
     studio_obj = scratch.get_studio(id)
     host = studio_obj.host()
     
