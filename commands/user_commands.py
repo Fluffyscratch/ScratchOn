@@ -243,7 +243,6 @@ class UserCommands(interactions.Extension):
     )
     async def activity(self, ctx: interactions.SlashContext, user: str, limit: int):
         await ctx.defer()
-        user = "".join(filter(str.isdigit, user))
 
         msg = interactions.Embed(
             title=f"{user}'s past scratch activity:", color=scratch_orange
